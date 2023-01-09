@@ -1,0 +1,33 @@
+{
+	"name": "papeleria",
+	"version": "0.0.1",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "svelte-kit sync && svelte-package",
+		"prepublishOnly": "echo 'Did you mean to publish `./package/`, instead of `./`?' && exit 1",
+		"lint": "prettier --plugin-search-dir . --check .",
+		"format": "prettier --plugin-search-dir . --write ."
+	},
+	"devDependencies": {
+		"@iconify/svelte": "^3.0.1",
+		"@sveltejs/adapter-auto": "next",
+		"@sveltejs/kit": "next",
+		"@sveltejs/package": "next",
+		"autoprefixer": "^10.4.13",
+		"postcss": "^8.4.19",
+		"prettier": "^2.8.0",
+		"prettier-plugin-svelte": "^2.8.1",
+		"svelte": "^3.54.0",
+		"svelte-preprocess": "^4.10.7",
+		"tailwindcss": "^3.2.4",
+		"tslib": "^2.4.1",
+		"typescript": "^4.9.3",
+		"vite": "^4.0.0"
+	},
+	"type": "module",
+	"dependencies": {
+		"daisyui": "^2.43.0",
+		"mongoose": "^6.8.0",
+		"zod": "^3.20.2"
+	}
+}

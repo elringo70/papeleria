@@ -1,0 +1,224 @@
+<script>
+	import { enhance } from '$app/forms';
+	import { Input, Combobox, Checkbox } from '$lib/components';
+
+	import { address, selectedAddress } from './addressStore';
+
+	export let form;
+
+	let isChecked = false;
+	let comboValue = '';
+	let errors;
+	$: errors;
+
+	let loading = false;
+
+	const submitCustomer = () => {
+		return async ({ result, update }) => {
+			errors = result.data.errors;
+
+			switch (result.type) {
+				case 'success':
+					street = '';
+					number = '';
+					municipality = '';
+					city = '';
+					state = '';
+					place_id = '';
+
+					isChecked = false;
+
+					selectedAddress.set({});
+
+					showModal();
+
+					await update();
+					break;
+				case 'failure':
+					break;
+			}
+		};
+	};
+
+	//Address lookup
+	let timer;
+	let comboLoading = false;
+
+	$: street = $selectedAddress.street ? $selectedAddress.street : form?.data?.street ?? '';
+	$: number = $selectedAddress.number ? $selectedAddress.number : form?.data?.number ?? '';
+	$: municipality = $selectedAddress.municipality
+		? $selectedAddress.municipality
+		: form?.data?.municipality ?? '';
+	$: city = $selectedAddress.city ? $selectedAddress.city : form?.data?.city ?? '';
+	$: state = $selectedAddress.state ? $selectedAddress.state : form?.data?.state ?? '';
+	$: place_id = $selectedAddress.place_id ? $selectedAddress.place_id : form?.data?.place_id ?? '';
+
+	const holdOnInput = (e) => {
+		comboLoading = true;
+
+		clearTimeout(timer);
+
+		const stringInput = e.target.value;
+
+		if (stringInput.length > 3) {
+			timer = setTimeout(async () => {
+				comboLoading = false;
+				await address.fetchAddress(stringInput.trim());
+			}, 1000);
+		} else if (stringInput.length === 0) {
+			comboLoading = false;
+			address.resetAddress();
+		}
+	};
+
+	const resetAddress = () => {
+		isChecked = !isChecked;
+		comboValue = '';
+		address.resetAddress();
+	};
+
+	//Modal
+	let open = true;
+
+	const showModal = () => {
+		open = !open;
+	};
+</script>
+
+<svelte:head>
+	<title>Cliente nuevo</title>
+	<style>
+		body {
+			height: 100vh;
+			background-color: rgb(243 244 246);
+		}
+	</style>
+</svelte:head>
+
+<section class="flex h-[calc(100vh-66px)] justify-center items-center">
+	<div class="container w-9/12 mx-auto bg-white p-5 rounded shadow-lg">
+		<form action="?/post" method="post" use:enhance={submitCustomer} autocomplete="off">
+			<div class="flex flex-row space-x-4">
+				<div class="basis-3/12">
+					<Input
+						label="Teléfono *"
+						name="phone"
+						type="tel"
+						required={true}
+						maxlength={10}
+						pattern={'[0-9]{10}'}
+						value={form?.data?.phone ?? ''}
+						errors={errors?.phone}
+					/>
+				</div>
+				<div class="basis-3/12">
+					<Input
+						label="Nombre *"
+						name="name"
+						required={true}
+						value={form?.data?.name ?? ''}
+						errors={errors?.name}
+					/>
+				</div>
+				<div class="basis-3/12">
+					<Input
+						label="Apellido"
+						name="lastName"
+						value={form?.data?.lastName ?? ''}
+						errors={errors?.lastName}
+					/>
+				</div>
+				<div class="basis-3/12">
+					<Input
+						label="Segundo apellido"
+						name="maternalSurname"
+						value={form?.data?.maternalSurname ?? ''}
+						errors={errors?.maternalSurname}
+					/>
+				</div>
+			</div>
+
+			<div class="flex flex-row mb-3">
+				<div class="basis-4/12">
+					<Checkbox
+						label="¿Dirección?"
+						name="requiredAddress"
+						bind:checked={isChecked}
+						onChange={resetAddress}
+					/>
+				</div>
+			</div>
+
+			<div class="flex flex-row space-x-4">
+				<div class="basis-full">
+					<Combobox
+						name="inputSearch"
+						placeholder={!isChecked ? '' : 'Buscar dirección'}
+						list={$address}
+						disabled={!isChecked}
+						bind:value={comboValue}
+						loading={comboLoading}
+						onClick={address.selectAddress}
+						onKeyup={holdOnInput}
+					/>
+				</div>
+			</div>
+
+			<div class="flex flex-row space-x-4">
+				<div class="basis-4/12">
+					<Input
+						label="Calle"
+						name="street"
+						disabled={true}
+						errors={errors?.street}
+						value={street}
+					/>
+				</div>
+				<div class="basis-3/12">
+					<Input
+						label="Número"
+						name="number"
+						required={true}
+						disabled={!isChecked}
+						errors={errors?.number}
+						value={number}
+					/>
+				</div>
+				<div class="basis-5/12">
+					<Input
+						label="Colonia"
+						name="municipality"
+						disabled={true}
+						errors={errors?.municipality}
+						value={municipality}
+					/>
+				</div>
+			</div>
+
+			<div class="flex flex-row space-x-4">
+				<div class="basis-4/12">
+					<Input label="Ciudad" name="city" disabled={true} errors={errors?.city} value={city} />
+				</div>
+				<div class="basis-4/12">
+					<Input label="Estado" name="state" disabled={true} errors={errors?.state} value={state} />
+				</div>
+			</div>
+
+			<input type="hidden" name="place_id" value={place_id} />
+			<input type="hidden" name="street" value={street} />
+			<input type="hidden" name="municipality" value={municipality} />
+			<input type="hidden" name="city" value={city} />
+			<input type="hidden" name="state" value={state} />
+
+			<div class="flex flex-row">
+				<div class="basis-3/12">
+					<button
+						type="submit"
+						class="bg-indigo-700 hover:bg-indigo-600 text-white px-4 py-2 rounded shadow shadow-indigo-700"
+						disabled={loading}>Guardar</button
+					>
+				</div>
+			</div>
+		</form>
+	</div>
+</section>
