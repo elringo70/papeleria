@@ -28,6 +28,7 @@
 	"dependencies": {
 		"daisyui": "^2.43.0",
 		"mongoose": "^6.8.0",
+		"sweetalert2": "^11.7.0",
 		"zod": "^3.20.2"
 	}
 }

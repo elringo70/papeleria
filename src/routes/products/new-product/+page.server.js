@@ -67,7 +67,7 @@ export const actions = {
 				return fail(400, { message: 'El código ya existe' });
 			}
 
-			const product = new Product(formData);
+			const product = new Product(body);
 			await product.save();
 
 			return { success: true };

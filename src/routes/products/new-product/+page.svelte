@@ -1,7 +1,9 @@
 <script>
 	import { enhance } from '$app/forms';
-	import Icon from '@iconify/svelte';
-	import { Input, Select, Checkbox, NumberField, Modal } from '$lib/components';
+
+	import Swal from 'sweetalert2';
+
+	import { Input, Select, Checkbox, NumberField } from '$lib/components';
 
 	export let form;
 	export let data;
@@ -15,7 +17,7 @@
 
 		return async ({ result }) => {
 			errors = result.data.errors;
-
+			console.log(result);
 			switch (result.type) {
 				case 'success':
 					const body = Object.fromEntries(data);
@@ -38,10 +40,19 @@
 						stockMinimum = '';
 					}
 
-					showModal();
+					Swal.fire({
+						icon: 'success',
+						title: 'Guardado',
+						text: 'Producto guardado con éxito'
+					});
 
 					break;
 				case 'failure':
+					Swal.fire({
+						icon: 'error',
+						title: 'Error',
+						text: result.data.message
+					});
 					break;
 				case 'error':
 					break;
@@ -63,12 +74,6 @@
 
 		stock = '';
 		stockMinimum = '';
-	};
-
-	//Modal
-	let open = false;
-	const closeModal = () => {
-		open = !open;
 	};
 </script>
 
@@ -139,30 +144,28 @@
 
 			<div class="flex flow-row space-x-4">
 				<div class="basis-4/12">
-					<Input
+					<NumberField
 						label="Costo"
 						name="cost"
-						type="number"
-						value={form?.data?.cost ?? ''}
+						value={form?.data?.cost}
 						errors={errors?.cost}
+						required={true}
 					/>
 				</div>
 				<div class="basis-4/12">
-					<Input
+					<NumberField
 						label="Precio"
 						name="price"
-						type="number"
-						required={true}
-						value={form?.data?.price ?? ''}
+						value={form?.data?.price}
 						errors={errors?.price}
+						required={true}
 					/>
 				</div>
 				<div class="basis-4/12">
-					<Input
+					<NumberField
 						label="Precio de mayoreo"
 						name="wholesale"
-						type="number"
-						value={form?.data?.wholesale ?? ''}
+						value={form?.data?.wholesale}
 						errors={errors?.wholesale}
 					/>
 				</div>
@@ -174,7 +177,6 @@
 						label="Cantidad"
 						name="stock"
 						bind:value={stock}
-						step="0.01"
 						errors={errors?.stock}
 						disabled={!isChecked}
 						required={true}
@@ -185,7 +187,6 @@
 						label="Cantidad mínima"
 						name="stockMinimum"
 						bind:value={stockMinimum}
-						step="0.01"
 						errors={errors?.stockMinimum}
 						disabled={!isChecked}
 						required={true}
@@ -213,33 +214,3 @@
 		</form>
 	</div>
 </section>
-
-{#if open}
-	<Modal {closeModal}>
-		<div slot="title">
-			<div class="flex m-5">
-				<div class="text-3xl p-2 bg-red-200 rounded-full text-red-600">
-					<Icon icon="mdi:warning-outline" />
-				</div>
-				<div class="flex flex-col ml-5">
-					<div class="text-gray-600 text-lg font-semibold">Guardado</div>
-					<div>El elemento ha sido guardado con éxito</div>
-				</div>
-			</div>
-		</div>
-
-		<div slot="body">t</div>
-		<div slot="footer" class="bg-gray-50">
-			<div class="flex m-4 justify-end">
-				<button class="bg-white hover:bg-gray-100 text-gray-600 px-4 py-2 rounded border"
-					>Cancelar</button
-				>
-				<button
-					type="submit"
-					class="bg-indigo-700 hover:bg-indigo-800 text-white px-4 py-2 rounded ml-3"
-					>Entendido</button
-				>
-			</div>
-		</div>
-	</Modal>
-{/if}

@@ -1,5 +1,8 @@
 <script>
 	import { enhance } from '$app/forms';
+
+	import Swal from 'sweetalert2';
+
 	import { Input, Combobox, Checkbox } from '$lib/components';
 
 	import { address, selectedAddress } from './addressStore';
@@ -30,11 +33,20 @@
 
 					selectedAddress.set({});
 
-					showModal();
+					Swal.fire({
+						icon: 'success',
+						title: 'Guardado',
+						text: 'Cliente guardado con éxito'
+					});
 
 					await update();
 					break;
 				case 'failure':
+					Swal.fire({
+						icon: 'error',
+						title: 'Error',
+						text: result.data.message
+					});
 					break;
 			}
 		};
@@ -75,13 +87,6 @@
 		isChecked = !isChecked;
 		comboValue = '';
 		address.resetAddress();
-	};
-
-	//Modal
-	let open = true;
-
-	const showModal = () => {
-		open = !open;
 	};
 </script>
 

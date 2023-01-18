@@ -1,7 +1,55 @@
 <script>
+	import { invalidateAll } from '$app/navigation';
+	import { applyAction, deserialize } from '$app/forms';
+
+	import Swal from 'sweetalert2';
+
 	import Icon from '@iconify/svelte';
 
 	export let data;
+
+	async function deleteProduct(event) {
+		const confirmation = await Swal.fire({
+			icon: 'warning',
+			title: '¿Desea eliminar el producto?',
+			showCancelButton: true,
+			cancelButtonText: 'Cancelar',
+			cancelButtonColor: '#E5E7EB',
+			confirmButtonText: 'Eliminar',
+			confirmButtonColor: '#4F46E5'
+		});
+
+		if (confirmation.isConfirmed) {
+			const data = new FormData(this);
+
+			const response = await fetch(this.action, {
+				method: 'POST',
+				body: data
+			});
+
+			const result = deserialize(await response.text());
+
+			switch (result.type) {
+				case 'success':
+					Swal.fire({
+						icon: 'success',
+						title: 'Eliminado'
+					});
+
+					await invalidateAll();
+
+					break;
+				case 'failure':
+					Swal.fire({
+						icon: 'error',
+						title: 'Error',
+						text: result.data.message
+					});
+					break;
+			}
+			applyAction(result);
+		}
+	}
 </script>
 
 <div class="overflow-x-auto">
@@ -23,12 +71,7 @@
 					</thead>
 					<tbody class="text-gray-600 text-sm font-light">
 						{#each data.products as product}
-							<tr
-								class="border-b border-gray-200 bg-gray-50 hover:bg-gray-100"
-								on:click={() => {
-									console.log('click');
-								}}
-							>
+							<tr class="border-b border-gray-200 bg-gray-50 hover:bg-gray-100">
 								<td class="py-2 px-5 text-left">
 									<div class="flex items-center">
 										<span class="font-medium">{product.product}</span>
@@ -51,9 +94,15 @@
 										<div class="mr-2 hover:text-indigo-700 cursor-pointer text-base">
 											<Icon icon="mdi:pencil" />
 										</div>
-										<div class="mr-2 hover:text-indigo-700 cursor-pointer text-base">
-											<Icon icon="uil:trash-alt" />
-										</div>
+
+										<form action="?/delete" method="POST" on:submit|preventDefault={deleteProduct}>
+											<input type="hidden" name="id" value={product._id} />
+											<button>
+												<div class="mr-2 hover:text-red-700 cursor-pointer text-base">
+													<Icon icon="uil:trash-alt" />
+												</div>
+											</button>
+										</form>
 									</div>
 								</td>
 							</tr>

@@ -4,7 +4,6 @@
 	export let placeholder = '';
 	export let min = 0;
 	export let max = 999999;
-	export let step = 1;
 	export let disabled = false;
 	export let required = false;
 
@@ -13,16 +12,18 @@
 </script>
 
 <div class="form-control w-full mb-3">
-	<label class="block text-gray-700 text-sm font-bold mb-2" for={name}>
-		{label}
-	</label>
+	{#if label}
+		<label class="block text-gray-600 font-bold mb-2 uppercase text-sm leading-normal" for={name}>
+			{label}
+		</label>
+	{/if}
 	<input
 		{name}
 		id={name}
 		type="number"
 		{min}
 		{max}
-		{step}
+		step="any"
 		{placeholder}
 		class={`border border-gray-300 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:border-gray-500
 			${disabled ? 'disabled:bg-gray-200 cursor-no-drop' : ''}
