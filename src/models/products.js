@@ -25,8 +25,7 @@ const productSchema = new Schema(
 			uppercase: true
 		},
 		category: {
-			type: Schema.Types.ObjectId,
-			ref: 'Category',
+			type: String,
 			required: true
 		},
 		cost: {

@@ -1,13 +1,13 @@
 import { error, fail } from '@sveltejs/kit';
-import { Product } from '$models/products';
+import { User } from '$models/users';
 import { dbConnect, dbDisconnect } from '$utils/db';
-import { validateData } from '$utils/utils';
 
 export const load = async () => {
 	try {
 		await dbConnect();
-		const products = await Product.find().populate('category');
-		return { products: JSON.parse(JSON.stringify(products)) };
+		const customers = await User.find({});
+		console.log(customers);
+		return { customers: JSON.parse(JSON.stringify(customers)) };
 	} catch (err) {
 		console.log('Error: ', err);
 		throw error(500, err);
@@ -20,15 +20,16 @@ export const actions = {
 	delete: async ({ request }) => {
 		try {
 			await dbConnect();
-
 			const { id } = Object.fromEntries(await request.formData());
 
-			const findProduct = await Product.findOneAndRemove({ _id: id });
-			if (findProduct) {
-				return { success: true };
-			} else {
-				return fail(400, { message: 'Producto no encontrado' });
+			const findCustomer = await User.findById(id).exec();
+			if (!findCustomer) {
+				return fail(404, { message: 'El cliente no existe' });
 			}
+
+			await User.findByIdAndRemove(id);
+
+			return { success: true };
 		} catch (err) {
 			console.log('Error: ', err);
 			throw error(500, err);

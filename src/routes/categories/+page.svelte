@@ -1,8 +1,12 @@
 <script>
 	import { enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
+	import { applyAction, deserialize } from '$app/forms';
 	import { fade } from 'svelte/transition';
 
-	import { Alert, Modal, Input, Button } from '$lib/components';
+	import Swal from 'sweetalert2';
+
+	import { Alert, Input } from '$lib/components';
 
 	import Icon from '@iconify/svelte';
 
@@ -21,7 +25,7 @@
 		message: ''
 	};
 
-	const submitCategory = ({ form, data, action, cancel }) => {
+	const submitCategory = () => {
 		loading = true;
 		return async ({ result, update }) => {
 			errors = result.data.errors;
@@ -34,7 +38,7 @@
 
 					setTimeout(() => {
 						confirm = false;
-					}, 2000);
+					}, 1500);
 
 					await update();
 					break;
@@ -55,32 +59,54 @@
 		};
 	};
 
-	const deleteCategory = ({ form, data, action, cancel }) => {
-		modalObject.open = false;
-		return async ({ result, update }) => {
-			switch (result) {
+	async function deleteCategory() {
+		const confirmationModal = await Swal.fire({
+			icon: 'warning',
+			title: '¿Desea eliminar el producto?',
+			showCancelButton: true,
+			cancelButtonText: 'Cancelar',
+			confirmButtonText: 'Eliminar'
+		});
+
+		if (confirmationModal.isConfirmed) {
+			const data = new FormData(this);
+
+			const response = await fetch(this.action, {
+				method: 'POST',
+				body: data
+			});
+
+			const result = deserialize(await response.text());
+
+			switch (result.type) {
 				case 'success':
+					Swal.fire({
+						icon: 'success',
+						title: 'Eliminado'
+					});
+
+					await invalidateAll();
+
 					break;
 				case 'failure':
+					Swal.fire({
+						icon: 'error',
+						title: 'Error',
+						text: result.data.message
+					});
 					break;
 			}
-			await update();
-		};
-	};
+			applyAction(result);
+		}
+	}
 
-	const modalObject = {
-		open: false,
-		title: '',
-		content: '',
-		id: ''
-	};
-
-	const showModal = (id) => {
-		modalObject.open = !modalObject.open;
-		modalObject.title = '¿Desea eliminar la categoría?';
-		modalObject.content = 'Una vez eliminado, los cambios no se pueden revertir.';
-		modalObject.id = id;
-	};
+	if (data.categories.length === 0) {
+		Swal.fire({
+			icon: 'warning',
+			title: 'Sin categorias',
+			text: 'Debe ingresar al menos una categoría'
+		});
+	}
 </script>
 
 <svelte:head>
@@ -137,11 +163,13 @@
 									>
 								</form>
 
-								<button
-									on:click={showModal(category._id)}
-									class="bg-red-500 hover:bg-red-600 text-white font-bold p-2.5 text-xl rounded-r"
-									><Icon icon="material-symbols:cancel" /></button
-								>
+								<form action="?/delete" method="POST" on:submit|preventDefault={deleteCategory}>
+									<input type="hidden" name="id" value={category._id} />
+									<button
+										class="bg-red-500 hover:bg-red-600 text-white font-bold p-2.5 text-xl rounded-r"
+										><Icon icon="material-symbols:cancel" /></button
+									>
+								</form>
 							</div>
 						</li>
 					{/each}
@@ -150,21 +178,3 @@
 		</div>
 	</div>
 </div>
-
-<Modal title={modalObject.title} content={modalObject.content} open={modalObject.open}>
-	<div slot="action" class="flex flex-row space-x-3 justify-end">
-		<button
-			on:click={showModal}
-			class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded shadow shadow-red-700"
-			>Cancelar</button
-		>
-		<form action="?/delete" method="POST" use:enhance={deleteCategory}>
-			<input type="hidden" name="id" value={modalObject.id} />
-			<button
-				type="submit"
-				class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow shadow-blue-700"
-				>Eliminar</button
-			>
-		</form>
-	</div>
-</Modal>

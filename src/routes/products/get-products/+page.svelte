@@ -2,24 +2,23 @@
 	import { invalidateAll } from '$app/navigation';
 	import { applyAction, deserialize } from '$app/forms';
 
-	import Swal from 'sweetalert2';
+	import { firstUppercase } from '$utils/stringUtils';
 
+	import Swal from 'sweetalert2';
 	import Icon from '@iconify/svelte';
 
 	export let data;
 
-	async function deleteProduct(event) {
-		const confirmation = await Swal.fire({
+	async function deleteProduct() {
+		const confirmationModal = await Swal.fire({
 			icon: 'warning',
 			title: '¿Desea eliminar el producto?',
 			showCancelButton: true,
 			cancelButtonText: 'Cancelar',
-			cancelButtonColor: '#E5E7EB',
-			confirmButtonText: 'Eliminar',
-			confirmButtonColor: '#4F46E5'
+			confirmButtonText: 'Eliminar'
 		});
 
-		if (confirmation.isConfirmed) {
+		if (confirmationModal.isConfirmed) {
 			const data = new FormData(this);
 
 			const response = await fetch(this.action, {
@@ -53,7 +52,7 @@
 </script>
 
 <div class="overflow-x-auto">
-	<div class="min-w-screen min-h-screen bg-gray-100 flex justify-center font-sans overflow-hidden ">
+	<div class="min-w-screen min-h-screen bg-gray-100 flex justify-center font-sans overflow-hidden">
 		<div class="w-full lg:w-5/6">
 			<div class="bg-white shadow-lg rounded my-6">
 				<table class="min-w-max w-full table-auto">
@@ -74,20 +73,22 @@
 							<tr class="border-b border-gray-200 bg-gray-50 hover:bg-gray-100">
 								<td class="py-2 px-5 text-left">
 									<div class="flex items-center">
-										<span class="font-medium">{product.product}</span>
+										<span class="font-medium">{firstUppercase(product.product)}</span>
 									</div>
 								</td>
 								<td class="py-2 px-5 text-left">
 									<div class="flex items-center">
-										<span>{product.brand}</span>
+										<span>{firstUppercase(product.brand)}</span>
 									</div>
 								</td>
 								<td class="py-2 px-5 text-center">
-									<div class="flex items-center justify-center">{product.category.name}</div>
+									<div class="flex items-center justify-center">
+										{firstUppercase(product.category)}
+									</div>
 								</td>
 								<td class="py-2 px-5 text-center">$ {product.cost}</td>
 								<td class="py-2 px-5 text-center">$ {product.price}</td>
-								<td class="py-2 px-5 text-center">{product.wholesale ?? 'Sin mayoreo'}</td>
+								<td class="py-2 px-5 text-center">{product.wholesale ?? 'Sin inventario'}</td>
 								<td class="py-2 px-5 text-center">{product.stock?.stock ?? 'Sin inventario'}</td>
 								<td class="py-2 px-5 text-center">
 									<div class="flex item-center justify-center">

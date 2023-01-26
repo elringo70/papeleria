@@ -1,7 +1,7 @@
 <script>
 	import { enhance } from '$app/forms';
 
-	import Swal from 'sweetalert2';
+	import { confirmModal } from '$utils/modalButton';
 
 	import { Input, Select, Checkbox, NumberField } from '$lib/components';
 
@@ -17,7 +17,6 @@
 
 		return async ({ result }) => {
 			errors = result.data.errors;
-			console.log(result);
 			switch (result.type) {
 				case 'success':
 					const body = Object.fromEntries(data);
@@ -40,7 +39,7 @@
 						stockMinimum = '';
 					}
 
-					Swal.fire({
+					confirmModal.fire({
 						icon: 'success',
 						title: 'Guardado',
 						text: 'Producto guardado con éxito'
@@ -48,7 +47,7 @@
 
 					break;
 				case 'failure':
-					Swal.fire({
+					confirmModal.fire({
 						icon: 'error',
 						title: 'Error',
 						text: result.data.message
@@ -82,7 +81,7 @@
 	<style>
 		body {
 			height: 100vh;
-			background-color: rgb(249 250 251);
+			background-color: rgb(243 244 246);
 		}
 	</style>
 </svelte:head>

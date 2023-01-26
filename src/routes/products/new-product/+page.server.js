@@ -6,21 +6,22 @@ import { validateData } from '$utils/utils';
 import { productSchema } from './productValidationSchema';
 
 export const load = async () => {
+	let categories;
 	try {
 		await dbConnect();
-		const categories = await Category.find().sort({ name: 'asc' });
-
-		if (categories.length === 0) {
-			throw redirect(303, '/categories');
-		}
-
-		return { categories: JSON.parse(JSON.stringify(categories)) };
+		categories = await Category.find().sort({ name: 'asc' });
 	} catch (err) {
 		console.log('Error: ', err);
 		throw error(500, err);
 	} finally {
 		await dbDisconnect();
 	}
+
+	if (categories.length === 0) {
+		throw redirect(303, '/categories');
+	}
+
+	return { categories: JSON.parse(JSON.stringify(categories)) };
 };
 
 export const actions = {
@@ -31,12 +32,18 @@ export const actions = {
 			const form = await request.formData();
 			const { formData, errors } = await validateData(form, productSchema);
 
+			const findCategory = await Category.findById(formData.category);
+			console.log(findCategory);
+			if (!findCategory) {
+				return fail(400, { message: 'La categoría no existe' });
+			}
+
 			const body = {
 				_id: form.get('_id'),
 				product: form.get('product'),
 				...(form.get('model') && { model: form.get('model') }),
 				...(form.get('brand') && { brand: form.get('brand') }),
-				category: form.get('category'),
+				category: findCategory.name,
 				cost: form.get('cost'),
 				price: form.get('price'),
 				...(form.get('wholesale') && { wholesale: form.get('wholesale') }),
@@ -55,11 +62,6 @@ export const actions = {
 					data: formData,
 					errors: errors.fieldErrors
 				});
-			}
-
-			const findCategory = await Category.findById(body.category);
-			if (!findCategory) {
-				return fail(400, { message: 'La categoría no existe' });
 			}
 
 			const findProduct = await Product.findById(body._id);

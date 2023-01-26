@@ -1,12 +1,71 @@
 <script>
+	import { invalidateAll } from '$app/navigation';
+	import { applyAction, deserialize } from '$app/forms';
 	import { Input, Pill } from '$lib/components';
 
+	import Icon from '@iconify/svelte';
+	import Swal from 'sweetalert2';
+
+	import { firstUppercase, phoneNumberFormat } from '$utils/stringUtils';
+
 	export let data;
-	export let form;
-	console.log(data);
 
 	let errors;
 	$: errors;
+
+	//Search find customer function
+	let customers;
+	$: customers = data.customers;
+	const filteredCustomers = (e) => {
+		const searchValue = e.target.value;
+
+		customers = data.customers.filter(
+			(customer) =>
+				customer.phone.includes(searchValue) ||
+				customer.name.toLowerCase().includes(searchValue.toLowerCase())
+		);
+	};
+
+	async function deleteCustomer() {
+		const modalConfirmation = await Swal.fire({
+			icon: 'warning',
+			title: '¿Desea eliminar al cliente?',
+			showCancelButton: true,
+			cancelButtonText: 'Cancelar',
+			confirmButtonText: 'Eliminar'
+		});
+
+		if (modalConfirmation.isConfirmed) {
+			const data = new FormData(this);
+
+			const response = await fetch(this.action, {
+				method: 'POST',
+				body: data
+			});
+
+			const result = deserialize(await response.text());
+
+			switch (result.type) {
+				case 'success':
+					Swal.fire({
+						icon: 'success',
+						title: 'Eliminado'
+					});
+
+					await invalidateAll();
+
+					break;
+				case 'failure':
+					Swal.fire({
+						icon: 'error',
+						title: 'Error',
+						text: result.data.message
+					});
+					break;
+			}
+			applyAction(result);
+		}
+	}
 </script>
 
 <svelte:head>
@@ -21,7 +80,12 @@
 					Nombre del cliente
 				</div>
 				<div class="mt-2 p-5">
-					<Input placeholder="Buscar cliente" name="name" errors={errors?.name} />
+					<Input
+						placeholder="Buscar cliente"
+						name="name"
+						errors={errors?.name}
+						onInput={filteredCustomers}
+					/>
 				</div>
 			</div>
 
@@ -37,79 +101,61 @@
 						</tr>
 					</thead>
 					<tbody class="text-gray-600 text-sm font-light">
-						<tr class="border-b border-gray-200 bg-gray-50 hover:bg-gray-100">
-							<td class="py-3 px-6 text-left">
-								<div class="flex items-center">
-									<span class="font-medium">811 373-0969</span>
-								</div>
-							</td>
-							<td class="py-3 px-6 text-left">
-								<div class="flex items-center">
-									<span>Anita Rodriquez</span>
-								</div>
-							</td>
-							<td class="py-3 px-6 text-center">
-								<div class="flex items-center justify-center">Sin dirección</div>
-							</td>
-							<td class="py-3 px-6 text-center">
-								<Pill pill="active" />
-							</td>
-							<td class="py-3 px-6 text-center">
-								<div class="flex item-center justify-center">
-									<div class="w-4 mr-2 transform hover:text-purple-500 hover:scale-110">
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											fill="none"
-											viewBox="0 0 24 24"
-											stroke="currentColor"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-											/>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-											/>
-										</svg>
+						{#each customers as customer}
+							<tr class="border-b border-gray-200 bg-gray-50 hover:bg-gray-100">
+								<td class="py-3 px-6 text-left">
+									<div class="flex items-center">
+										<span class="font-medium">{phoneNumberFormat(customer.phone)}</span>
 									</div>
-									<div class="w-4 mr-2 transform hover:text-purple-500 hover:scale-110">
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											fill="none"
-											viewBox="0 0 24 24"
-											stroke="currentColor"
+								</td>
+								<td class="py-3 px-6 text-left">
+									<div class="flex items-center">
+										<span
+											>{firstUppercase(customer.name)}
+											{customer.lastName ? firstUppercase(customer.lastName) : ''}</span
 										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-											/>
-										</svg>
 									</div>
-									<div class="w-4 mr-2 transform hover:text-purple-500 hover:scale-110">
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											fill="none"
-											viewBox="0 0 24 24"
-											stroke="currentColor"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-											/>
-										</svg>
+								</td>
+								<td class="py-3 px-6 text-center">
+									<div class="flex items-center justify-center">
+										{#if customer.address}
+											{customer.address?.street} {customer.address?.number}
+										{:else}
+											<div class="italic text-gray-400">...sin dirección</div>
+										{/if}
 									</div>
-								</div>
-							</td>
-						</tr>
+								</td>
+								<td class="py-3 px-6 text-center">
+									<Pill pill="active" />
+								</td>
+								<td class="py-3 px-6 text-center flex justify-center gap-x-2 items-center">
+									<form action="" method="post">
+										<input type="hidden" name="id" value={customer._id} />
+										<button>
+											<div class="hover:text-purple-500">
+												<Icon icon="ic:outline-remove-red-eye" />
+											</div>
+										</button>
+									</form>
+									<form action="" method="post">
+										<input type="hidden" name="id" value={customer._id} />
+										<button>
+											<div class="hover:text-purple-500">
+												<Icon icon="mdi:pencil" />
+											</div>
+										</button>
+									</form>
+									<form action="?/delete" method="POST" on:submit|preventDefault={deleteCustomer}>
+										<input type="hidden" name="id" value={customer._id} />
+										<button>
+											<div class="hover:text-red-700 cursor-pointer text-base">
+												<Icon icon="uil:trash-alt" />
+											</div>
+										</button>
+									</form>
+								</td>
+							</tr>
+						{/each}
 					</tbody>
 				</table>
 			</div>
