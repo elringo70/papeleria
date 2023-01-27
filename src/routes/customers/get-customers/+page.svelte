@@ -73,10 +73,10 @@
 </svelte:head>
 
 <div class="overflow-x-auto">
-	<div class="min-w-screen min-h-screen bg-gray-100 flex justify-center font-sans overflow-hidden">
+	<div class="min-w-screen flex min-h-screen justify-center overflow-hidden bg-gray-100 font-sans">
 		<div class="w-full lg:w-5/6">
 			<div class="mt-5 border shadow-lg">
-				<div class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal py-3 px-6 font-bold">
+				<div class="bg-gray-200 py-3 px-6 text-sm font-bold uppercase leading-normal text-gray-600">
 					Nombre del cliente
 				</div>
 				<div class="mt-2 p-5">
@@ -89,10 +89,10 @@
 				</div>
 			</div>
 
-			<div class="bg-white shadow-lg rounded my-6">
-				<table class="min-w-max w-full table-auto">
+			<div class="my-6 rounded bg-white shadow-lg">
+				<table class="w-full min-w-max table-auto">
 					<thead>
-						<tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+						<tr class="bg-gray-200 text-sm uppercase leading-normal text-gray-600">
 							<th class="py-3 px-6 text-left">Número</th>
 							<th class="py-3 px-6 text-left">Cliente</th>
 							<th class="py-3 px-6 text-center">Dirección</th>
@@ -100,7 +100,7 @@
 							<th class="py-3 px-6 text-center">Acciones</th>
 						</tr>
 					</thead>
-					<tbody class="text-gray-600 text-sm font-light">
+					<tbody class="text-sm font-light text-gray-600">
 						{#each customers as customer}
 							<tr class="border-b border-gray-200 bg-gray-50 hover:bg-gray-100">
 								<td class="py-3 px-6 text-left">
@@ -128,7 +128,7 @@
 								<td class="py-3 px-6 text-center">
 									<Pill pill="active" />
 								</td>
-								<td class="py-3 px-6 text-center flex justify-center gap-x-2 items-center">
+								<td class="flex items-center justify-center gap-x-2 py-3 px-6 text-center">
 									<form action="" method="post">
 										<input type="hidden" name="id" value={customer._id} />
 										<button>
@@ -148,7 +148,7 @@
 									<form action="?/delete" method="POST" on:submit|preventDefault={deleteCustomer}>
 										<input type="hidden" name="id" value={customer._id} />
 										<button>
-											<div class="hover:text-red-700 cursor-pointer text-base">
+											<div class="cursor-pointer text-base hover:text-red-700">
 												<Icon icon="uil:trash-alt" />
 											</div>
 										</button>

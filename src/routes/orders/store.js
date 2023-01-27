@@ -22,8 +22,16 @@ const initialValues = [
 	}
 ];
 
+/* 
+	Selected ticket to be able to get information from each ticket and 
+	displayed Ticket Detail and Ticket Resume
+*/
 export const selectedTicket = writable(initialValues[0]);
 
+/*
+	Ticket storage is necessary to get information from local storage
+	in case on page been refreshed
+*/
 const ticketStorage = writable(
 	(browser && JSON.parse(localStorage.getItem('tickets'))) || initialValues
 );
@@ -32,7 +40,8 @@ ticketStorage.subscribe(
 	(values) => browser && localStorage.setItem('tickets', JSON.stringify(values))
 );
 
-function ticketsStore() {
+/* Tickets store and functions */
+function ticketStore() {
 	const { subscribe, set, update } = writable(get(ticketStorage));
 
 	const onLoad = () => {
@@ -91,27 +100,43 @@ function ticketsStore() {
 		}
 	};
 
+	const addTicket = () => {
+		update((tickets) => {
+			tickets = [
+				...tickets,
+				{
+					customer: {},
+					products: [],
+					total: 0,
+					selectedTicket: false,
+					status: 'open',
+					devivered: 'pending'
+				}
+			];
+
+			ticketStorage.set(tickets);
+
+			return [...tickets];
+		});
+	};
+
+	const removeTicket = (ticketIndex) => {
+		update((tickets) => {
+			if (tickets.length > 1) {
+				tickets = tickets.filter((ticket, index) => index !== ticketIndex);
+			}
+			selectedTicket.set(tickets[0]);
+			ticketStorage.set(tickets);
+			return [...tickets];
+		});
+	};
+
 	onLoad();
 
 	return {
 		subscribe,
-		addTicket: () => {
-			update((tickets) => {
-				tickets = [
-					...tickets,
-					{
-						customer: {},
-						products: [],
-						total: 0,
-						selectedTicket: false,
-						status: 'OPEN',
-						devivered: 'PENDING'
-					}
-				];
-
-				return [...tickets];
-			});
-		},
+		addTicket,
+		removeTicket,
 		addProductTicket: async (product) => {
 			const products = await findProduct(product);
 			const { type, data } = products;
@@ -190,6 +215,7 @@ function ticketsStore() {
 
 				selectedTicket.set(tickets[ticket]);
 				ticketStorage.set(tickets);
+
 				return [...tickets];
 			});
 		},
@@ -235,15 +261,6 @@ function ticketsStore() {
 		},
 		reset: () => {
 			set(initialValues);
-		},
-		removeTicket: (ticketIndex) => {
-			update((tickets) => {
-				if (tickets.length > 1) {
-					tickets = tickets.filter((ticket, index) => index !== ticketIndex);
-				}
-				ticketStorage.set(tickets);
-				return [...tickets];
-			});
 		},
 		removeProduct: (productId) => {
 			update((tickets) => {
@@ -309,4 +326,4 @@ function ticketsStore() {
 	};
 }
 
-export const tickets = ticketsStore();
+export const tickets = ticketStore();
