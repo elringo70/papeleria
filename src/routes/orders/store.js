@@ -1,5 +1,4 @@
 import { browser } from '$app/environment';
-import { invalid } from '@sveltejs/kit';
 import { get, writable } from 'svelte/store';
 
 const initialValues = [
@@ -123,10 +122,99 @@ function ticketStore() {
 	const removeTicket = (ticketIndex) => {
 		update((tickets) => {
 			if (tickets.length > 1) {
-				tickets = tickets.filter((ticket, index) => index !== ticketIndex);
+				tickets = tickets.filter((ticket, index) => index !== parseInt(ticketIndex, 10));
 			}
 			selectedTicket.set(tickets[0]);
+
+			for (let i = 0; i < tickets.length; i++) {
+				tickets[i].selectedTicket = false;
+			}
+
+			ticketStorage.set((tickets[0].selectedTicket = true));
+			return [...tickets];
+		});
+	};
+
+	const addProductToTicket = async (product) => {
+		update((tickets) => {
+			const ticketPosition = tickets.findIndex((ticket) => ticket.selectedTicket === true);
+
+			for (let i = 0; i < tickets[ticketPosition].products.length; i++) {
+				if (tickets[ticketPosition].products[i].product._id === product._id) {
+					tickets[ticketPosition].products[i].quantity++;
+					tickets[ticketPosition].total = totalCalculation(tickets, ticketPosition);
+					selectedTicket.set(tickets[ticketPosition]);
+					ticketStorage.set(tickets);
+
+					return [...tickets];
+				}
+			}
+
+			tickets[ticketPosition].products.push({ product: product, quantity: 1 });
+			tickets[ticketPosition].total = totalCalculation(tickets, ticketPosition);
+			selectedTicket.set(tickets[ticketPosition]);
 			ticketStorage.set(tickets);
+
+			return [...tickets];
+		});
+	};
+
+	const removeProduct = (productId) => {
+		update((tickets) => {
+			const ticketPosition = tickets.findIndex((ticket) => ticket.selectedTicket === true);
+
+			const products = tickets[ticketPosition].products;
+
+			const index = products.findIndex((product) => product.product._id === productId);
+			products.splice(index, 1);
+
+			tickets[ticketPosition].products = [];
+			tickets[ticketPosition].products = products;
+
+			tickets[ticketPosition].total = totalCalculation(tickets, ticketPosition);
+
+			selectedTicket.set(tickets[ticketPosition]);
+			ticketStorage.set(tickets);
+			return [...tickets];
+		});
+	};
+
+	const addProduct = (productId) => {
+		update((tickets) => {
+			const ticketPosition = tickets.findIndex((ticket) => ticket.selectedTicket === true);
+
+			for (let i = 0; i < tickets[ticketPosition].products.length; i++) {
+				if (tickets[ticketPosition].products[i].product._id === productId) {
+					tickets[ticketPosition].products[i].quantity =
+						tickets[ticketPosition].products[i].quantity + 1;
+
+					tickets[ticketPosition].total = totalCalculation(tickets, ticketPosition);
+					selectedTicket.set(tickets[ticketPosition]);
+					ticketStorage.set(tickets);
+				}
+			}
+
+			return [...tickets];
+		});
+	};
+
+	const deductProduct = (productId) => {
+		update((tickets) => {
+			const ticketPosition = tickets.findIndex((ticket) => ticket.selectedTicket === true);
+
+			for (let i = 0; i < tickets[ticketPosition].products.length; i++) {
+				if (tickets[ticketPosition].products[i].product._id === productId) {
+					if (tickets[ticketPosition].products[i].quantity > 1) {
+						tickets[ticketPosition].products[i].quantity =
+							tickets[ticketPosition].products[i].quantity - 1;
+
+						tickets[ticketPosition].total = totalCalculation(tickets, ticketPosition);
+						selectedTicket.set(tickets[ticketPosition]);
+						ticketStorage.set(tickets);
+					}
+				}
+			}
+
 			return [...tickets];
 		});
 	};
@@ -137,74 +225,10 @@ function ticketStore() {
 		subscribe,
 		addTicket,
 		removeTicket,
-		addProductTicket: async (product) => {
-			const products = await findProduct(product);
-			const { type, data } = products;
-
-			if (type === 'success') {
-				update((tickets) => {
-					const ticketPosition = tickets.findIndex((ticket) => ticket.selectedTicket === true);
-
-					for (let i = 0; i < tickets[ticketPosition].products.length; i++) {
-						if (tickets[ticketPosition].products[i].product._id === data.product._id) {
-							tickets[ticketPosition].products[i].quantity++;
-							tickets[ticketPosition].total = totalCalculation(tickets, ticketPosition);
-							selectedTicket.set(tickets[ticketPosition]);
-							ticketStorage.set(tickets);
-
-							return [...tickets];
-						}
-					}
-
-					tickets[ticketPosition].products.push({ product: data.product, quantity: 1 });
-					tickets[ticketPosition].total = totalCalculation(tickets, ticketPosition);
-					selectedTicket.set(tickets[ticketPosition]);
-					ticketStorage.set(tickets);
-
-					return [...tickets];
-				});
-			} else {
-				return invalid(404, data);
-			}
-		},
-		addProduct: (productId) => {
-			update((tickets) => {
-				const ticketPosition = tickets.findIndex((ticket) => ticket.selectedTicket === true);
-
-				for (let i = 0; i < tickets[ticketPosition].products.length; i++) {
-					if (tickets[ticketPosition].products[i].product._id === productId) {
-						tickets[ticketPosition].products[i].quantity =
-							tickets[ticketPosition].products[i].quantity + 1;
-
-						tickets[ticketPosition].total = totalCalculation(tickets, ticketPosition);
-						selectedTicket.set(tickets[ticketPosition]);
-						ticketStorage.set(tickets);
-					}
-				}
-
-				return [...tickets];
-			});
-		},
-		deductProduct: (productId) => {
-			update((tickets) => {
-				const ticketPosition = tickets.findIndex((ticket) => ticket.selectedTicket === true);
-
-				for (let i = 0; i < tickets[ticketPosition].products.length; i++) {
-					if (tickets[ticketPosition].products[i].product._id === productId) {
-						if (tickets[ticketPosition].products[i].quantity > 1) {
-							tickets[ticketPosition].products[i].quantity =
-								tickets[ticketPosition].products[i].quantity - 1;
-
-							tickets[ticketPosition].total = totalCalculation(tickets, ticketPosition);
-							selectedTicket.set(tickets[ticketPosition]);
-							ticketStorage.set(tickets);
-						}
-					}
-				}
-
-				return [...tickets];
-			});
-		},
+		addProductToTicket,
+		removeProduct,
+		addProduct,
+		deductProduct,
 		selectTicket: (ticket) => {
 			update((tickets) => {
 				for (let i = 0; i < tickets.length; i++) {
@@ -261,25 +285,6 @@ function ticketStore() {
 		},
 		reset: () => {
 			set(initialValues);
-		},
-		removeProduct: (productId) => {
-			update((tickets) => {
-				const ticketPosition = tickets.findIndex((ticket) => ticket.selectedTicket === true);
-
-				const products = tickets[ticketPosition].products;
-
-				const index = products.findIndex((product) => product.product._id === productId);
-				products.splice(index, 1);
-
-				tickets[ticketPosition].products = [];
-				tickets[ticketPosition].products = products;
-
-				tickets[ticketPosition].total = totalCalculation(tickets, ticketPosition);
-
-				selectedTicket.set(tickets[ticketPosition]);
-				ticketStorage.set(tickets);
-				return [...tickets];
-			});
 		},
 		completeOrder: (status, delivery) => {
 			let response;

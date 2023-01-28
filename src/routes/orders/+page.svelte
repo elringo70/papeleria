@@ -1,10 +1,13 @@
 <script>
+	import { enhance } from '$app/forms';
 	import { tickets, selectedTicket } from './store';
 
 	import Icon from '@iconify/svelte';
 	import Swal from 'sweetalert2';
 	import Ticket from '$lib/components/order/Ticket.svelte';
 	import { Input } from '$lib/components';
+
+	let loading = false;
 
 	function addTicket() {
 		tickets.addTicket();
@@ -16,8 +19,10 @@
 
 	async function removeTicket(e) {
 		e.stopPropagation();
-		console.log(this.value);
-		/* if ($tickets[index].products.length > 0) {
+
+		const index = this.value;
+
+		if ($tickets[index].products.length > 0) {
 			const modalConfirmation = await Swal.fire({
 				icon: 'warning',
 				title: '¿Desea eliminar el ticket?',
@@ -31,10 +36,45 @@
 			}
 		} else {
 			tickets.removeTicket(index);
-		} */
+		}
 	}
 
-	function addProduct() {}
+	function addProductToTicket({ form, data }) {
+		loading = true;
+		return async ({ result, update }) => {
+			switch (result.type) {
+				case 'success':
+					tickets.addProductToTicket(result.data.product);
+					await update();
+					break;
+				case 'failure':
+					Swal.fire({
+						icon: 'error',
+						title: result.data.message,
+						timer: 1250,
+						timerProgressBar: true
+					});
+					break;
+			}
+			loading = false;
+		};
+	}
+
+	function removeProduct(productId) {
+		tickets.removeProduct(productId);
+	}
+
+	function addProduct(productId) {
+		tickets.addProduct(productId);
+	}
+
+	function deductProduct(productId) {
+		tickets.deductProduct(productId);
+	}
+
+	function addCustomer(index) {}
+
+	function findCustomer(phone) {}
 </script>
 
 <svelte:head>
@@ -61,13 +101,20 @@
 	>
 		<div class="overflow-auto">
 			{#each $tickets as ticket, index}
-				<Ticket {ticket} {index} onClick={() => selectTicket(index)} {removeTicket} />
+				<Ticket
+					{ticket}
+					{index}
+					onClick={() => selectTicket(index)}
+					onDblClick={() => addCustomer(index)}
+					{removeTicket}
+				/>
 			{/each}
 		</div>
 		<div class="mt-auto">
 			<button
 				type="button"
-				class="mt-auto w-full bg-indigo-500 py-2 text-white hover:bg-indigo-600"
+				class="mt-auto w-full bg-indigo-600 py-2 text-white hover:bg-indigo-700"
+				disabled={loading}
 				on:click={addTicket}>Agregar ticket</button
 			>
 		</div>
@@ -75,22 +122,24 @@
 
 	<!-- Add Product Input Component -->
 	<div class="col-span-3 row-span-1 row-start-1 rounded bg-white shadow-md">
-		<div class="flex flex-row items-end justify-around pt-3 align-bottom">
-			<div class="basis-4/6">
-				<Input label="Código" />
+		<form action="?/findProduct" method="post" use:enhance={addProductToTicket} autocomplete="off">
+			<div class="flex flex-row items-end justify-around pt-3 align-bottom">
+				<div class="basis-4/6">
+					<Input label="Código" name="product" value={''} />
+				</div>
+				<div class="basis-1/6">
+					<button
+						type="submit"
+						class="mb-3 w-full rounded bg-indigo-500 py-2 text-white hover:bg-indigo-600"
+						>Agregar</button
+					>
+				</div>
 			</div>
-			<div class="basis-1/6">
-				<button
-					type="button"
-					class="mb-3 w-full rounded bg-indigo-500 py-2 text-white hover:bg-indigo-600"
-					>Agregar</button
-				>
-			</div>
-		</div>
+		</form>
 	</div>
 
 	<!-- Ticket Detail -->
-	<div class="col-span-3 row-span-5 row-start-2 rounded bg-white shadow-md">
+	<div class="col-span-3 row-span-5 row-start-2 overflow-auto rounded bg-white shadow-md">
 		<table class="w-full table-auto">
 			<thead>
 				<tr class="bg-gray-200 text-xs uppercase leading-normal text-gray-600">
@@ -101,41 +150,83 @@
 					<th class="py-2 px-3 text-center">Total</th>
 					<th class="py-2 px-3 text-center">Existencia</th>
 					<th class="py-2 px-3 text-center">Acción</th>
+					<th class="py-2 px-3 text-center">+ / -</th>
 				</tr>
 			</thead>
 			<tbody class="text-sm font-light text-gray-600">
-				<tr class="border-b border-gray-200 bg-gray-50 hover:bg-gray-100">
-					<td class="py-1.5 px-2 text-left">123456789</td>
-					<td class="py-1.5 px-2 text-center">Borrador</td>
-					<td class="py-1.5 px-2 text-center">$ 3.5</td>
-					<td class="py-1.5 px-2 text-center">2</td>
-					<td class="py-1.5 px-2 text-center">$ 7</td>
-					<td class="py-1.5 px-2 text-center">ilimitado</td>
+				{#each $selectedTicket.products as ticket}
+					<tr class="border-b border-gray-200 bg-gray-50 hover:bg-gray-100">
+						<td class="py-1.5 px-2 text-left">{ticket.product._id}</td>
+						<td class="py-1.5 px-2 text-center">{ticket.product.product}</td>
+						<td class="py-1.5 px-2 text-center">$ {ticket.product.price}</td>
+						<td class="py-1.5 px-2 text-center">{ticket.quantity}</td>
+						<td class="py-1.5 px-2 text-center">$ {ticket.quantity * ticket.product.price}</td>
+						<td class="py-1.5 px-2 text-center">{ticket.product.stock.stock - ticket.quantity}</td>
 
-					<td class="flex items-center justify-center gap-x-2 px-2 py-1.5 text-center">
-						<form action="" method="post">
-							<button>
-								<div class="hover:text-purple-500">
-									<Icon icon="ic:outline-remove-red-eye" />
-								</div>
-							</button>
-						</form>
-						<form action="" method="post">
-							<button>
-								<div class="hover:text-purple-500">
-									<Icon icon="mdi:pencil" />
-								</div>
-							</button>
-						</form>
-						<form action="" method="post">
-							<button>
+						<td class="flex items-center justify-center gap-x-2 px-2 py-1.5 text-center">
+							<button
+								on:click={() => {
+									removeProduct(ticket.product._id);
+								}}
+							>
 								<div class="cursor-pointer text-base hover:text-red-700">
 									<Icon icon="uil:trash-alt" />
 								</div>
 							</button>
-						</form>
-					</td>
-				</tr>
+						</td>
+						<td class="py-1.5 px-2 text-center">
+							<div class="flex justify-around">
+								<button
+									type="button"
+									class="cursor-pointer rounded-sm bg-gray-400 p-0.5 text-white"
+									on:click={() => deductProduct(ticket.product._id)}
+								>
+									<Icon icon="ic:baseline-minus" />
+								</button>
+								<button
+									type="button"
+									class="cursor-pointer rounded-sm bg-blue-500 p-0.5 text-white"
+									on:click={() => addProduct(ticket.product._id)}
+								>
+									<Icon icon="ic:baseline-plus" />
+								</button>
+							</div>
+						</td>
+					</tr>
+				{:else}
+					<tr class="border-b border-gray-200 bg-gray-50 italic text-gray-400 cursor-default">
+						<td class="py-1.5 px-2 text-left">123456789</td>
+						<td class="py-1.5 px-2 text-center">Borrador</td>
+						<td class="py-1.5 px-2 text-center">$ 3.5</td>
+						<td class="py-1.5 px-2 text-center">2</td>
+						<td class="py-1.5 px-2 text-center">$ 7</td>
+						<td class="py-1.5 px-2 text-center">ilimitado</td>
+
+						<td class="flex items-center justify-center gap-x-2 px-2 py-1.5 text-center">
+							<button>
+								<div class="cursor-default text-base">
+									<Icon icon="uil:trash-alt" />
+								</div>
+							</button>
+						</td>
+						<td class="py-1.5 px-2 text-center">
+							<div class="flex justify-around">
+								<button
+									type="button"
+									class="cursor-default rounded-sm bg-gray-200 p-0.5 text-white"
+								>
+									<Icon icon="ic:baseline-minus" />
+								</button>
+								<button
+									type="button"
+									class="cursor-default rounded-sm bg-blue-300 p-0.5 text-white"
+								>
+									<Icon icon="ic:baseline-plus" />
+								</button>
+							</div>
+						</td>
+					</tr>
+				{/each}
 			</tbody>
 		</table>
 	</div>

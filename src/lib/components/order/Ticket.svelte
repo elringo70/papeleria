@@ -30,6 +30,7 @@
 		</div>
 		<button
 			on:click={removeTicket}
+			value={index}
 			class="ml-auto rounded bg-red-500 p-1 text-lg text-white hover:bg-red-600"
 		>
 			<Icon icon="material-symbols:cancel-outline" />
