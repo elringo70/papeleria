@@ -6,7 +6,7 @@ export const load = async () => {
 	try {
 		await dbConnect();
 		const customers = await User.find({});
-		console.log(customers);
+
 		return { customers: JSON.parse(JSON.stringify(customers)) };
 	} catch (err) {
 		console.log('Error: ', err);

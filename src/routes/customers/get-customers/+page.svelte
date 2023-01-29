@@ -128,24 +128,20 @@
 								<td class="py-3 px-6 text-center">
 									<Pill pill="active" />
 								</td>
-								<td class="flex items-center justify-center gap-x-2 py-3 px-6 text-center">
-									<form action="" method="post">
-										<input type="hidden" name="id" value={customer._id} />
-										<button>
-											<div class="hover:text-purple-500">
-												<Icon icon="ic:outline-remove-red-eye" />
-											</div>
-										</button>
-									</form>
-									<form action="" method="post">
-										<input type="hidden" name="id" value={customer._id} />
-										<button>
-											<div class="hover:text-purple-500">
-												<Icon icon="mdi:pencil" />
-											</div>
-										</button>
-									</form>
-									<form action="?/delete" method="POST" on:submit|preventDefault={deleteCustomer}>
+								<td class="flex justify-center gap-x-2 py-3 px-6">
+									<a href="/customers/{customer._id}">
+										<div class="hover:text-purple-500">
+											<Icon icon="ic:outline-remove-red-eye" />
+										</div>
+									</a>
+
+									<a href="/customers/{customer._id}">
+										<div class="hover:text-purple-500">
+											<Icon icon="mdi:pencil" />
+										</div>
+									</a>
+
+									<form action="?/delete" method="post" on:submit|preventDefault={deleteCustomer}>
 										<input type="hidden" name="id" value={customer._id} />
 										<button>
 											<div class="cursor-pointer text-base hover:text-red-700">

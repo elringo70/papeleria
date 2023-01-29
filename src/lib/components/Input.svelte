@@ -18,9 +18,9 @@
 	export let errors = undefined;
 </script>
 
-<div class="form-control w-full mb-3">
+<div class="form-control mb-3 w-full">
 	{#if label}
-		<label class="block text-gray-600 font-bold mb-2 uppercase text-sm leading-normal" for={name}>
+		<label class="mb-2 block text-sm font-bold uppercase leading-normal text-gray-600" for={name}>
 			{label}
 		</label>
 	{/if}
@@ -30,9 +30,14 @@
 		id={name}
 		{type}
 		{placeholder}
-		class={`border border-gray-300 rounded w-full py-2 px-3 text-gray-600 focus:outline-none focus:border-gray-500
-			${disabled ? 'disabled:bg-gray-200 cursor-no-drop' : ''}
-			${errors ? 'border-red-400 focus:outline-none focus:border-red-500' : ''}`}
+		class={`w-full rounded border border-gray-300 py-2 px-3 text-gray-600 focus:border-gray-500 focus:outline-none
+			${disabled ? 'cursor-no-drop disabled:bg-gray-200' : ''}
+			${errors ? 'border-red-400 focus:border-red-500 focus:outline-none' : ''}
+			${
+				readonly
+					? 'readonly:border-gray-500 cursor-default bg-gray-200 text-gray-500 focus:outline-none'
+					: ''
+			}`}
 		{value}
 		{disabled}
 		{required}
@@ -45,7 +50,7 @@
 		on:input={onInput}
 	/>
 	{#if errors}
-		<span class="text-red-500 text-xs italic">{errors[0]}</span>
+		<span class="text-xs italic text-red-500">{errors[0]}</span>
 	{/if}
 </div>
 
