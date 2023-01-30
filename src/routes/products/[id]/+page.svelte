@@ -12,6 +12,49 @@
 
 	let loading = false;
 
+	async function updateProduct() {
+		const confirmationModal = await Swal.fire({
+			icon: 'warning',
+			title: '¿Desea actualizar la información del cliente?',
+			showCancelButton: true,
+			cancelButtonText: 'Cancelar',
+			confirmButtonText: 'Eliminar'
+		});
+
+		if (confirmModal.isConfirmed) {
+			if (confirmationModal.isConfirmed) {
+				const data = new FormData(this);
+
+				const response = await fetch(this.action, {
+					method: 'POST',
+					body: data
+				});
+
+				const result = deserialize(await response.text());
+
+				switch (result.type) {
+					case 'success':
+						Swal.fire({
+							icon: 'success',
+							title: 'Actualizado'
+						});
+
+						await invalidateAll();
+
+						break;
+					case 'failure':
+						Swal.fire({
+							icon: 'error',
+							title: 'Error',
+							text: result.data.message
+						});
+						break;
+				}
+				applyAction(result);
+			}
+		}
+	}
+
 	const submitProduct = ({ form, data }) => {
 		loading = true;
 
@@ -90,7 +133,12 @@
 			<h3 class="text-2xl font-semibold text-gray-800">Producto nuevo</h3>
 			<p class="text-gray-400">Crear un nuevo producto</p>
 		</div>
-		<form action="?/submit" method="post" use:enhance={submitProduct} autocomplete="off">
+		<form
+			action="?/update"
+			method="post"
+			on:submit|preventDefault={submitProduct}
+			autocomplete="off"
+		>
 			<div class="flex flex-row space-x-4">
 				<div class="basis-4/12">
 					<Input
@@ -210,7 +258,7 @@
 					<button
 						type="submit"
 						class="rounded bg-indigo-700 px-4 py-2 text-white shadow shadow-indigo-700 hover:bg-indigo-600"
-						disabled={loading}>Guardar</button
+						disabled={loading}>Actualizar producto</button
 					>
 				</div>
 			</div>

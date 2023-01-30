@@ -25,3 +25,60 @@ export async function load({ params }) {
 		await dbDisconnect();
 	}
 }
+
+export const actions = {
+	update: async ({ request }) => {
+		try {
+			await dbConnect();
+
+			const form = await request.formData();
+			const { formData, errors } = await validateData(form, productSchema);
+
+			const findCategory = Category.findOne({ name: formData.category });
+			if (!findCategory) {
+				return fail(400, { message: 'La categoria no existe' });
+			}
+
+			const body = {
+				_id: form.get('_id'),
+				product: form.get('product'),
+				...(form.get('model') && { model: form.get('model') }),
+				...(form.get('brand') && { brand: form.get('brand') }),
+				category: findCategory.name,
+				cost: form.get('cost'),
+				price: form.get('price'),
+				...(form.get('wholesale') && { wholesale: form.get('wholesale') }),
+				requiredStock: form.get('requiredStock') === 'on' ? true : false,
+				...((form.get('stock') !== '' || form.get('stockMinimum')) !== '' &&
+					form.get('requiredStock') === 'on' && {
+						stock: {
+							stock: form.get('stock'),
+							stockMinimum: form.get('stockMinimum')
+						}
+					}),
+				$unset: {
+					...(form.get('model') === '' && { model: 1 }),
+					...(form.get('brand') === '' && { brand: 1 }),
+					...(form.get('wholesale') === '' && { wholesale: 1 }),
+					...(form.get('stock') !== 'on' && { stock: 1 })
+				}
+			};
+
+			if (errors) {
+				return fail(401, {
+					data: formData,
+					errors: errors.fieldErrors
+				});
+			}
+
+			await Product.findByIdAndUpdate(form.get('id'), body);
+
+			return { success: true };
+		} catch (err) {
+			console.log('Error: ', err);
+			throw error(500, err);
+		} finally {
+			await dbDisconnect();
+		}
+	}
+};
