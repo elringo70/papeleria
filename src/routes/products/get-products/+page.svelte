@@ -52,12 +52,12 @@
 </script>
 
 <div class="overflow-x-auto">
-	<div class="min-w-screen min-h-screen bg-gray-100 flex justify-center font-sans overflow-hidden">
+	<div class="min-w-screen flex min-h-screen justify-center overflow-hidden bg-gray-100 font-sans">
 		<div class="w-full lg:w-5/6">
-			<div class="bg-white shadow-lg rounded my-6">
-				<table class="min-w-max w-full table-auto">
+			<div class="my-6 rounded bg-white shadow-lg">
+				<table class="w-full min-w-max table-auto">
 					<thead>
-						<tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+						<tr class="bg-gray-200 text-sm uppercase leading-normal text-gray-600">
 							<th class="py-3 px-6 text-left">Producto</th>
 							<th class="py-3 px-6 text-left">Marca</th>
 							<th class="py-3 px-6 text-left">Categoría</th>
@@ -68,7 +68,7 @@
 							<th class="py-3 px-6 text-center">Acciones</th>
 						</tr>
 					</thead>
-					<tbody class="text-gray-600 text-sm font-light">
+					<tbody class="text-sm font-light text-gray-600">
 						{#each data.products as product}
 							<tr class="border-b border-gray-200 bg-gray-50 hover:bg-gray-100">
 								<td class="py-2 px-5 text-left">
@@ -91,15 +91,18 @@
 								<td class="py-2 px-5 text-center">{product.wholesale ?? 'Sin inventario'}</td>
 								<td class="py-2 px-5 text-center">{product.stock?.stock ?? 'Sin inventario'}</td>
 								<td class="py-2 px-5 text-center">
-									<div class="flex item-center justify-center">
-										<div class="mr-2 hover:text-indigo-700 cursor-pointer text-base">
-											<Icon icon="mdi:pencil" />
-										</div>
+									<div class="item-center flex justify-center">
+										<a href="/products/{product._id}">
+											<input type="hidden" name="id" value={product._id} />
+											<div class="mr-2 cursor-pointer text-base hover:text-indigo-700">
+												<Icon icon="mdi:pencil" />
+											</div>
+										</a>
 
 										<form action="?/delete" method="POST" on:submit|preventDefault={deleteProduct}>
 											<input type="hidden" name="id" value={product._id} />
 											<button>
-												<div class="mr-2 hover:text-red-700 cursor-pointer text-base">
+												<div class="mr-2 cursor-pointer text-base hover:text-red-700">
 													<Icon icon="uil:trash-alt" />
 												</div>
 											</button>

@@ -92,16 +92,14 @@
 
 <svelte:head>
 	<title>Cliente nuevo</title>
-	<style>
-		body {
-			height: 100vh;
-			background-color: rgb(243 244 246);
-		}
-	</style>
 </svelte:head>
 
-<section class="flex h-[calc(100vh-66px)] justify-center items-center">
-	<div class="container w-9/12 mx-auto bg-white p-5 rounded shadow-lg">
+<section class="flex h-[calc(100vh-66px)] items-center justify-center bg-gray-100">
+	<div class="container mx-auto w-9/12 rounded bg-white p-5 shadow-lg">
+		<div class="mb-7">
+			<h3 class="text-2xl font-semibold text-gray-800">Cliente nuevo</h3>
+			<p class="text-gray-400">Ingresar la información del cliente</p>
+		</div>
 		<form action="?/post" method="post" use:enhance={submitCustomer} autocomplete="off">
 			<div class="flex flex-row space-x-4">
 				<div class="basis-3/12">
@@ -143,7 +141,7 @@
 				</div>
 			</div>
 
-			<div class="flex flex-row mb-3">
+			<div class="mb-3 flex flex-row">
 				<div class="basis-4/12">
 					<Checkbox
 						label="¿Dirección?"
@@ -200,12 +198,19 @@
 				</div>
 			</div>
 
-			<div class="flex flex-row space-x-4">
+			<div class="flex flex-row items-end space-x-4">
 				<div class="basis-4/12">
 					<Input label="Ciudad" name="city" disabled={true} errors={errors?.city} value={city} />
 				</div>
 				<div class="basis-4/12">
 					<Input label="Estado" name="state" disabled={true} errors={errors?.state} value={state} />
+				</div>
+				<div class="mb-3 basis-4/12">
+					<button
+						type="submit"
+						class="w-full rounded bg-indigo-700 py-2 px-3 text-white shadow shadow-indigo-700 hover:bg-indigo-600"
+						disabled={loading}>Cliente nuevo</button
+					>
 				</div>
 			</div>
 
@@ -214,16 +219,6 @@
 			<input type="hidden" name="municipality" value={municipality} />
 			<input type="hidden" name="city" value={city} />
 			<input type="hidden" name="state" value={state} />
-
-			<div class="flex flex-row">
-				<div class="basis-3/12">
-					<button
-						type="submit"
-						class="bg-indigo-700 hover:bg-indigo-600 text-white px-4 py-2 rounded shadow shadow-indigo-700"
-						disabled={loading}>Guardar</button
-					>
-				</div>
-			</div>
 		</form>
 	</div>
 </section>

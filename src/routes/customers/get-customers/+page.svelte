@@ -102,8 +102,8 @@
 					</thead>
 					<tbody class="text-sm font-light text-gray-600">
 						{#each customers as customer}
-							<tr class="border-b border-gray-200 bg-gray-50 hover:bg-gray-100">
-								<td class="py-3 px-6 text-left">
+							<tr class="border-b border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100">
+								<td class="py-3 px-6 text-left font-mono text-xs">
 									<div class="flex items-center">
 										<span class="font-medium">{phoneNumberFormat(customer.phone)}</span>
 									</div>

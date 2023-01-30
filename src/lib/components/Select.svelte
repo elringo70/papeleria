@@ -11,27 +11,26 @@
 	export let errors;
 </script>
 
-<div class="form-control w-full mb-3">
-	<label class="block text-gray-700 text-sm font-bold mb-2" for={name}>
+<div class="form-control mb-3 w-full">
+	<label class="mb-2 block text-sm font-bold text-gray-700" for={name}>
 		{label}
 	</label>
 	<select
-		class={`border border-gray-300 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:border-gray-500 bg-white ${
+		class={`w-full rounded border border-gray-300 bg-white py-2 px-3 text-gray-700 focus:border-gray-500 focus:outline-none ${
 			errors ? 'border-red-400' : ''
 		}`}
 		{name}
 		id={name}
-		{value}
+		bind:value
 		{disabled}
 		{required}
-		{...$$restProps}
 	>
 		<option disabled selected>Seleccione categoría</option>
 		{#each options as option}
-			<option value={option._id}>{firstUppercase(option.name)}</option>
+			<option value={option.name}>{firstUppercase(option.name)}</option>
 		{/each}
 	</select>
 	{#if errors}
-		<span class="label-text-alt text-error mt-1">{errors}</span>
+		<span class="label-text-alt mt-1 text-error">{errors}</span>
 	{/if}
 </div>

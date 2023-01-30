@@ -127,10 +127,10 @@
 				<div class="basis-4/6">
 					<Input label="Código" name="product" value={''} />
 				</div>
-				<div class="basis-1/6">
+				<div class="basis-1/6 pb-3">
 					<button
 						type="submit"
-						class="mb-3 w-full rounded bg-indigo-500 py-2 text-white hover:bg-indigo-600"
+						class="w-full rounded bg-indigo-500 py-2 text-white shadow shadow-indigo-500 hover:bg-indigo-600"
 						>Agregar</button
 					>
 				</div>

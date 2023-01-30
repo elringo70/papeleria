@@ -33,7 +33,7 @@ export const actions = {
 			const { formData, errors } = await validateData(form, productSchema);
 
 			const findCategory = await Category.findById(formData.category);
-			console.log(findCategory);
+
 			if (!findCategory) {
 				return fail(400, { message: 'La categoría no existe' });
 			}

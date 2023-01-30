@@ -16,14 +16,14 @@
 	export let onClick = () => {};
 </script>
 
-<div class="w-full mb-3 relative inline-block">
+<div class="relative mb-3 inline-block w-full">
 	<input
 		{name}
 		id={name}
 		type="text"
 		{placeholder}
-		class={`border border-gray-300 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:border-gray-500
-			${disabled ? 'disabled:bg-gray-200 cursor-no-drop' : ''}`}
+		class={`w-full rounded border border-gray-300 py-2 px-3 text-gray-700 focus:border-gray-500 focus:outline-none
+			${disabled ? 'cursor-default disabled:bg-gray-200' : ''}`}
 		{disabled}
 		{required}
 		bind:value
@@ -32,11 +32,11 @@
 	/>
 
 	{#if list.length > 0}
-		<ul class="absolute w-full border rounded mt-1 border-gray-300 divide-y divide-gray-300">
+		<ul class="absolute mt-1 w-full divide-y divide-gray-300 rounded border border-gray-300">
 			{#each list as item, i}
 				<div transition:slide={{ duration: 150 }}>
 					<li
-						class="bg-white py-2 px-3 hover:bg-gray-200 cursor-pointer text-sm"
+						class="cursor-pointer bg-white py-2 px-3 text-sm hover:bg-gray-200"
 						value={i}
 						on:click={onClick}
 						on:keydown={() => {}}
@@ -44,12 +44,6 @@
 						{item.display_name}
 					</li>
 				</div>
-				<!-- {:else}
-				<div transition:slide={{ duration: 150 }}>
-					<li class="bg-white py-2 px-3 hover:bg-gray-200 cursor-pointer text-sm">
-						...No se encontró ninguna dirección
-					</li>
-				</div> -->
 			{/each}
 		</ul>
 	{/if}

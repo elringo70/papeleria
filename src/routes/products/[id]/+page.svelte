@@ -61,12 +61,16 @@
 	};
 
 	//Stock conditional validation
-	let isChecked = true;
+	let stock, stockMinimum, isChecked, category;
 
-	let stock = form?.data?.stock ?? '';
-	let stockMinimum = form?.data?.stockMinimum ?? '';
-	$: stock;
-	$: stockMinimum;
+	$: category = data?.product?.category ? data?.product?.category : form?.data?.category ?? '';
+	$: isChecked = data?.product?.requiredStock ?? form?.product?.requiredStock;
+	$: stock = data?.product?.stock.stock
+		? data?.product?.stock.stock
+		: form?.data?.stock.stock ?? '';
+	$: stockMinimum = data?.product?.stock.stockMinimum
+		? data?.product?.stock.stockMinimum
+		: form?.data?.stock.stockMinimum ?? '';
 
 	const resetStockInputs = () => {
 		isChecked = !isChecked;
@@ -93,7 +97,7 @@
 						label="Código"
 						name="_id"
 						required={true}
-						value={form?.data?._id ?? ''}
+						value={data?.product?._id ? data?.product?._id : form?.data?._id ?? ''}
 						errors={errors?._id}
 					/>
 				</div>
@@ -103,7 +107,7 @@
 						name="product"
 						placeholder="Nombre del producto"
 						required={true}
-						value={form?.data?.product ?? ''}
+						value={data?.product?.product ? data?.product?.product : form?.data?.product ?? ''}
 						errors={errors?.product}
 					/>
 				</div>
@@ -112,7 +116,7 @@
 						label="Marca"
 						name="brand"
 						placeholder="Marca del producto"
-						value={form?.data?.brand ?? ''}
+						value={data?.product?.brand ? data?.product?.brand : form?.data?.brand ?? ''}
 						errors={errors?.brand}
 					/>
 				</div>
@@ -123,7 +127,7 @@
 					<Input
 						label="Modelo"
 						name="model"
-						value={form?.data?.model ?? ''}
+						value={data?.product?.model ? data?.product?.model : form?.data?.model ?? ''}
 						errors={errors?.model}
 					/>
 				</div>
@@ -133,7 +137,7 @@
 						name="category"
 						options={data?.categories}
 						required={true}
-						value={form?.data?.category ?? ''}
+						bind:value={category}
 						errors={errors?.category}
 					/>
 				</div>
@@ -144,7 +148,7 @@
 					<NumberField
 						label="Costo"
 						name="cost"
-						value={form?.data?.cost}
+						value={data?.product?.cost ? data?.product?.cost : form?.data?.cost ?? ''}
 						errors={errors?.cost}
 						required={true}
 					/>
@@ -153,7 +157,7 @@
 					<NumberField
 						label="Precio"
 						name="price"
-						value={form?.data?.price}
+						value={data?.product?.price ? data?.product?.price : form?.data?.price ?? ''}
 						errors={errors?.price}
 						required={true}
 					/>
@@ -162,7 +166,9 @@
 					<NumberField
 						label="Precio de mayoreo"
 						name="wholesale"
-						value={form?.data?.wholesale}
+						value={data?.product?.wholesale
+							? data?.product?.wholesale
+							: form?.data?.wholesale ?? ''}
 						errors={errors?.wholesale}
 					/>
 				</div>

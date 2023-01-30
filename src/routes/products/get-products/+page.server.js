@@ -1,7 +1,6 @@
 import { error, fail } from '@sveltejs/kit';
 import { Product } from '$models/products';
 import { dbConnect, dbDisconnect } from '$utils/db';
-import { validateData } from '$utils/utils';
 
 export const load = async () => {
 	try {
