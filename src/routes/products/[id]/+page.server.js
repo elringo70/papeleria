@@ -28,6 +28,7 @@ export async function load({ params }) {
 
 export const actions = {
 	update: async ({ request }) => {
+		let productError;
 		try {
 			await dbConnect();
 
@@ -44,13 +45,13 @@ export const actions = {
 				product: form.get('product'),
 				...(form.get('model') && { model: form.get('model') }),
 				...(form.get('brand') && { brand: form.get('brand') }),
-				category: findCategory.name,
+				category: form.get('category'),
 				cost: form.get('cost'),
 				price: form.get('price'),
 				...(form.get('wholesale') && { wholesale: form.get('wholesale') }),
 				requiredStock: form.get('requiredStock') === 'on' ? true : false,
 				...((form.get('stock') !== '' || form.get('stockMinimum')) !== '' &&
-					form.get('requiredStock') === 'on' && {
+					form.get('requiredStock') && {
 						stock: {
 							stock: form.get('stock'),
 							stockMinimum: form.get('stockMinimum')
@@ -60,7 +61,7 @@ export const actions = {
 					...(form.get('model') === '' && { model: 1 }),
 					...(form.get('brand') === '' && { brand: 1 }),
 					...(form.get('wholesale') === '' && { wholesale: 1 }),
-					...(form.get('stock') !== 'on' && { stock: 1 })
+					...(form.get('requiredStock') !== 'on' && { stock: 1 })
 				}
 			};
 
@@ -71,14 +72,20 @@ export const actions = {
 				});
 			}
 
-			await Product.findByIdAndUpdate(form.get('id'), body);
-
-			return { success: true };
+			Product.findByIdAndUpdate(form.get('id'), body, function (err) {
+				if (err) {
+					productError = err;
+				}
+			});
 		} catch (err) {
 			console.log('Error: ', err);
 			throw error(500, err);
 		} finally {
 			await dbDisconnect();
 		}
+
+		if (productError) throw error(500, { message: 'Error en la base de datos' });
+
+		return { success: true };
 	}
 };

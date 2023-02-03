@@ -1,5 +1,7 @@
 <script>
-	import { enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
+	import { applyAction, deserialize } from '$app/forms';
+	import Swal from 'sweetalert2';
 
 	import { confirmModal } from '$utils/modalButton';
 
@@ -15,43 +17,48 @@
 	async function updateProduct() {
 		const confirmationModal = await Swal.fire({
 			icon: 'warning',
-			title: '¿Desea actualizar la información del cliente?',
+			title: '¿Desea actualizar la información del producto?',
 			showCancelButton: true,
 			cancelButtonText: 'Cancelar',
-			confirmButtonText: 'Eliminar'
+			confirmButtonText: 'Actualizar'
 		});
 
-		if (confirmModal.isConfirmed) {
-			if (confirmationModal.isConfirmed) {
-				const data = new FormData(this);
+		if (confirmationModal.isConfirmed) {
+			const data = new FormData(this);
 
-				const response = await fetch(this.action, {
-					method: 'POST',
-					body: data
-				});
+			const response = await fetch(this.action, {
+				method: 'POST',
+				body: data
+			});
 
-				const result = deserialize(await response.text());
+			const result = deserialize(await response.text());
 
-				switch (result.type) {
-					case 'success':
-						Swal.fire({
-							icon: 'success',
-							title: 'Actualizado'
-						});
+			switch (result.type) {
+				case 'success':
+					Swal.fire({
+						icon: 'success',
+						title: 'Actualizado'
+					});
 
-						await invalidateAll();
+					await invalidateAll();
 
-						break;
-					case 'failure':
-						Swal.fire({
-							icon: 'error',
-							title: 'Error',
-							text: result.data.message
-						});
-						break;
-				}
-				applyAction(result);
+					break;
+				case 'failure':
+					Swal.fire({
+						icon: 'error',
+						title: 'Error',
+						text: result.data.message
+					});
+					break;
+				case 'error':
+					Swal.fire({
+						icon: 'error',
+						title: 'Error',
+						text: result.error.message
+					});
+					break;
 			}
+			applyAction(result);
 		}
 	}
 
@@ -103,10 +110,11 @@
 		};
 	};
 
-	//Stock conditional validation
-	let stock, stockMinimum, isChecked, category;
+	let category;
+	$: category = data?.product?.category ? data?.product?.category : form?.data?.category;
 
-	$: category = data?.product?.category ? data?.product?.category : form?.data?.category ?? '';
+	//Stock conditional validation
+	let stock, stockMinimum, isChecked;
 	$: isChecked = data?.product?.requiredStock ?? form?.product?.requiredStock;
 	$: stock = data?.product?.stock.stock
 		? data?.product?.stock.stock
@@ -120,6 +128,14 @@
 
 		stock = '';
 		stockMinimum = '';
+
+		if (!isChecked) {
+			stock = '';
+			stockMinimum = '';
+		} else {
+			stock = data?.product?.stock.stock;
+			stockMinimum = data?.product?.stock.stockMinimum;
+		}
 	};
 </script>
 
@@ -130,15 +146,16 @@
 <section class="flex h-[calc(100vh-66px)] items-center justify-center bg-gray-100">
 	<div class="container mx-auto w-8/12 rounded bg-white p-5 shadow-lg">
 		<div class="mb-7">
-			<h3 class="text-2xl font-semibold text-gray-800">Producto nuevo</h3>
-			<p class="text-gray-400">Crear un nuevo producto</p>
+			<h3 class="text-2xl font-semibold text-gray-800">Editar producto</h3>
+			<p class="text-gray-400">Actualizar la información del producto</p>
 		</div>
 		<form
 			action="?/update"
 			method="post"
-			on:submit|preventDefault={submitProduct}
+			on:submit|preventDefault={updateProduct}
 			autocomplete="off"
 		>
+			<input type="hidden" name="id" value={data?.product?._id} />
 			<div class="flex flex-row space-x-4">
 				<div class="basis-4/12">
 					<Input
@@ -185,7 +202,9 @@
 						name="category"
 						options={data?.categories}
 						required={true}
-						bind:value={category}
+						value={data?.product?.category
+							? data?.product?.category
+							: form?.product?.category ?? ''}
 						errors={errors?.category}
 					/>
 				</div>

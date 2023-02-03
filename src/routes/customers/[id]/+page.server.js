@@ -3,6 +3,7 @@ import { User } from '$models/users';
 import { dbConnect, dbDisconnect } from '$utils/db';
 import { validateData } from '$utils/utils';
 import { customerSchema } from '../new-customer/customerSchema';
+import { custom } from 'zod';
 
 export async function load({ params }) {
 	try {
@@ -22,6 +23,7 @@ export async function load({ params }) {
 
 export const actions = {
 	submit: async ({ request }) => {
+		let customerError;
 		try {
 			await dbConnect();
 
@@ -63,14 +65,17 @@ export const actions = {
 				return fail(400, { message: 'El número no existe' });
 			}
 
-			await User.findByIdAndUpdate(form.get('id'), body);
-
-			return { success: true };
+			User.findByIdAndUpdate(form.get('id'), body, function (err) {
+				if (err) customerError = err;
+			});
 		} catch (err) {
 			console.log('Error: ', err);
 			throw error(500, err);
 		} finally {
 			await dbDisconnect();
 		}
+
+		if (customerError) throw error(500, { message: 'Error en la base de datos' });
+		return { success: true };
 	}
 };

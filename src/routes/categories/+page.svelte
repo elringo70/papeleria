@@ -19,6 +19,7 @@
 
 	let confirm = false;
 	let loading = false;
+	let timer;
 
 	const alertObject = {
 		type: '',
@@ -36,7 +37,7 @@
 					alertObject.type = result.type;
 					alertObject.message = result.data.message;
 
-					setTimeout(() => {
+					timer = setTimeout(() => {
 						confirm = false;
 					}, 1500);
 
@@ -48,9 +49,9 @@
 						alertObject.type = result.type;
 						alertObject.message = result.data.message;
 
-						setTimeout(() => {
+						timer = setTimeout(() => {
 							confirm = false;
-						}, 2000);
+						}, 1500);
 					}
 					break;
 			}
@@ -107,13 +108,19 @@
 			text: 'Debe ingresar al menos una categoría'
 		});
 	}
+
+	const beforeUnload = () => {
+		clearTimeout(timer);
+	};
 </script>
+
+<svelte:window on:beforeunload={beforeUnload} />
 
 <svelte:head>
 	<title>Categorias</title>
 </svelte:head>
 
-<div class="container w-9/12 mx-auto mt-5">
+<div class="container mx-auto mt-5 w-9/12">
 	<div class="flex flex-row space-x-10">
 		<div class="basis-6/12 bg-white">
 			<form action="?/post" method="POST" autocomplete="off" use:enhance={submitCategory}>
@@ -129,7 +136,7 @@
 				<div class="mt-3">
 					<button
 						type="submit"
-						class="bg-indigo-700 hover:bg-indigo-600 text-white px-4 py-2 rounded shadow shadow-indigo-700"
+						class="rounded bg-indigo-700 px-4 py-2 text-white shadow shadow-indigo-700 hover:bg-indigo-600"
 						disabled={loading}>Agregar</button
 					>
 				</div>
@@ -144,10 +151,10 @@
 			{#if data.categories.length === 0}
 				<h1>Aun no hay categorías</h1>
 			{:else}
-				<ul class="border rounded border-gray-300 divide-y divide-gray-300 text-gray-900">
+				<ul class="divide-y divide-gray-300 rounded border border-gray-300 text-gray-900">
 					{#each data.categories as category}
 						<li
-							class="py-2 px-4 w-full flex flex-row justify-between items-center hover:bg-gray-200"
+							class="flex w-full flex-row items-center justify-between py-2 px-4 hover:bg-gray-200"
 						>
 							<div>
 								{firstUppercase(category.name)}
@@ -158,7 +165,7 @@
 									<input type="hidden" name="id" value={category._id} />
 									<button
 										type="submit"
-										class="bg-gray-400 hover:bg-gray-500 text-white font-bold p-2.5 text-xl rounded-l"
+										class="rounded-l bg-gray-400 p-2.5 text-xl font-bold text-white hover:bg-gray-500"
 										><Icon icon="material-symbols:edit" /></button
 									>
 								</form>
@@ -166,7 +173,7 @@
 								<form action="?/delete" method="POST" on:submit|preventDefault={deleteCategory}>
 									<input type="hidden" name="id" value={category._id} />
 									<button
-										class="bg-red-500 hover:bg-red-600 text-white font-bold p-2.5 text-xl rounded-r"
+										class="rounded-r bg-red-500 p-2.5 text-xl font-bold text-white hover:bg-red-600"
 										><Icon icon="material-symbols:cancel" /></button
 									>
 								</form>
