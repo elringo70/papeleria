@@ -1,11 +1,15 @@
 <script>
-	import { enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
+	import { applyAction, deserialize, enhance } from '$app/forms';
 	import { tickets, selectedTicket } from './store';
 
 	import Icon from '@iconify/svelte';
 	import Swal from 'sweetalert2';
 	import Ticket from '$lib/components/order/Ticket.svelte';
-	import { Input } from '$lib/components';
+	import Modal from '$lib/components/Modal.svelte';
+	import { NumberField, Input, Pill } from '$lib/components';
+
+	import { customerNameFormat, phoneNumberFormat } from '$utils/stringUtils';
 
 	let loading = false;
 
@@ -72,32 +76,89 @@
 		tickets.deductProduct(productId);
 	}
 
-	function addCustomer(index) {}
+	const setCustomerTicket = () => {
+		return async ({ result, update }) => {
+			switch (result.type) {
+				case 'success':
+					if (result.customer) {
+						tickets.setCustomerTicket(ticketPosition, result.data.customer);
+					} else {
+						tickets.setCustomerTicket(ticketPosition, result.data.phone);
+					}
+					closeModal();
+					break;
+				case 'failure':
+					Swal.fire({
+						icon: 'error',
+						title: result.data.message,
+						timer: 1250,
+						timerProgressBar: true
+					});
+					break;
+			}
+			await update();
+		};
+	};
 
-	function findCustomer(phone) {}
+	const subtotalProducts = (products) => {
+		let total = 0;
+		if (products.length > 0) {
+			for (let i = 0; i < products.length; i++) {
+				total += products[i].product.price * products[i].quantity;
+			}
+		}
+		return total;
+	};
+
+	//Order Summary
+	let customerName, customerAddress, phoneNumber, subtotal, total;
+	$: customerName =
+		JSON.stringify($selectedTicket.customer) === '{}'
+			? ''
+			: JSON.stringify($selectedTicket.customer) !== '{}' &&
+			  $selectedTicket.customer.hasOwnProperty('name')
+			? customerNameFormat($selectedTicket.customer)
+			: '';
+	$: phoneNumber = $selectedTicket.customer.phone
+		? phoneNumberFormat($selectedTicket.customer.phone)
+		: '';
+	$: customerAddress = $selectedTicket.customer.address
+		? `${$selectedTicket.customer.address.street} ${$selectedTicket.customer.address.number}`
+		: '';
+	$: subtotal = subtotalProducts($selectedTicket.products);
+	$: total =
+		subtotalProducts($selectedTicket.products) * 0.16 + subtotalProducts($selectedTicket.products);
+
+	//Modal
+	let open = false;
+	let ticketPosition;
+
+	const closeModal = () => {
+		open = false;
+	};
+
+	const customerSearchModal = (index) => {
+		open = true;
+		ticketPosition = index;
+	};
+
+	const onKeyClose = (e) => {
+		if (open) {
+			if (e.key === 'Escape') closeModal();
+		}
+	};
 </script>
+
+<svelte:window on:keydown={onKeyClose} />
 
 <svelte:head>
 	<title>Cliente nuevo</title>
-	<style>
-		::-webkit-scrollbar {
-			width: 0.5em;
-		}
-		::-webkit-scrollbar-track {
-			background-color: rgb(229 231 235);
-			border-radius: 100vw;
-		}
-		::-webkit-scrollbar-thumb {
-			background-color: rgb(209 213 219);
-			border-radius: 100vw;
-		}
-	</style>
 </svelte:head>
 
 <section class="grid-rows-6/6 grid h-[calc(100vh-66px)] grid-cols-6 gap-4 bg-gray-100 p-7">
 	<!-- Ticket List -->
 	<div
-		class="col-span-1 row-span-6 row-start-1 flex h-full grid-flow-col flex-col overflow-auto rounded bg-white shadow-md"
+		class="col-span-1 row-span-6 row-start-1 flex h-full flex-col overflow-auto rounded bg-white shadow-md"
 	>
 		<div class="overflow-auto">
 			{#each $tickets as ticket, index}
@@ -105,15 +166,15 @@
 					{ticket}
 					{index}
 					onClick={() => selectTicket(index)}
-					onDblClick={() => addCustomer(index)}
+					onDblClick={() => customerSearchModal(index)}
 					{removeTicket}
 				/>
 			{/each}
 		</div>
-		<div class="mt-auto">
+		<div class="mt-auto p-2">
 			<button
 				type="button"
-				class="mt-auto w-full bg-indigo-600 py-2 text-white hover:bg-indigo-700"
+				class="mt-auto w-full rounded bg-indigo-600 py-2 text-white hover:bg-indigo-700"
 				disabled={loading}
 				on:click={addTicket}>Agregar ticket</button
 			>
@@ -232,5 +293,99 @@
 	</div>
 
 	<!-- Purchase summary -->
-	<div class="col-span-2 row-span-6 row-start-1 rounded bg-white shadow-md">3</div>
+	<div class="col-span-2 row-span-6 row-start-1 bg-white p-5 shadow-md">
+		<div
+			class="col-span-1 row-span-6 row-start-1 flex h-full grid-flow-col flex-col overflow-auto bg-white"
+		>
+			<div>
+				<div class="mb-7">
+					<h3 class="text-2xl font-semibold text-gray-800">Resumen de la orden</h3>
+					<p class="text-gray-400">
+						Cliente: {customerName}
+					</p>
+					<p class="text-gray-400">
+						Numero: {phoneNumber}
+					</p>
+					<p class="text-gray-400">
+						Dirección: {customerAddress}
+					</p>
+				</div>
+			</div>
+
+			<div class="flex justify-around">
+				<Pill pill={$selectedTicket.status} />
+				<Pill delivered={$selectedTicket.delivered} />
+			</div>
+
+			<div class="divide-y divide-solid overflow-auto">
+				<div class="flex w-full justify-between py-3 text-gray-500">
+					<div>Total de articulos</div>
+					<div>{$selectedTicket.products.length}</div>
+				</div>
+				<div class="flex w-full justify-between py-3 text-gray-500">
+					<div>Subtotal</div>
+					<div>$ {subtotal}</div>
+				</div>
+				<div class="flex w-full justify-between py-3 text-gray-500">
+					<div>IVA</div>
+					<div>$ {subtotalProducts($selectedTicket.products) * 0.16}</div>
+				</div>
+				<div class="flex w-full justify-between py-6">
+					<h3 class="text-xl font-semibold text-gray-800">Total de la orden</h3>
+					<h3 class="text-xl font-semibold text-gray-800">$ {total}</h3>
+				</div>
+			</div>
+			<div class="mt-auto">
+				<button
+					type="button"
+					class="w-full rounded bg-indigo-600 py-2 text-white hover:bg-indigo-700"
+					>Completar orden</button
+				>
+			</div>
+		</div>
+	</div>
 </section>
+
+<Modal
+	title="Buscar cliente"
+	subtitle="Ingrese el numero del cliente"
+	cancelButton={true}
+	form={true}
+	{open}
+>
+	<div slot="form">
+		<form action="?/findCustomer" method="post" use:enhance={setCustomerTicket}>
+			<NumberField name="phone" required={true} />
+			<div class="modal-action">
+				<div class="flex w-full justify-around">
+					<button
+						type="button"
+						on:click={closeModal}
+						class="rounded bg-gray-700 py-2 px-3 text-center text-white shadow shadow-gray-700 hover:bg-gray-600"
+						on>Cancelar</button
+					>
+
+					<button
+						type="submit"
+						class="rounded bg-indigo-700 py-2 px-3 text-center text-white shadow shadow-indigo-700 hover:bg-indigo-600"
+						on>Buscar</button
+					>
+				</div>
+			</div>
+		</form>
+	</div>
+</Modal>
+
+<style>
+	::-webkit-scrollbar {
+		width: 0.5em;
+	}
+	::-webkit-scrollbar-track {
+		background-color: rgb(229 231 235);
+		border-radius: 100vw;
+	}
+	::-webkit-scrollbar-thumb {
+		background-color: rgb(209 213 219);
+		border-radius: 100vw;
+	}
+</style>

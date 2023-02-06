@@ -17,7 +17,7 @@ const initialValues = [
 			pending: pending to be delivered
 			delivered: order delivered
 		*/
-		devivered: 'pending'
+		delivered: 'pending'
 	}
 ];
 
@@ -47,26 +47,6 @@ function ticketStore() {
 		const tickets = get(ticketStorage);
 		const ticketPosition = tickets.findIndex((ticket) => ticket.selectedTicket === true);
 		selectedTicket.set(tickets[ticketPosition]);
-	};
-
-	const findProduct = async (product) => {
-		const formData = new FormData();
-
-		for (let field of product) {
-			const [key, value] = field;
-			formData.append(key, value);
-		}
-
-		try {
-			const response = await fetch('/orders?/findProduct', {
-				method: 'POST',
-				body: formData
-			});
-			const data = await response.json();
-			return data;
-		} catch (error) {
-			return error;
-		}
 	};
 
 	const totalCalculation = (tickets, ticketPosition) => {
@@ -130,7 +110,9 @@ function ticketStore() {
 				tickets[i].selectedTicket = false;
 			}
 
-			ticketStorage.set((tickets[0].selectedTicket = true));
+			tickets[0].selectedTicket = true;
+
+			ticketStorage.set(tickets);
 			return [...tickets];
 		});
 	};
@@ -219,6 +201,50 @@ function ticketStore() {
 		});
 	};
 
+	const setCustomerTicket = (ticket, customerInfo) => {
+		update((tickets) => {
+			if (customerInfo && customerInfo._id) {
+				const existingTicket = tickets.findIndex(
+					(customer) => customer.customer._id === customerInfo._id
+				);
+
+				if (existingTicket >= 0) {
+					for (let i = 0; i < tickets.length; i++) {
+						tickets[i].selectedTicket = false;
+					}
+
+					tickets[existingTicket].selectedTicket = true;
+
+					selectedTicket.set(tickets[existingTicket]);
+					ticketStorage.set(tickets);
+					return [...tickets];
+				}
+
+				tickets[ticket].customer = customerInfo;
+			} else {
+				tickets[ticket].customer = {};
+				tickets[ticket].customer.phone = customerInfo;
+			}
+			ticketStorage.set(tickets);
+			return [...tickets];
+		});
+	};
+
+	const selectTicket = (ticket) => {
+		update((tickets) => {
+			for (let i = 0; i < tickets.length; i++) {
+				tickets[i].selectedTicket = false;
+			}
+
+			tickets[ticket].selectedTicket = true;
+
+			selectedTicket.set(tickets[ticket]);
+			ticketStorage.set(tickets);
+
+			return [...tickets];
+		});
+	};
+
 	onLoad();
 
 	return {
@@ -229,65 +255,12 @@ function ticketStore() {
 		removeProduct,
 		addProduct,
 		deductProduct,
-		selectTicket: (ticket) => {
-			update((tickets) => {
-				for (let i = 0; i < tickets.length; i++) {
-					tickets[i].selectedTicket = false;
-				}
-
-				tickets[ticket].selectedTicket = true;
-
-				selectedTicket.set(tickets[ticket]);
-				ticketStorage.set(tickets);
-
-				return [...tickets];
-			});
-		},
-		searchCustomer: async (phone) => {
-			const formData = new FormData();
-			formData.append('phone', phone);
-
-			const response = await fetch('/customers?/getByPhone', {
-				method: 'POST',
-				body: formData
-			});
-			const data = await response.json();
-
-			return data;
-		},
-		setCustomerTicket: (ticket, customerInfo) => {
-			update((tickets) => {
-				if (customerInfo._id) {
-					const existingTicket = tickets.findIndex(
-						(customer) => customer.customer._id === customerInfo._id
-					);
-
-					if (existingTicket >= 0) {
-						for (let i = 0; i < tickets.length; i++) {
-							tickets[i].selectedTicket = false;
-						}
-
-						tickets[existingTicket].selectedTicket = true;
-
-						selectedTicket.set(tickets[existingTicket]);
-						ticketStorage.set(tickets);
-						return [...tickets];
-					}
-
-					tickets[ticket].customer = customerInfo;
-				} else {
-					tickets[ticket].customer = {};
-					tickets[ticket].customer.phone = customerInfo;
-				}
-				ticketStorage.set(tickets);
-				return [...tickets];
-			});
-		},
+		setCustomerTicket,
+		selectTicket,
 		reset: () => {
 			set(initialValues);
 		},
 		completeOrder: (status, delivery) => {
-			let response;
 			update((tickets) => {
 				const ticketPosition = tickets.findIndex((ticket) => ticket.selectedTicket === true);
 

@@ -1,19 +1,19 @@
 <script>
-	export let label;
+	export let label = undefined;
 	export let name;
 	export let placeholder = '';
 	export let min = 0;
-	export let max = 999999;
+	export let max = 9999999999;
 	export let disabled = false;
 	export let required = false;
 
-	export let value;
-	export let errors;
+	export let value = '';
+	export let errors = undefined;
 </script>
 
-<div class="form-control w-full mb-3">
+<div class="form-control mb-3 w-full">
 	{#if label}
-		<label class="block text-gray-600 font-bold mb-2 uppercase text-sm leading-normal" for={name}>
+		<label class="mb-2 block text-sm font-bold uppercase leading-normal text-gray-600" for={name}>
 			{label}
 		</label>
 	{/if}
@@ -25,15 +25,15 @@
 		{max}
 		step="any"
 		{placeholder}
-		class={`border border-gray-300 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:border-gray-500
-			${disabled ? 'disabled:bg-gray-200 cursor-no-drop' : ''}
+		class={`w-full rounded border border-gray-300 py-2 px-3 text-gray-700 focus:border-gray-500 focus:outline-none
+			${disabled ? 'cursor-no-drop disabled:bg-gray-200' : ''}
 			${errors ? 'border-red-400' : ''}`}
 		bind:value
 		{disabled}
 		{required}
 	/>
 	{#if errors}
-		<span class="text-red-500 text-xs italic">{errors[0]}</span>
+		<span class="text-xs italic text-red-500">{errors[0]}</span>
 	{/if}
 </div>
 

@@ -91,10 +91,15 @@
 								<td class="py-2 px-5 text-center">{product.wholesale ?? 'Sin inventario'}</td>
 								<td class="py-2 px-5 text-center">{product.stock?.stock ?? 'Sin inventario'}</td>
 								<td class="py-2 px-5 text-center">
-									<div class="item-center flex justify-center">
+									<div class="item-center flex justify-around">
+										<a href="/customers/{product._id}">
+											<div class="cursor-pointer text-base hover:text-indigo-700">
+												<Icon icon="ic:outline-remove-red-eye" />
+											</div>
+										</a>
 										<a href="/products/{product._id}">
 											<input type="hidden" name="id" value={product._id} />
-											<div class="mr-2 cursor-pointer text-base hover:text-indigo-700">
+											<div class="cursor-pointer text-base hover:text-indigo-700">
 												<Icon icon="mdi:pencil" />
 											</div>
 										</a>
@@ -102,7 +107,7 @@
 										<form action="?/delete" method="POST" on:submit|preventDefault={deleteProduct}>
 											<input type="hidden" name="id" value={product._id} />
 											<button>
-												<div class="mr-2 cursor-pointer text-base hover:text-red-700">
+												<div class="cursor-pointer text-base hover:text-red-700">
 													<Icon icon="uil:trash-alt" />
 												</div>
 											</button>

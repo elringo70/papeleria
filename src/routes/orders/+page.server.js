@@ -34,9 +34,8 @@ export const actions = {
 			const { phone } = Object.fromEntries(await request.formData());
 			const findCustomer = await User.findOne({ phone: phone });
 
-			console.log(findCustomer);
-
-			return { success: true };
+			if (findCustomer) return { customer: JSON.parse(JSON.stringify(findCustomer)) };
+			return { phone: JSON.parse(JSON.stringify(phone)) };
 		} catch (err) {
 			console.log('Error: ', err);
 			throw error(500, err);
