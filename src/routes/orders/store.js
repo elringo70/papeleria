@@ -89,7 +89,7 @@ function ticketStore() {
 					total: 0,
 					selectedTicket: false,
 					status: 'open',
-					devivered: 'pending'
+					delivered: 'pending'
 				}
 			];
 

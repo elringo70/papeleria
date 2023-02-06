@@ -3,8 +3,8 @@
 	 * @param {('open' | 'pending' | 'closed')} pill
 	 * @param {('pending' | 'delivered')} delivered
 	 * **/
-	export let pill;
-	export let delivered;
+	export let pill = undefined;
+	export let delivered = undefined;
 
 	const pillColor = {
 		open: {
