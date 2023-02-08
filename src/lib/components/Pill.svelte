@@ -1,9 +1,12 @@
 <script>
 	/**
-	 * @param {('open' | 'pending' | 'closed')} pill
-	 * @param {('pending' | 'delivered')} delivered
+	 * @type {('open' | 'pending' | 'closed')} pill
 	 * **/
 	export let pill = undefined;
+
+	/**
+	 * @type {('pending' | 'delivered')} delivered
+	 */
 	export let delivered = undefined;
 
 	const pillColor = {

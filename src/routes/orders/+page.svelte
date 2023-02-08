@@ -1,6 +1,5 @@
 <script>
-	import { invalidateAll } from '$app/navigation';
-	import { applyAction, deserialize, enhance } from '$app/forms';
+	import { enhance } from '$app/forms';
 	import { tickets, selectedTicket } from './store';
 
 	import Icon from '@iconify/svelte';
@@ -147,6 +146,9 @@
 			if (e.key === 'Escape') closeModal();
 		}
 	};
+
+	// Product search modal
+	let productSearchModal = false;
 </script>
 
 <svelte:window on:keydown={onKeyClose} />
@@ -174,7 +176,7 @@
 		<div class="mt-auto p-2">
 			<button
 				type="button"
-				class="mt-auto w-full rounded bg-indigo-600 py-2 text-white hover:bg-indigo-700"
+				class="mt-auto w-full rounded border-indigo-600 bg-indigo-600 py-2 text-white hover:border-indigo-700 hover:bg-indigo-700"
 				disabled={loading}
 				on:click={addTicket}>Agregar ticket</button
 			>
@@ -372,6 +374,34 @@
 					>
 				</div>
 			</div>
+		</form>
+	</div>
+</Modal>
+
+<Modal title="Buscar producto" cancelButton={true} form={true} open={productSearchModal}>
+	<div slot="form">
+		<form action="?/searchProduct" method="post">
+			<Input name="searchProduct" placeholder="Buscar producto" />
+			<table class="w-full min-w-max table-auto">
+				<thead>
+					<tr class="bg-gray-200 text-sm uppercase leading-normal text-gray-600">
+						<th class="py-3 px-6 text-left">Producto</th>
+						<th class="py-3 px-6 text-left">Marca</th>
+						<th class="py-3 px-6 text-left">Categoría</th>
+						<th class="py-3 px-6 text-center">Precio</th>
+						<th class="py-3 px-6 text-center">Inventario</th>
+					</tr>
+				</thead>
+				<tbody class="text-sm font-light text-gray-600">
+					<tr class="border-b border-gray-200 bg-gray-50 hover:bg-gray-100">
+						<td class="py-2 px-5 text-center">Borrador</td>
+						<td class="py-2 px-5 text-left">Barrilito</td>
+						<td class="py-2 px-5 text-center">Papelería</td>
+						<td class="py-2 px-5 text-center">$ 10</td>
+						<td class="py-2 px-5 text-center">10</td>
+					</tr>
+				</tbody>
+			</table>
 		</form>
 	</div>
 </Modal>

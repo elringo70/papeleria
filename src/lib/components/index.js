@@ -8,5 +8,6 @@ import Checkbox from './Checkbox.svelte';
 import NumberField from './NumberField.svelte';
 import Combobox from './Combobox.svelte';
 import Pill from './Pill.svelte';
+import Modal1 from './Modal1.svelte';
 
-export { Alert, Button, Input, NumberField, Modal, Select, Checkbox, Combobox, Pill };
+export { Alert, Button, Input, NumberField, Modal, Select, Checkbox, Combobox, Pill, Modal1 };
