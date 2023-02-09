@@ -9,6 +9,7 @@
 	import { NumberField, Input, Pill } from '$lib/components';
 
 	import { customerNameFormat, phoneNumberFormat } from '$utils/stringUtils';
+	import TableModal from '../../lib/components/TableModal.svelte';
 
 	let loading = false;
 
@@ -134,6 +135,7 @@
 
 	const closeModal = () => {
 		open = false;
+		productSearchModal = false;
 	};
 
 	const customerSearchModal = (index) => {
@@ -141,17 +143,28 @@
 		ticketPosition = index;
 	};
 
-	const onKeyClose = (e) => {
-		if (open) {
-			if (e.key === 'Escape') closeModal();
+	const openProductSearchModal = () => {
+		productSearchModal = true;
+	};
+
+	const onKeydown = (e) => {
+		console.log(e.key, e.isComposing);
+		switch (e.key) {
+			case 'Escape':
+				closeModal();
+				break;
+			case 'F10':
+				openProductSearchModal();
+				break;
 		}
 	};
 
 	// Product search modal
+	let inputSearchModal;
 	let productSearchModal = false;
 </script>
 
-<svelte:window on:keydown={onKeyClose} />
+<svelte:window on:keydown={onKeydown} />
 
 <svelte:head>
 	<title>Cliente nuevo</title>
@@ -378,33 +391,7 @@
 	</div>
 </Modal>
 
-<Modal title="Buscar producto" cancelButton={true} form={true} open={productSearchModal}>
-	<div slot="form">
-		<form action="?/searchProduct" method="post">
-			<Input name="searchProduct" placeholder="Buscar producto" />
-			<table class="w-full min-w-max table-auto">
-				<thead>
-					<tr class="bg-gray-200 text-sm uppercase leading-normal text-gray-600">
-						<th class="py-3 px-6 text-left">Producto</th>
-						<th class="py-3 px-6 text-left">Marca</th>
-						<th class="py-3 px-6 text-left">Categoría</th>
-						<th class="py-3 px-6 text-center">Precio</th>
-						<th class="py-3 px-6 text-center">Inventario</th>
-					</tr>
-				</thead>
-				<tbody class="text-sm font-light text-gray-600">
-					<tr class="border-b border-gray-200 bg-gray-50 hover:bg-gray-100">
-						<td class="py-2 px-5 text-center">Borrador</td>
-						<td class="py-2 px-5 text-left">Barrilito</td>
-						<td class="py-2 px-5 text-center">Papelería</td>
-						<td class="py-2 px-5 text-center">$ 10</td>
-						<td class="py-2 px-5 text-center">10</td>
-					</tr>
-				</tbody>
-			</table>
-		</form>
-	</div>
-</Modal>
+<TableModal open={productSearchModal} self={inputSearchModal} />
 
 <style>
 	::-webkit-scrollbar {

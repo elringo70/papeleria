@@ -9,6 +9,7 @@
 	export let maxlength = 100;
 	export let minlength = 0;
 	export let pattern = null;
+	export let self = undefined;
 
 	export let onChange = () => {};
 	export let onKeyup = () => {};
@@ -45,6 +46,7 @@
 		{maxlength}
 		{minlength}
 		{pattern}
+		bind:this={self}
 		on:change={onChange}
 		on:keyup={onKeyup}
 		on:input={onInput}
