@@ -1,27 +1,61 @@
 <script>
+	import { fly } from 'svelte/transition';
+
 	import { Input } from '$lib/components';
+
 	export let tableModal;
+	export let tableHeader = [];
+	export let tableRow = [];
+	export let onInput = () => {};
 
 	const closeModal = () => {
 		tableModal.close();
 	};
 </script>
 
-<dialog bind:this={tableModal} class="rounded shadow-lg">
-	<form action="" method="post" class="my-3 mx-5 max-w-2xl">
-		<Input label="Buscar producto" />
-		<div class="flex justify-end">
-			<button
-				type="button"
-				class="rounded bg-indigo-700 py-2 px-3 text-center text-white shadow shadow-indigo-700 hover:bg-indigo-600"
-				on:click={closeModal}>Cerrar</button
-			>
-		</div>
-	</form>
+<dialog bind:this={tableModal} class="w-2/4 rounded shadow-lg" transition:fly>
+	<Input label="Buscar producto" {onInput} />
+
+	<table class="w-full min-w-max table-auto">
+		<thead>
+			<tr class="bg-gray-200 text-sm uppercase leading-normal text-gray-600">
+				{#each tableHeader as th}
+					<th class="py-3 px-6 text-center">{th}</th>
+				{/each}
+			</tr>
+		</thead>
+		<tbody>
+			{#each tableRow as tr}
+				<tr class="border-b border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100">
+					{tr}
+				</tr>
+			{/each}
+		</tbody>
+	</table>
+	<div class="flex justify-end">
+		<button
+			type="button"
+			class="rounded bg-indigo-700 py-2 px-3 text-center text-white shadow shadow-indigo-700 hover:bg-indigo-600"
+			on:click={closeModal}>Cerrar</button
+		>
+	</div>
 </dialog>
 
 <style>
 	::backdrop {
 		background-color: rgba(0, 0, 0, 0.55);
+	}
+
+	dialog[open] {
+		animation: show 0.3s ease normal;
+	}
+
+	@keyframes show {
+		from {
+			transform: translateY(-200%);
+		}
+		to {
+			transform: translateY(0%);
+		}
 	}
 </style>

@@ -5,6 +5,14 @@
 	const openModal = () => {
 		tableModal.showModal();
 	};
+	const tableHeader = ['Producto', 'Marca', 'Categoría', 'Precio'];
+
+	const searchProductInput = (e) => {
+		const string = e.target.value.normalize('NFC');
+		if (string !== '') {
+			console.log(string);
+		}
+	};
 </script>
 
 <h1>Welcome to your library project</h1>
@@ -16,4 +24,4 @@
 	on:click={openModal}>Abrir</button
 >
 
-<TableModal bind:tableModal />
+<TableModal bind:tableModal {tableHeader} onInput={searchProductInput} />

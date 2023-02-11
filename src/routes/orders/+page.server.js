@@ -42,5 +42,15 @@ export const actions = {
 		} finally {
 			await dbDisconnect();
 		}
+	},
+	searchProduct: async ({ request }) => {
+		try {
+			await dbConnect();
+		} catch (err) {
+			console.log('Error: ', err);
+			throw error(500, err);
+		} finally {
+			await dbDisconnect();
+		}
 	}
 };
