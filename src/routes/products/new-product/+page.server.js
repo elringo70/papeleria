@@ -71,13 +71,14 @@ export const actions = {
 
 			const product = new Product(body);
 			await product.save();
-
 			return { success: true };
 		} catch (err) {
-			console.log('Error: ', err);
-			throw error(500, err);
+			console.log(err);
+			throw error(500, { message: 'Error en la base de datos' });
 		} finally {
 			await dbDisconnect();
 		}
+
+		//if (productError) throw error(500, { message: 'Error en la base de datos' });
 	}
 };

@@ -46,6 +46,12 @@ export const actions = {
 	searchProduct: async ({ request }) => {
 		try {
 			await dbConnect();
+
+			const { product } = Object.fromEntries(await request.formData());
+
+			const findProduct = await Product.findOne({ name: product }).sort({ name: 'asc' });
+
+			return { products: JSON.parse(JSON.stringify(findProduct)) };
 		} catch (err) {
 			console.log('Error: ', err);
 			throw error(500, err);

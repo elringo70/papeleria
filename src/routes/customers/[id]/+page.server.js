@@ -23,7 +23,7 @@ export async function load({ params }) {
 
 export const actions = {
 	submit: async ({ request }) => {
-		let customerError;
+		let customerError = null;
 		try {
 			await dbConnect();
 

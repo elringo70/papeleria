@@ -6,10 +6,9 @@
 	import Swal from 'sweetalert2';
 	import Ticket from '$lib/components/order/Ticket.svelte';
 	import Modal from '$lib/components/Modal.svelte';
-	import { NumberField, Input, Pill } from '$lib/components';
+	import { NumberField, Input, Pill, TableModal } from '$lib/components';
 
 	import { customerNameFormat, phoneNumberFormat } from '$utils/stringUtils';
-	import TableModal from '../../lib/components/TableModal.svelte';
 
 	let loading = false;
 
@@ -135,7 +134,6 @@
 
 	const closeModal = () => {
 		open = false;
-		productSearchModal = false;
 	};
 
 	const customerSearchModal = (index) => {
@@ -143,25 +141,40 @@
 		ticketPosition = index;
 	};
 
-	const openProductSearchModal = () => {
-		productSearchModal = true;
-	};
-
 	const onKeydown = (e) => {
-		console.log(e.key, e.isComposing);
 		switch (e.key) {
 			case 'Escape':
 				closeModal();
 				break;
 			case 'F10':
-				openProductSearchModal();
+				openModal();
 				break;
 		}
 	};
 
 	// Product search modal
-	let inputSearchModal;
-	let productSearchModal = false;
+	let tableModal = null;
+
+	const openModal = () => {
+		tableModal.showModal();
+	};
+	const tableHeader = ['Producto', 'Marca', 'Categoría', 'Precio'];
+
+	let data;
+	$: data;
+	const searchProductInput = async (e) => {
+		const string = e.target.value.normalize('NFC');
+		if (string !== '') {
+			const response = await fetch('/api/orders', {
+				method: 'post',
+				body: JSON.stringify(string)
+			});
+
+			data = await response.json();
+		} else if (string === '') {
+			data = [];
+		}
+	};
 </script>
 
 <svelte:window on:keydown={onKeydown} />
@@ -391,7 +404,7 @@
 	</div>
 </Modal>
 
-<TableModal open={productSearchModal} self={inputSearchModal} />
+<TableModal bind:tableModal {tableHeader} onInput={searchProductInput} tableRow={data} />
 
 <style>
 	::-webkit-scrollbar {

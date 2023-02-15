@@ -1,6 +1,8 @@
 <script>
 	import { enhance } from '$app/forms';
 
+	import Swal from 'sweetalert2';
+
 	import { confirmModal } from '$utils/modalButton';
 
 	import { Input, Select, Checkbox, NumberField } from '$lib/components';
@@ -16,7 +18,7 @@
 		loading = true;
 
 		return async ({ result }) => {
-			errors = result.data.errors;
+			errors = result?.data?.errors;
 			switch (result.type) {
 				case 'success':
 					const body = Object.fromEntries(data);
@@ -54,6 +56,10 @@
 					});
 					break;
 				case 'error':
+					Swal.fire({
+						icon: 'error',
+						title: result.error.message
+					});
 					break;
 			}
 			loading = false;
