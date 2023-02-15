@@ -140,6 +140,7 @@
 						options={data?.categories}
 						required={true}
 						value={form?.data?.category ?? ''}
+						valueOption='_id'
 						errors={errors?.category}
 					/>
 				</div>

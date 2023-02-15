@@ -33,7 +33,6 @@ export const actions = {
 			const { formData, errors } = await validateData(form, productSchema);
 
 			const findCategory = await Category.findById(formData.category);
-
 			if (!findCategory) {
 				return fail(400, { message: 'La categoría no existe' });
 			}
@@ -78,7 +77,5 @@ export const actions = {
 		} finally {
 			await dbDisconnect();
 		}
-
-		//if (productError) throw error(500, { message: 'Error en la base de datos' });
 	}
 };

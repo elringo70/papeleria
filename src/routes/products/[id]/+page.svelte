@@ -205,6 +205,7 @@
 						value={data?.product?.category
 							? data?.product?.category
 							: form?.product?.category ?? ''}
+						valueOption="name"
 						errors={errors?.category}
 					/>
 				</div>

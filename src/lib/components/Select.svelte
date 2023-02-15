@@ -6,6 +6,7 @@
 	export let options;
 	export let disabled = false;
 	export let required = false;
+	export let valueOption;
 
 	export let value;
 	export let errors;
@@ -27,7 +28,7 @@
 	>
 		<option disabled selected>Seleccione categoría</option>
 		{#each options as option}
-			<option value={option.name}>{firstUppercase(option.name)}</option>
+			<option value={option[valueOption]}>{firstUppercase(option.name)}</option>
 		{/each}
 	</select>
 	{#if errors}
