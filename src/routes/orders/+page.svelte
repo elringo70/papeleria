@@ -42,7 +42,7 @@
 		}
 	}
 
-	function addProductToTicket({ form, data }) {
+	function addProductToTicket() {
 		loading = true;
 		return async ({ result, update }) => {
 			switch (result.type) {
@@ -152,16 +152,18 @@
 		}
 	};
 
+	////////////////////////////////////////////////////////////////////
 	// Product search modal
 	let tableModal = null;
+	let data, form;
+	$: data;
 
 	const openModal = () => {
 		tableModal.showModal();
 	};
+
 	const tableHeader = ['Producto', 'Marca', 'Categoría', 'Precio'];
 
-	let data;
-	$: data;
 	const searchProductInput = async (e) => {
 		const string = e.target.value.normalize('NFC');
 		if (string !== '') {
@@ -175,6 +177,14 @@
 			data = [];
 		}
 	};
+
+	function selectProductFromModal(e) {
+		e.preventDefault();
+		form.submit();
+		data = [];
+		tableModal.close();
+	}
+	////////////////////////////////////////////////////////////////////
 </script>
 
 <svelte:window on:keydown={onKeydown} />
@@ -250,7 +260,8 @@
 						<td class="py-1.5 px-2 text-center">$ {ticket.product.price}</td>
 						<td class="py-1.5 px-2 text-center">{ticket.quantity}</td>
 						<td class="py-1.5 px-2 text-center">$ {ticket.quantity * ticket.product.price}</td>
-						<td class="py-1.5 px-2 text-center">{ticket.product.stock.stock - ticket.quantity}</td>
+						<td class="py-1.5 px-2 text-center">{ticket.product?.stock?.stock - ticket.quantity}</td
+						>
 
 						<td class="flex items-center justify-center gap-x-2 px-2 py-1.5 text-center">
 							<button
@@ -404,7 +415,14 @@
 	</div>
 </Modal>
 
-<TableModal bind:tableModal {tableHeader} onInput={searchProductInput} tableRow={data} />
+<TableModal
+	bind:tableModal
+	bind:form
+	{tableHeader}
+	onInput={searchProductInput}
+	tableRow={data}
+	onDblClick={selectProductFromModal}
+/>
 
 <style>
 	::-webkit-scrollbar {
