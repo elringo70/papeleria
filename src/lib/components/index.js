@@ -9,5 +9,18 @@ import NumberField from './NumberField.svelte';
 import Combobox from './Combobox.svelte';
 import Pill from './Pill.svelte';
 import TableModal from './TableModal.svelte';
+import Pagination from './Pagination.svelte';
 
-export { Alert, Button, Input, NumberField, Modal, Select, Checkbox, Combobox, Pill, TableModal };
+export {
+	Alert,
+	Button,
+	Input,
+	NumberField,
+	Modal,
+	Select,
+	Checkbox,
+	Combobox,
+	Pill,
+	TableModal,
+	Pagination
+};

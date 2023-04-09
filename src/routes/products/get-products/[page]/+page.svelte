@@ -1,6 +1,9 @@
 <script>
 	import { invalidateAll } from '$app/navigation';
 	import { applyAction, deserialize } from '$app/forms';
+	import { page } from '$app/stores';
+
+	import { Pagination } from '$lib/components';
 
 	import { firstUppercase } from '$utils/stringUtils';
 
@@ -8,6 +11,9 @@
 	import Icon from '@iconify/svelte';
 
 	export let data;
+
+	$: totalPages = Math.ceil(data.pagination.count / data.pagination.limit);
+	$: currentPage = Number($page.params.page) || 1;
 
 	async function deleteProduct() {
 		const confirmationModal = await Swal.fire({
@@ -51,9 +57,9 @@
 	}
 </script>
 
-<div class="overflow-x-auto">
-	<div class="min-w-screen flex min-h-screen justify-center overflow-hidden bg-gray-100 font-sans">
-		<div class="w-full lg:w-5/6">
+<div class="flex justify-center bg-gray-100 font-sans">
+	<div class="basis-5/6">
+		<div class="flex-col justify-center">
 			<div class="my-6 rounded bg-white shadow-lg">
 				<table class="w-full min-w-max table-auto">
 					<thead>
@@ -73,17 +79,17 @@
 							<tr class="border-b border-gray-200 bg-gray-50 hover:bg-gray-100">
 								<td class="py-2 px-5 text-left">
 									<div class="flex items-center">
-										<span class="font-medium">{firstUppercase(product.product)}</span>
+										<span class="font-medium">{product.product}</span>
 									</div>
 								</td>
 								<td class="py-2 px-5 text-left">
 									<div class="flex items-center">
-										<span>{firstUppercase(product.brand)}</span>
+										<span>{product.brand}</span>
 									</div>
 								</td>
 								<td class="py-2 px-5 text-center">
 									<div class="flex items-center justify-center">
-										{firstUppercase(product.category)}
+										{product.category}
 									</div>
 								</td>
 								<td class="py-2 px-5 text-center">$ {product.cost}</td>
@@ -120,6 +126,9 @@
 						{/each}
 					</tbody>
 				</table>
+			</div>
+			<div class="flex justify-center">
+				<Pagination {currentPage} {totalPages} />
 			</div>
 		</div>
 	</div>
