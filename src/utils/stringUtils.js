@@ -1,5 +1,4 @@
 export const firstUppercase = (string) => {
-	console.log(string);
 	return (
 		string.split('')[0].toUpperCase() +
 		string.toLowerCase().split('').slice(1, string.length).join('')

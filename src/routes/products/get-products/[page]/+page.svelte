@@ -7,10 +7,11 @@
 
 	import { firstUppercase } from '$utils/stringUtils';
 
-	import Swal from 'sweetalert2';
+	import Swal from 'sweetalert2/dist/sweetalert2.all.js';
 	import Icon from '@iconify/svelte';
 
 	export let data;
+	let modalOpen = false;
 
 	$: totalPages = Math.ceil(data.pagination.count / data.pagination.limit);
 	$: currentPage = Number($page.params.page) || 1;
@@ -55,12 +56,39 @@
 			applyAction(result);
 		}
 	}
+
+	const openCloseModal = () => {
+		modalOpen = !modalOpen;
+	};
+
+	async function getProductDetail() {
+		const data = new FormData(this);
+
+		const response = await fetch(this.action, {
+			method: 'POST',
+			body: data
+		});
+
+		console.log(response);
+
+		const result = deserialize(await response.text());
+
+		switch (result.type) {
+			case 'success':
+				console.log('first');
+
+				break;
+		}
+		applyAction(result);
+
+		openCloseModal();
+	}
 </script>
 
-<div class="flex justify-center bg-gray-100 font-sans">
+<div class="flex justify-center bg-gray-100 py-5 font-sans">
 	<div class="basis-5/6">
 		<div class="flex-col justify-center">
-			<div class="my-6 rounded bg-white shadow-lg">
+			<div class="rounded bg-white shadow-lg">
 				<table class="w-full min-w-max table-auto">
 					<thead>
 						<tr class="bg-gray-200 text-sm uppercase leading-normal text-gray-600">
@@ -97,12 +125,20 @@
 								<td class="py-2 px-5 text-center">{product.wholesale ?? 'Sin inventario'}</td>
 								<td class="py-2 px-5 text-center">{product.stock?.stock ?? 'Sin inventario'}</td>
 								<td class="py-2 px-5 text-center">
-									<div class="item-center flex justify-around">
-										<a href="/customers/{product._id}">
-											<div class="cursor-pointer text-base hover:text-indigo-700">
-												<Icon icon="ic:outline-remove-red-eye" />
-											</div>
-										</a>
+									<div class="flex items-center justify-around">
+										<form
+											action="?/getProductDetail"
+											method="post"
+											class="m-0 inline p-0"
+											on:submit|preventDefault={getProductDetail}
+										>
+											<input type="hidden" name="id" value={product._id} />
+											<button type="submit">
+												<div class="cursor-pointer text-base hover:text-indigo-700">
+													<Icon icon="ic:outline-remove-red-eye" />
+												</div>
+											</button>
+										</form>
 										<a href="/products/{product._id}">
 											<input type="hidden" name="id" value={product._id} />
 											<div class="cursor-pointer text-base hover:text-indigo-700">
@@ -110,7 +146,12 @@
 											</div>
 										</a>
 
-										<form action="?/delete" method="POST" on:submit|preventDefault={deleteProduct}>
+										<form
+											action="?/delete"
+											method="post"
+											class="m-0 inline p-0"
+											on:submit|preventDefault={deleteProduct}
+										>
 											<input type="hidden" name="id" value={product._id} />
 											<button>
 												<div class="cursor-pointer text-base hover:text-red-700">
@@ -127,9 +168,21 @@
 					</tbody>
 				</table>
 			</div>
-			<div class="flex justify-center">
+			<div class="pt-5">
 				<Pagination {currentPage} {totalPages} />
 			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal {modalOpen ? 'modal-open' : ''}" id="my-modal-2">
+	<div class="modal-box">
+		<h3 class="text-lg font-bold">Congratulations random Internet user!</h3>
+		<p class="py-4">
+			You've been selected for a chance to get one year of subscription to use Wikipedia for free!
+		</p>
+		<div class="modal-action">
+			<button class="btn" on:click={openCloseModal}>Yay!</button>
 		</div>
 	</div>
 </div>

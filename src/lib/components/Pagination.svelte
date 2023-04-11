@@ -52,80 +52,64 @@
 	};
 </script>
 
-<!-- <nav aria-label="Page navigation">
-	<ul class="pagination justify-content-center">
-		<li class="page-item {disabled.start() ? 'disabled' : ''}">
-			<a class="page-link" href="/products/get-products/1">Inicio</a>
-		</li>
-		<li class="page-item {disabled.prev() ? 'disabled' : ''}">
-			<button class="page-link" on:click={previousPage}>Anterior</button>
-		</li>
-		{#each pagesArray as position}
-			<li class="page-item {currentPage === position ? 'active' : ''}">
+<div class="flex justify-center">
+	<nav aria-label="Page navigation">
+		<ul class="list-style-none flex">
+			<li class="page-item {disabled.start() ? 'disabled' : ''}">
 				<a
-					class="page-link"
-					href="/products/get-products/{position}{$page.url.search ? '/' + $page.url.search : ''}"
-					>{position}</a
+					class={disabled.start()
+						? 'page-link pointer-events-none relative block rounded border-0 bg-transparent py-1.5 px-3 text-gray-500 outline-none transition-all duration-300 focus:shadow-none'
+						: 'page-link relative block rounded border-0 bg-transparent py-1.5 px-3 text-gray-800 outline-none transition-all duration-300 hover:bg-gray-200 hover:text-gray-800 focus:shadow-none'}
+					href="/products/get-products/1"
+					tabindex={disabled.start() ? '-1' : ''}
+					aria-disabled={disabled.start() ? 'true' : 'false'}>Inicio</a
 				>
 			</li>
-		{/each}
-		<li class="page-item {disabled.next() ? 'disabled' : ''}">
-			<button class="page-link" on:click={nextPage}>Siguiente</button>
-		</li>
-		<li class="page-item {disabled.end() ? 'disabled' : ''}">
-			<a
-				class="page-link"
-				href="/products/get-products/{totalPages}{$page.url.search ? '/' + $page.url.search : ''}"
-				>Final</a
-			>
-		</li>
-	</ul>
-</nav> -->
 
-<nav aria-label="Page navigation">
-	<ul class="list-style-none flex">
-		<li>
-			<a
-				href="/products/get-products/1"
-				class="text-neutral-500 dark:text-neutral-400 pointer-events-none relative block rounded bg-transparent px-3 py-1.5 text-sm transition-all duration-300"
-				>Inicio</a
-			>
-		</li>
-		<li>
-			<a
-				href="/products/get-products/1"
-				class="text-neutral-500 dark:text-neutral-400 pointer-events-none relative block rounded bg-transparent px-3 py-1.5 text-sm transition-all duration-300"
-				>Anterior</a
-			>
-		</li>
-		<li>
-			<a
-				class="text-neutral-600 hover:bg-neutral-100 dark:hover:bg-neutral-700 relative block rounded bg-transparent px-3 py-1.5 text-sm transition-all  duration-300 dark:text-white dark:hover:text-white"
-				href="#!">1</a
-			>
-		</li>
-		<li aria-current="page">
-			<a
-				class="bg-primary-100 text-primary-700 relative block rounded px-3 py-1.5 text-sm font-medium transition-all duration-300"
-				href="#!"
-				>2
-				<span
-					class="absolute -m-px h-px w-px overflow-hidden whitespace-nowrap border-0 p-0 [clip:rect(0,0,0,0)]"
-					>(current)</span
+			<li class="page-item {disabled.prev() ? 'disabled' : ''}">
+				<button
+					class={disabled.prev()
+						? 'page-link pointer-events-none relative block rounded border-0 bg-transparent py-1.5 px-3 text-gray-500 outline-none transition-all duration-300 focus:shadow-none'
+						: 'page-link relative block rounded border-0 bg-transparent py-1.5 px-3 text-gray-800 outline-none transition-all duration-300 hover:bg-gray-200 hover:text-gray-800 focus:shadow-none'}
+					on:click={previousPage}
+					tabindex={disabled.prev() ? '-1' : ''}
+					aria-disabled={disabled.prev() ? 'true' : ''}>Anterior</button
 				>
-			</a>
-		</li>
-		<li>
-			<a
-				class="text-neutral-600 hover:bg-neutral-100 dark:hover:bg-neutral-700 relative block rounded bg-transparent px-3 py-1.5 text-sm transition-all duration-300 dark:text-white dark:hover:text-white"
-				href="#!">3</a
-			>
-		</li>
-		<li>
-			<a
-				class="text-neutral-600 hover:bg-neutral-100 dark:hover:bg-neutral-700 relative block rounded bg-transparent px-3 py-1.5 text-sm transition-all duration-300 dark:text-white dark:hover:text-white"
-				href="#!">Next</a
-			>
-		</li>
-	</ul>
-</nav>
+			</li>
+
+			{#each pagesArray as position}
+				<li class="page-item {currentPage === position ? 'active' : ''}">
+					<a
+						class={currentPage === position
+							? 'page-link relative block rounded border-0 bg-blue-600 py-1.5 px-3 text-white shadow-md shadow-blue-400 outline-none transition-all duration-300 hover:bg-blue-600 hover:text-white focus:shadow-md'
+							: 'page-link relative block rounded border-0 bg-transparent py-1.5 px-3 text-gray-800 outline-none transition-all duration-300 hover:bg-gray-200 hover:text-gray-800 focus:shadow-none'}
+						href="/products/get-products/{position}{$page.url.search ? '/' + $page.url.search : ''}"
+						>{position} <span class="visually-hidden" /></a
+					>
+				</li>
+			{/each}
+
+			<li class="page-item {disabled.next() ? 'disabled' : ''}">
+				<button
+					class={disabled.next()
+						? 'page-link pointer-events-none relative block rounded border-0 bg-transparent py-1.5 px-3 text-gray-500 outline-none transition-all duration-300 focus:shadow-none'
+						: 'page-link relative block rounded border-0 bg-transparent py-1.5 px-3 text-gray-800 outline-none transition-all duration-300 hover:bg-gray-200 hover:text-gray-800 focus:shadow-none'}
+					on:click={nextPage}
+					tabindex={disabled.next() ? '-1' : ''}
+					aria-disabled={disabled.next() ? 'true' : ''}>Siguiente</button
+				>
+			</li>
+
+			<li class="page-item {disabled.end() ? 'disabled' : ''}">
+				<button
+					class={disabled.end()
+						? 'page-link pointer-events-none relative block rounded border-0 bg-transparent py-1.5 px-3 text-gray-500 outline-none transition-all duration-300 focus:shadow-none'
+						: 'page-link relative block rounded border-0 bg-transparent py-1.5 px-3 text-gray-800 outline-none transition-all duration-300 hover:bg-gray-200 hover:text-gray-800 focus:shadow-none'}
+					on:click={nextPage}
+					tabindex={disabled.end() ? '-1' : ''}
+					aria-disabled={disabled.end() ? 'true' : ''}>Final</button
+				>
+			</li>
+		</ul>
+	</nav>
+</div>

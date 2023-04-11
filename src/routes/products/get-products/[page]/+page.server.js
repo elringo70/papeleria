@@ -23,6 +23,7 @@ export const load = async ({ params, url }) => {
 	const page = Number(params.page);
 	const limit = 15;
 	try {
+		await dbConnect();
 		const count = await Product.find().count();
 
 		const products = await Product.find()
@@ -47,49 +48,6 @@ export const load = async ({ params, url }) => {
 	}
 };
 
-/* export async function load({ params, url }) {
-	let sortBy = { name: 'asc' };
-	let order = url.searchParams.get('order') || 'asc';
-
-	order = order === 'asc' || order === 'desc' ? order : 'asc';
-
-	switch (url.searchParams.get('sortBy')) {
-		case 'cost':
-			sortBy = {};
-			sortBy = { cost: order };
-			break;
-		case 'product':
-			sortBy = {};
-			sortBy = { product: order };
-			break;
-	}
-
-	const page = Number(params.page);
-	const limit = 15;
-	try {
-		const count = await Product.find().count();
-
-		const products = await Product.find()
-			.limit(limit)
-			.skip(page * limit)
-			.sort(sortBy);
-
-		return {
-			products: JSON.parse(JSON.stringify(products)),
-			pagination: JSON.parse(
-				JSON.stringify({
-					count,
-					limit
-				})
-			)
-		};
-	} catch (err) {
-		console.log(err);
-		throw error(500, { message: 'Error en el servidor' });
-	}
-}
- */
-
 export const actions = {
 	delete: async ({ request }) => {
 		try {
@@ -106,6 +64,23 @@ export const actions = {
 		} catch (err) {
 			console.log('Error: ', err);
 			throw error(500, err);
+		} finally {
+			await dbDisconnect();
+		}
+	},
+	getProductDetail: async ({ request }) => {
+		try {
+			await dbConnect();
+
+			const { id } = Object.fromEntries(await request.formData());
+
+			const product = await Product.find({ _id: id });
+			if (product) {
+				return new Response(JSON.stringify(product), { status: 200 });
+			} else {
+				return fail(400, { message: 'Producto no encontrado' });
+			}
+		} catch (error) {
 		} finally {
 			await dbDisconnect();
 		}
