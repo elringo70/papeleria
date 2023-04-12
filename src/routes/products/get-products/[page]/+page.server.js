@@ -1,4 +1,4 @@
-import { error, fail } from '@sveltejs/kit';
+import { error, fail, json } from '@sveltejs/kit';
 import { Product } from '$models/products';
 import { dbConnect, dbDisconnect } from '$utils/db';
 
@@ -64,23 +64,6 @@ export const actions = {
 		} catch (err) {
 			console.log('Error: ', err);
 			throw error(500, err);
-		} finally {
-			await dbDisconnect();
-		}
-	},
-	getProductDetail: async ({ request }) => {
-		try {
-			await dbConnect();
-
-			const { id } = Object.fromEntries(await request.formData());
-
-			const product = await Product.find({ _id: id });
-			if (product) {
-				return new Response(JSON.stringify(product), { status: 200 });
-			} else {
-				return fail(400, { message: 'Producto no encontrado' });
-			}
-		} catch (error) {
 		} finally {
 			await dbDisconnect();
 		}

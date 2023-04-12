@@ -23,7 +23,7 @@ export const productSchema = z
 			}),
 
 		model: z
-			.string()
+			.string({ required_error: 'Campo requerido' })
 			.min(3, { message: 'Demasiado corto' })
 			.max(64, { message: 'Demasiado largo' })
 			.trim()

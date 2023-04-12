@@ -1,7 +1,7 @@
 <script>
 	import { enhance } from '$app/forms';
 
-	import Swal from 'sweetalert2';
+	import Swal from 'sweetalert2/dist/sweetalert2.all.js';
 
 	import { confirmModal } from '$utils/modalButton';
 
@@ -140,7 +140,7 @@
 						options={data?.categories}
 						required={true}
 						value={form?.data?.category ?? ''}
-						valueOption='_id'
+						valueOption="_id"
 						errors={errors?.category}
 					/>
 				</div>

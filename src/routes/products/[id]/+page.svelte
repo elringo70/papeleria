@@ -1,7 +1,8 @@
 <script>
 	import { invalidateAll } from '$app/navigation';
 	import { applyAction, deserialize } from '$app/forms';
-	import Swal from 'sweetalert2';
+
+	import Swal from 'sweetalert2/dist/sweetalert2.all.js';
 
 	import { confirmModal } from '$utils/modalButton';
 
@@ -110,18 +111,20 @@
 		};
 	};
 
-	let category;
-	$: category = data?.product?.category ? data?.product?.category : form?.data?.category;
+	let category = data?.product?.category ? data?.product?.category : form?.data?.category;
+	$: category;
 
 	//Stock conditional validation
-	let stock, stockMinimum, isChecked;
-	$: isChecked = data?.product?.requiredStock ?? form?.product?.requiredStock;
-	$: stock = data?.product?.stock.stock
+	let stock = data?.product?.stock.stock
 		? data?.product?.stock.stock
 		: form?.data?.stock.stock ?? '';
-	$: stockMinimum = data?.product?.stock.stockMinimum
+	let stockMinimum = data?.product?.stock.stockMinimum
 		? data?.product?.stock.stockMinimum
 		: form?.data?.stock.stockMinimum ?? '';
+	let isChecked = data?.product?.requiredStock ?? form?.product?.requiredStock;
+	$: isChecked;
+	$: stock;
+	$: stockMinimum;
 
 	const resetStockInputs = () => {
 		isChecked = !isChecked;

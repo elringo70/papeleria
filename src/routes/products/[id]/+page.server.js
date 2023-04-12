@@ -65,6 +65,8 @@ export const actions = {
 				}
 			};
 
+			console.log(errors);
+
 			if (errors) {
 				return fail(401, {
 					data: formData,
