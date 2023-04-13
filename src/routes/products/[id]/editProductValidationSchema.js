@@ -23,21 +23,11 @@ export const productSchema = z
 			}),
 
 		model: z
-			.string({ required_error: 'Campo requerido' })
+			.string()
 			.min(3, { message: 'Demasiado corto' })
 			.max(64, { message: 'Demasiado largo' })
 			.trim()
-			.or(z.literal(''))
-			.superRefine((val, ctx) => {
-				const parsed = parseInt(val);
-				if (!isNaN(parsed)) {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: 'Ingrese un nombre valido'
-					});
-				}
-			}),
-
+			.or(z.literal('')),
 		brand: z
 			.string()
 			.min(3, { message: 'Demasiado corto' })

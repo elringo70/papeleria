@@ -1,6 +1,6 @@
 <script>
 	import { invalidateAll } from '$app/navigation';
-	import { applyAction, deserialize } from '$app/forms';
+	import { applyAction, deserialize, enhance } from '$app/forms';
 
 	import Swal from 'sweetalert2/dist/sweetalert2.all.js';
 
@@ -15,73 +15,14 @@
 
 	let loading = false;
 
-	async function updateProduct() {
-		const confirmationModal = await Swal.fire({
-			icon: 'warning',
-			title: '¿Desea actualizar la información del producto?',
-			showCancelButton: true,
-			cancelButtonText: 'Cancelar',
-			confirmButtonText: 'Actualizar'
-		});
-
-		if (confirmationModal.isConfirmed) {
-			const data = new FormData(this);
-
-			const response = await fetch(this.action, {
-				method: 'POST',
-				body: data
-			});
-
-			const result = deserialize(await response.text());
-
-			switch (result.type) {
-				case 'success':
-					Swal.fire({
-						icon: 'success',
-						title: 'Actualizado'
-					});
-
-					await invalidateAll();
-
-					break;
-				case 'failure':
-					Swal.fire({
-						icon: 'error',
-						title: 'Error',
-						text: result.data.message
-					});
-					break;
-				case 'error':
-					Swal.fire({
-						icon: 'error',
-						title: 'Error',
-						text: result.error.message
-					});
-					break;
-			}
-			applyAction(result);
-		}
-	}
-
-	const submitProduct = ({ form, data }) => {
+	const submitProduct = ({ data }) => {
 		loading = true;
 
 		return async ({ result }) => {
-			errors = result.data.errors;
+			errors = result?.data?.errors;
 			switch (result.type) {
 				case 'success':
 					const body = Object.fromEntries(data);
-
-					form._id.value = '';
-					form.product.value = '';
-					form.brand.value = '';
-					form.model.value = '';
-					form.category.value = '';
-					form.cost.value = '';
-					form.price.value = '';
-					form.wholesale.value = '';
-					form.stock.value = '';
-					form.stockMinimum.value = '';
 
 					if (!body.requiredStock) {
 						isChecked = true;
@@ -90,21 +31,19 @@
 						stockMinimum = '';
 					}
 
-					confirmModal.fire({
+					Swal.fire({
 						icon: 'success',
 						title: 'Guardado',
 						text: 'Producto guardado con éxito'
 					});
 
 					break;
-				case 'failure':
-					confirmModal.fire({
+				case 'error':
+					Swal.fire({
 						icon: 'error',
 						title: 'Error',
-						text: result.data.message
+						text: 'Error en el servidor'
 					});
-					break;
-				case 'error':
 					break;
 			}
 			loading = false;
@@ -152,12 +91,7 @@
 			<h3 class="text-2xl font-semibold text-gray-800">Editar producto</h3>
 			<p class="text-gray-400">Actualizar la información del producto</p>
 		</div>
-		<form
-			action="?/update"
-			method="post"
-			on:submit|preventDefault={updateProduct}
-			autocomplete="off"
-		>
+		<form action="?/update" method="post" use:enhance={submitProduct} autocomplete="off">
 			<input type="hidden" name="id" value={data?.product?._id} />
 			<div class="flex flex-row space-x-4">
 				<div class="basis-4/12">

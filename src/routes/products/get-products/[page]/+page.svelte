@@ -84,6 +84,7 @@
 					id: data._id,
 					product: data.product,
 					brand: data.brand,
+					category: data.category,
 					cost: Number(data.cost).toFixed(2),
 					price: Number(data.price).toFixed(2),
 					wholesale: Number(data.wholesale).toFixed(2),

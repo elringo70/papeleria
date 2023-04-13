@@ -33,18 +33,22 @@
 
 	{#if list.length > 0}
 		<ul class="absolute mt-1 w-full divide-y divide-gray-300 rounded border border-gray-300">
-			{#each list as item, i}
-				<div transition:slide={{ duration: 150 }}>
-					<li
-						class="cursor-pointer bg-white py-2 px-3 text-sm hover:bg-gray-200"
-						value={i}
-						on:click={onClick}
-						on:keydown={() => {}}
-					>
-						{item.display_name}
-					</li>
-				</div>
-			{/each}
+			{#if loading}
+				<li class="cursor-pointer bg-white py-2 px-3 text-sm hover:bg-gray-200">...</li>
+			{:else}
+				{#each list as item, i}
+					<div transition:slide={{ duration: 150 }}>
+						<li
+							class="cursor-pointer bg-white py-2 px-3 text-sm hover:bg-gray-200"
+							value={i}
+							on:click={onClick}
+							on:keydown={onKeyup}
+						>
+							{item.display_name}
+						</li>
+					</div>
+				{/each}
+			{/if}
 		</ul>
 	{/if}
 </div>

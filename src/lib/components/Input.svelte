@@ -1,6 +1,6 @@
 <script>
 	export let label = undefined;
-	export let name = '';
+	export let name;
 	export let type = 'text';
 	export let placeholder = '';
 	export let disabled = false;

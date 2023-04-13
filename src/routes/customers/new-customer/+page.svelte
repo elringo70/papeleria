@@ -1,7 +1,7 @@
 <script>
 	import { enhance } from '$app/forms';
 
-	import Swal from 'sweetalert2';
+	import Swal from 'sweetalert2/dist/sweetalert2.all.js';
 
 	import { Input, Combobox, Checkbox } from '$lib/components';
 
@@ -18,7 +18,7 @@
 
 	const submitCustomer = () => {
 		return async ({ result, update }) => {
-			errors = result.data.errors;
+			errors = result?.data?.errors;
 
 			switch (result.type) {
 				case 'success':
@@ -42,11 +42,13 @@
 					await update();
 					break;
 				case 'failure':
-					Swal.fire({
-						icon: 'error',
-						title: 'Error',
-						text: result.data.message
-					});
+					if (result.status === 400) {
+						Swal.fire({
+							icon: 'warning',
+							title: 'Error',
+							text: result.data.message
+						});
+					}
 					break;
 			}
 		};
@@ -55,7 +57,9 @@
 	//Address lookup
 	let timer;
 	let comboLoading = false;
+	$: comboLoading;
 
+	let street, number, municipality, city, state, place_id;
 	$: street = $selectedAddress.street ? $selectedAddress.street : form?.data?.street ?? '';
 	$: number = $selectedAddress.number ? $selectedAddress.number : form?.data?.number ?? '';
 	$: municipality = $selectedAddress.municipality
@@ -74,8 +78,8 @@
 
 		if (stringInput.length > 3) {
 			timer = setTimeout(async () => {
-				comboLoading = false;
 				await address.fetchAddress(stringInput.trim());
+				comboLoading = false;
 			}, 1000);
 		} else if (stringInput.length === 0) {
 			comboLoading = false;
@@ -86,6 +90,7 @@
 	const resetAddress = () => {
 		isChecked = !isChecked;
 		comboValue = '';
+		number = '';
 		address.resetAddress();
 	};
 </script>
@@ -181,10 +186,12 @@
 					<Input
 						label="Número"
 						name="number"
+						type="number"
 						required={true}
 						disabled={!isChecked}
 						errors={errors?.number}
 						value={number}
+						onChange={(e) => (number = e.target.value)}
 					/>
 				</div>
 				<div class="basis-5/12">

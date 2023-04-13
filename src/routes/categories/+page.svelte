@@ -4,7 +4,7 @@
 	import { applyAction, deserialize } from '$app/forms';
 	import { fade } from 'svelte/transition';
 
-	import Swal from 'sweetalert2';
+	import Swal from 'sweetalert2/dist/sweetalert2.all.js';
 
 	import { Alert, Input } from '$lib/components';
 
@@ -120,9 +120,9 @@
 	<title>Categorias</title>
 </svelte:head>
 
-<div class="container mx-auto mt-5 w-9/12">
-	<div class="flex flex-row space-x-10">
-		<div class="basis-6/12 bg-white">
+<section class="flex h-[calc(100vh-66px)] justify-center bg-gray-100">
+	<div class="flex h-full w-full basis-10/12 flex-row items-center space-x-10">
+		<div class="basis-1/2 rounded bg-white p-5 shadow-lg">
 			<form action="?/post" method="POST" autocomplete="off" use:enhance={submitCategory}>
 				<Input
 					label="Categoría"
@@ -147,7 +147,8 @@
 				</div>
 			{/if}
 		</div>
-		<div class="basis-6/12">
+
+		<div class="categories-list basis-1/2 overflow-auto rounded bg-white shadow-lg">
 			{#if data.categories.length === 0}
 				<h1>Aun no hay categorías</h1>
 			{:else}
@@ -184,4 +185,10 @@
 			{/if}
 		</div>
 	</div>
-</div>
+</section>
+
+<style>
+	.categories-list {
+		max-height: 85%;
+	}
+</style>

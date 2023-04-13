@@ -46,6 +46,7 @@ function addressStore() {
 
 	const resetAddress = () => {
 		set([]);
+		selectedAddress.set(initialValuesSelectedAddress);
 	};
 
 	return {
