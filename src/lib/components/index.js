@@ -10,6 +10,7 @@ import Combobox from './Combobox.svelte';
 import Pill from './Pill.svelte';
 import TableModal from './TableModal.svelte';
 import Pagination from './Pagination.svelte';
+import InputFile from './InputFile.svelte';
 
 export {
 	Alert,
@@ -22,5 +23,6 @@ export {
 	Combobox,
 	Pill,
 	TableModal,
-	Pagination
+	Pagination,
+	InputFile
 };

@@ -5,7 +5,7 @@
 
 	import { confirmModal } from '$utils/modalButton';
 
-	import { Input, Select, Checkbox, NumberField } from '$lib/components';
+	import { Input, Select, Checkbox, NumberField, InputFile } from '$lib/components';
 
 	export let form;
 	export let data;
@@ -92,7 +92,13 @@
 			<h3 class="text-2xl font-semibold text-gray-800">Producto nuevo</h3>
 			<p class="text-gray-400">Crear un nuevo producto</p>
 		</div>
-		<form action="?/submit" method="post" use:enhance={submitProduct} autocomplete="off">
+		<form
+			action="?/submit"
+			method="post"
+			use:enhance={submitProduct}
+			autocomplete="off"
+			enctype="multipart/form-data"
+		>
 			<div class="flex flex-row space-x-4">
 				<div class="basis-4/12">
 					<Input
@@ -206,11 +212,15 @@
 				</div>
 			</div>
 
-			<div class="flex flex-row">
-				<div class="basis-3/12">
+			<div class="flex flex-row items-end justify-between space-x-4">
+				<div class="basis-2/3">
+					<InputFile label="Imagen" name="image" accept="image/jpeg, image/png, image/webp" />
+				</div>
+
+				<div class="flex basis-1/3">
 					<button
 						type="submit"
-						class="rounded bg-indigo-700 px-4 py-2 text-white shadow shadow-indigo-700 hover:bg-indigo-600"
+						class="w-full rounded bg-indigo-700 px-4 py-2 text-white shadow shadow-indigo-700 hover:bg-indigo-600"
 						disabled={loading}>Guardar</button
 					>
 				</div>
