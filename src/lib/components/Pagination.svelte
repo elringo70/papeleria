@@ -101,13 +101,14 @@
 			</li>
 
 			<li class="page-item {disabled.end() ? 'disabled' : ''}">
-				<button
+				<a
+					href="/products/get-products/{totalPages}"
 					class={disabled.end()
 						? 'page-link pointer-events-none relative block rounded border-0 bg-transparent py-1.5 px-3 text-gray-500 outline-none transition-all duration-300 focus:shadow-none'
 						: 'page-link relative block rounded border-0 bg-transparent py-1.5 px-3 text-gray-800 outline-none transition-all duration-300 hover:bg-gray-200 hover:text-gray-800 focus:shadow-none'}
 					on:click={nextPage}
 					tabindex={disabled.end() ? '-1' : ''}
-					aria-disabled={disabled.end() ? 'true' : ''}>Final</button
+					aria-disabled={disabled.end() ? 'true' : ''}>Final</a
 				>
 			</li>
 		</ul>

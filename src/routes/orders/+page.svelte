@@ -79,7 +79,7 @@
 		return async ({ result, update }) => {
 			switch (result.type) {
 				case 'success':
-					if (result.customer) {
+					if (result.data.customer) {
 						tickets.setCustomerTicket(ticketPosition, result.data.customer);
 					} else {
 						tickets.setCustomerTicket(ticketPosition, result.data.phone);
@@ -332,7 +332,7 @@
 	</div>
 
 	<!-- Purchase summary -->
-	<div class="col-span-2 row-span-6 row-start-1 bg-white p-5 shadow-md">
+	<div class="col-span-2 row-span-6 row-start-1 rounded bg-white p-5 shadow-md">
 		<div
 			class="col-span-1 row-span-6 row-start-1 flex h-full grid-flow-col flex-col overflow-auto bg-white"
 		>
@@ -352,8 +352,8 @@
 			</div>
 
 			<div class="flex justify-around">
-				<Pill pill={$selectedTicket.status} />
-				<Pill delivered={$selectedTicket.delivered} />
+				<Pill pill="success" text={$selectedTicket.status} />
+				<Pill pill="primary" text={$selectedTicket.delivered} />
 			</div>
 
 			<div class="divide-y divide-solid overflow-auto">

@@ -126,7 +126,7 @@
 									</div>
 								</td>
 								<td class="py-3 px-6 text-center">
-									<Pill pill="open" />
+									<Pill pill="success" text="Corriente" />
 								</td>
 								<td class="flex justify-center gap-x-2 py-3 px-6">
 									<a href="/customers/{customer._id}">

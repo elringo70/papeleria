@@ -1,56 +1,40 @@
 <script>
-	/**
-	 * @type {('open' | 'pending' | 'closed')} pill
-	 * **/
-	export let pill = undefined;
+	export let text;
 
 	/**
-	 * @type {('pending' | 'delivered')} delivered
+	 * @type {('success' | 'warning' | 'error' | 'secondary' | 'primary' )} pillColor
 	 */
-	export let delivered = undefined;
-
+	export let pill = 'success';
 	const pillColor = {
-		open: {
-			textColor: 'bg-green-200',
-			backgroundColor: 'text-green-800',
-			text: 'Abierto'
+		success: {
+			textColor: 'text-green-800',
+			backgroundColor: 'bg-green-200',
+			shadowColor: 'shadow shadow-green-200'
 		},
-		pending: {
-			textColor: 'bg-blue-200',
-			backgroundColor: 'text-blue-800',
-			text: 'Pendiente'
+		primary: {
+			textColor: 'text-blue-800',
+			backgroundColor: 'bg-blue-200',
+			shadowColor: 'shadow shadow-blue-200'
 		},
-		closed: {
-			textColor: 'bg-gray-200',
-			backgroundColor: 'text-gray-800',
-			text: 'Cerrado'
-		}
-	};
-
-	const deliveredPill = {
-		pending: {
-			textColor: 'bg-blue-200',
-			backgroundColor: 'text-blue-800',
-			text: 'Entrega pendiente'
+		warning: {
+			textColor: 'text-yellow-200',
+			backgroundColor: 'bg-yellow-800',
+			shadowColor: 'shadow shadow-yellow-200'
 		},
-		delivered: {
-			textColor: 'bg-gray-200',
-			backgroundColor: 'text-gray-800',
-			text: 'Entregado'
+		error: {
+			textColor: 'text-red-800',
+			backgroundColor: 'bg-red-200',
+			shadowColor: 'shadow shadow-red-200'
+		},
+		secondary: {
+			textColor: 'text-gray-800',
+			backgroundColor: 'bg-gray-200',
+			shadowColor: 'shadow shadow-gray-200'
 		}
 	};
 </script>
 
-{#if pill}
-	<span
-		class={`rounded-full py-1 px-3 ${pillColor[pill].textColor} ${pillColor[pill].backgroundColor} cursor-default`}
-		>{pillColor[pill].text}</span
-	>
-{/if}
-
-{#if delivered}
-	<span
-		class={`rounded-full py-1 px-3 ${deliveredPill[delivered].textColor} ${deliveredPill[delivered].backgroundColor} cursor-default`}
-		>{deliveredPill[delivered].text}</span
-	>
-{/if}
+<span
+	class={`rounded-full py-1 px-3 ${pillColor[pill].textColor} ${pillColor[pill].backgroundColor} ${pillColor[pill].shadowColor} cursor-default`}
+	>{text}</span
+>

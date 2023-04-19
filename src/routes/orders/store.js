@@ -226,6 +226,7 @@ function ticketStore() {
 				tickets[ticket].customer.phone = customerInfo;
 			}
 			ticketStorage.set(tickets);
+
 			return [...tickets];
 		});
 	};
