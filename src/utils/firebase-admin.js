@@ -1,10 +1,9 @@
 import admin from 'firebase-admin';
-
-import serviceAccount from 'C:/Users/elrin/Documents/GitHub/papeleria/firebase-admin.json';
+import { GOOGLE_APPLICATION_CREDENTIALS } from '$env/static/private';
 
 if (!admin.apps.length) {
 	admin.initializeApp({
-		credential: admin.credential.cert(serviceAccount)
+		credential: admin.credential.cert(GOOGLE_APPLICATION_CREDENTIALS)
 	});
 }
 

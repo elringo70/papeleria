@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import admin from './utils/firebase-admin';
 
-const publicRoutes = ['/', '/register', '/login'];
+const publicRoutes = ['/', '/login', '/signup'];
 
 export const handle = async ({ event, resolve }) => {
 	const token = event.cookies.get('session');

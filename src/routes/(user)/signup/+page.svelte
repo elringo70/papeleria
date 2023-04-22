@@ -27,55 +27,32 @@
 </script>
 
 <section class="flex h-[calc(100vh-66px)] items-center justify-center bg-gray-100">
-	<div class="container mx-auto w-3/6 rounded bg-white p-5 shadow-lg">
-		<form action="?/submit" method="post" use:enhance={handleSubmit} autocomplete="off">
-			<div class="flex w-full flex-col justify-center">
-				<h3 class="text-center text-2xl font-semibold text-gray-800">Registrarse</h3>
-				<p class="text-center text-gray-400">Ingrese su información</p>
-			</div>
-			<div class="container mx-auto mt-6 w-4/6">
-				<div class="flex flex-col">
-					<div class="basis-full">
-						<Input
-							label="Email *"
-							name="phone"
-							required={true}
-							maxlength={10}
-							value={form?.data?.phone ?? ''}
-							errors={errors?.phone}
-						/>
-					</div>
-				</div>
-				<div class="flex flex-row space-x-4">
-					<div class="basis-1/2">
-						<Input
-							label="Contraseña *"
-							name="phone"
-							required={true}
-							maxlength={10}
-							value={form?.data?.phone ?? ''}
-							errors={errors?.phone}
-						/>
-					</div>
-					<div class="basis-1/2">
-						<Input
-							label="Confirmar contraseña *"
-							name="phone"
-							required={true}
-							maxlength={10}
-							value={form?.data?.phone ?? ''}
-							errors={errors?.phone}
-						/>
-					</div>
-				</div>
+	<div class="container mx-auto flex max-w-sm flex-1 flex-col items-center justify-center px-2">
+		<div class="w-full rounded bg-white px-6 py-8 text-black shadow-md">
+			<h1 class="mb-8 text-center text-3xl">Registrarse</h1>
 
-				<div class="mt-6 basis-full">
-					<button
-						class="mx-auto w-full rounded bg-indigo-600 py-2 px-3 text-white hover:bg-indigo-500"
-						type="submit">Registrarse</button
-					>
-				</div>
+			<Input placeholder="Nombre completo" name="name" />
+			<Input placeholder="Correo electrónico" name="email" type="email" />
+			<Input placeholder="Contraseña" name="password" type="password" />
+			<Input placeholder="Confirmar contraseña" name="confirm-password" type="password" />
+
+			<button
+				type="submit"
+				class="w-full rounded bg-indigo-600 py-2 px-3 text-white hover:bg-indigo-500"
+				>Crear cuenta</button
+			>
+
+			<div class="text-grey-dark mt-4 text-center text-sm">
+				Al registrarse, usted acepta los
+				<a class="border-grey-dark text-grey-dark border-b no-underline" href="/terms">
+					Terminos y condiciones
+				</a>
 			</div>
-		</form>
+		</div>
+
+		<div class="text-grey-dark mt-6">
+			¿Ya tiene cuenta?
+			<a class="border-blue text-blue border-b no-underline" href="/login"> Log in </a>.
+		</div>
 	</div>
 </section>
