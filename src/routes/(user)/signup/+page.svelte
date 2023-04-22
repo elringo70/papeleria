@@ -31,17 +31,18 @@
 		<div class="w-full rounded bg-white px-6 py-8 text-black shadow-md">
 			<h1 class="mb-8 text-center text-3xl">Registrarse</h1>
 
-			<Input placeholder="Nombre completo" name="name" />
-			<Input placeholder="Correo electrónico" name="email" type="email" />
-			<Input placeholder="Contraseña" name="password" type="password" />
-			<Input placeholder="Confirmar contraseña" name="confirm-password" type="password" />
+			<form action="?/submit" method="post" autocomplete="off" use:enhance={handleSubmit}>
+				<Input placeholder="Nombre completo" name="name" />
+				<Input placeholder="Correo electrónico" name="email" type="email" />
+				<Input placeholder="Contraseña" name="password" type="password" />
+				<Input placeholder="Confirmar contraseña" name="confirm-password" type="password" />
 
-			<button
-				type="submit"
-				class="w-full rounded bg-indigo-600 py-2 px-3 text-white hover:bg-indigo-500"
-				>Crear cuenta</button
-			>
-
+				<button
+					type="submit"
+					class="w-full rounded bg-indigo-600 py-2 px-3 text-white hover:bg-indigo-500"
+					>Crear cuenta</button
+				>
+			</form>
 			<div class="text-grey-dark mt-4 text-center text-sm">
 				Al registrarse, usted acepta los
 				<a class="border-grey-dark text-grey-dark border-b no-underline" href="/terms">
