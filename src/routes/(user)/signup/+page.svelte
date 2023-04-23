@@ -1,29 +1,66 @@
 <script>
-	import { enhance } from '$app/forms';
+	import { goto } from '$app/navigation';
 
+	import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+	import Swal from 'sweetalert2/dist/sweetalert2.all.js';
+
+	import { auth } from '../../../utils/firebase';
 	import { Input } from '$lib/components';
 
-	/** @type {import('./$types').ActionData} */
 	export let form;
+	let disabled = false;
 	let errors;
 	$: errors;
 
-	const handleSubmit = () => {
-		return async ({ result, update }) => {
-			errors = result?.data?.errors;
+	const Toast = Swal.mixin({
+		toast: true,
+		position: 'bottom-end',
+		showConfirmButton: false,
+		timer: 2000,
+		timerProgressBar: true
+	});
 
-			switch (result.type) {
-				case 'success':
-					console.log(first);
-					await update();
-					break;
-				case 'failure':
-					break;
-				case 'error':
-					break;
+	async function createUserWithEmailAndPasswordGoogle() {
+		disabled = true;
+		const formData = new FormData(this);
+
+		const email = formData.get('email');
+		const password = formData.get('password');
+		const confirmPassword = formData.get('confirmPassword');
+
+		try {
+			if (password === confirmPassword) {
+				const userCredentials = await createUserWithEmailAndPassword(auth, email, password);
+				if (userCredentials) {
+					this.reset();
+
+					await sendEmailVerification(userCredentials.user);
+
+					Toast.fire({
+						icon: 'success',
+						title: 'Registrado'
+					});
+
+					setTimeout(() => {
+						goto('/signin');
+					}, 2000);
+				}
+			} else {
+				Swal.fire({
+					icon: 'warning',
+					title: 'Las contraseñas no conciden'
+				});
 			}
-		};
-	};
+
+			disabled = false;
+		} catch (error) {
+			console.log(error);
+			Swal.fire({
+				icon: 'error',
+				title: 'Error en el servidor'
+			});
+		}
+	}
 </script>
 
 <section class="flex h-[calc(100vh-66px)] items-center justify-center bg-gray-100">
@@ -31,16 +68,42 @@
 		<div class="w-full rounded bg-white px-6 py-8 text-black shadow-md">
 			<h1 class="mb-8 text-center text-3xl">Registrarse</h1>
 
-			<form action="?/submit" method="post" autocomplete="off" use:enhance={handleSubmit}>
-				<Input placeholder="Nombre completo" name="name" />
-				<Input placeholder="Correo electrónico" name="email" type="email" />
-				<Input placeholder="Contraseña" name="password" type="password" />
-				<Input placeholder="Confirmar contraseña" name="confirm-password" type="password" />
+			<form
+				method="post"
+				autocomplete="off"
+				on:submit|preventDefault={createUserWithEmailAndPasswordGoogle}
+			>
+				<Input
+					placeholder="Correo electrónico"
+					name="email"
+					type="email"
+					required={true}
+					value={form?.data?.email ?? ''}
+					errors={errors?.email}
+				/>
+				<Input
+					placeholder="Contraseña"
+					name="password"
+					type="password"
+					minlength={6}
+					maxlength={40}
+					value={form?.data?.password ?? ''}
+					errors={errors?.password}
+				/>
+				<Input
+					placeholder="Confirmar contraseña"
+					name="confirmPassword"
+					type="password"
+					minlength={6}
+					maxlength={40}
+					value={form?.data?.confirmPassword ?? ''}
+					errors={errors?.confirmPassword}
+				/>
 
 				<button
 					type="submit"
 					class="w-full rounded bg-indigo-600 py-2 px-3 text-white hover:bg-indigo-500"
-					>Crear cuenta</button
+					{disabled}>Crear cuenta</button
 				>
 			</form>
 			<div class="text-grey-dark mt-4 text-center text-sm">
@@ -53,7 +116,7 @@
 
 		<div class="text-grey-dark mt-6">
 			¿Ya tiene cuenta?
-			<a class="border-blue text-blue border-b no-underline" href="/login"> Log in </a>.
+			<a class="border-blue text-blue border-b no-underline" href="/signin"> Log in </a>.
 		</div>
 	</div>
 </section>
