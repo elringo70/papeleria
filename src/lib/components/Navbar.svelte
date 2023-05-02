@@ -1,6 +1,5 @@
 <script>
 	export let user;
-	export let logoutFromGoogle;
 </script>
 
 {#if user}
@@ -65,7 +64,7 @@
 						<a href="/profile">Profile</a>
 					</li>
 					<li><a>Settings</a></li>
-					<li><button type="button" on:click={logoutFromGoogle}>Logout</button></li>
+					<li><a href="/logout">Logout</a></li>
 				</ul>
 			</div>
 		</div>
