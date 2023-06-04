@@ -61,6 +61,50 @@
 			});
 		}
 	}
+
+	async function createUserWithGoogle() {
+		try {
+			const formData = new FormData(this);
+
+			const email = formData.get('email');
+			const password = formData.get('password');
+
+			const userCredentials = await createUserWithEmailAndPassword(auth, email, password);
+
+			if (userCredentials) {
+				const token = await auth.currentUser?.getIdToken();
+
+				const data = new FormData();
+				if (token) {
+					data.append('token', token);
+				}
+
+				const response = await fetch('?/loginWithGoogle', {
+					method: 'POST',
+					body: data
+				});
+
+				const result = deserialize(await response.text());
+
+				switch (result.type) {
+					case 'failure':
+						Swal.fire({
+							icon: 'error',
+							title: 'Error',
+							text: result?.data?.message
+						});
+						break;
+				}
+				applyAction(result);
+			}
+		} catch (error) {
+			await Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: 'Error al registrarse'
+			});
+		}
+	}
 </script>
 
 <section class="flex h-[calc(100vh-66px)] items-center justify-center bg-gray-100">

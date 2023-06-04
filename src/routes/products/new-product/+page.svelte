@@ -33,6 +33,7 @@
 					form.wholesale.value = '';
 					form.stock.value = '';
 					form.stockMinimum.value = '';
+					form.image.value = '';
 
 					if (!body.requiredStock) {
 						isChecked = true;

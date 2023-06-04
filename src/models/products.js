@@ -28,6 +28,9 @@ const productSchema = new Schema(
 			type: String,
 			required: true
 		},
+		subCategory: {
+			type: String
+		},
 		cost: {
 			type: Number,
 			required: true
@@ -56,7 +59,8 @@ const productSchema = new Schema(
 				_id: { id: false }
 			}),
 			required: false
-		}
+		},
+		productImageName: { type: String }
 	},
 	{ _id: false, timestamps: true }
 );

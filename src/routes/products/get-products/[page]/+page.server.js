@@ -67,5 +67,24 @@ export const actions = {
 		} finally {
 			await dbDisconnect();
 		}
+	},
+	getProductById: async ({ request }) => {
+		try {
+			await dbConnect();
+
+			const { id } = Object.fromEntries(await request.formData());
+
+			const product = await Product.findById(id).exec();
+			if (product) {
+				return JSON.parse(JSON.stringify(product));
+			} else {
+				return fail(400, { message: 'Producto no encontrado' });
+			}
+		} catch (err) {
+			console.log('Error: ', err);
+			throw error(500, err);
+		} finally {
+			await dbDisconnect();
+		}
 	}
 };

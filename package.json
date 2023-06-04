@@ -26,7 +26,9 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@google-cloud/storage": "^6.10.1",
 		"daisyui": "^2.43.0",
+		"file-type": "^18.4.0",
 		"firebase": "^9.20.0",
 		"firebase-admin": "^11.7.0",
 		"ioredis": "^5.3.0",

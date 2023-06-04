@@ -3,12 +3,11 @@
 	import { applyAction, deserialize } from '$app/forms';
 	import { page } from '$app/stores';
 
-	import { Pagination } from '$lib/components';
-
-	import { firstUppercase } from '$utils/stringUtils';
-
 	import Swal from 'sweetalert2/dist/sweetalert2.all.js';
 	import Icon from '@iconify/svelte';
+
+	import { Pagination } from '$lib/components';
+	import SearchProductModal from '../../../../lib/components/modal/SearchProductModal.svelte';
 
 	export let data;
 
@@ -69,34 +68,53 @@
 		price: '',
 		stock: ''
 	};
-	async function getProductDetail(id) {
+
+	async function getProductDetail() {
+		const form = new FormData(this);
+
 		try {
-			const response = await fetch('/api/products', {
-				method: 'post',
-				body: JSON.parse(id)
+			const response = await fetch(this.action, {
+				method: 'POST',
+				body: form
 			});
 
-			if (response.ok) {
-				productModalObject = {};
-				const data = await response.json();
+			const result = deserialize(await response.text());
 
-				productModalObject = {
-					id: data._id,
-					product: data.product,
-					brand: data.brand,
-					category: data.category,
-					cost: Number(data.cost).toFixed(2),
-					price: Number(data.price).toFixed(2),
-					wholesale: Number(data.wholesale).toFixed(2),
-					stock: data.stock.stock
-				};
-				openCloseModal();
+			switch (result.type) {
+				case 'success':
+					productModalObject = {};
+
+					productModalObject = {
+						id: result.data._id,
+						product: result.data.product,
+						brand: result.data.brand,
+						category: result.data.category,
+						cost: Number(result.data.cost).toFixed(2),
+						price: Number(result.data.price).toFixed(2),
+						wholesale: Number(result.data.wholesale).toFixed(2),
+						stock: result.data.stock.stock
+					};
+					openCloseModal();
 			}
 		} catch (error) {
 			console.log(error);
 		}
 	}
+
+	let productModalOpen = false;
+	const handleKeydown = (event) => {
+		switch (event.key) {
+			case 'F10':
+				productModalOpen = true;
+				break;
+			case 'Escape':
+				productModalOpen = false;
+				break;
+		}
+	};
 </script>
+
+<svelte:window on:keydown|preventDefault={handleKeydown} />
 
 <div class="flex justify-center bg-gray-100 py-5 font-sans">
 	<div class="basis-5/6">
@@ -141,11 +159,18 @@
 								<td class="py-2 px-5 text-center">{product.stock?.stock ?? 'Sin inventario'}</td>
 								<td class="py-2 px-5 text-center">
 									<div class="flex items-center justify-around">
-										<button type="button" on:click={() => getProductDetail(product._id)}>
-											<div class="cursor-pointer text-base hover:text-indigo-700">
-												<Icon icon="ic:outline-remove-red-eye" />
-											</div>
-										</button>
+										<form
+											action="?/getProductById"
+											method="post"
+											on:submit|preventDefault={getProductDetail}
+										>
+											<input type="hidden" name="id" value={product._id} />
+											<button type="submit">
+												<div class="cursor-pointer text-base hover:text-indigo-700">
+													<Icon icon="ic:outline-remove-red-eye" />
+												</div>
+											</button>
+										</form>
 
 										<a href="/products/{product._id}">
 											<input type="hidden" name="id" value={product._id} />
@@ -161,7 +186,7 @@
 											on:submit|preventDefault={deleteProduct}
 										>
 											<input type="hidden" name="id" value={product._id} />
-											<button>
+											<button type="submit">
 												<div class="cursor-pointer text-base hover:text-red-700">
 													<Icon icon="uil:trash-alt" />
 												</div>
@@ -191,7 +216,7 @@
 				<img
 					alt="ecommerce"
 					class="w-full rounded border border-gray-200 object-cover object-center lg:w-1/2"
-					src="https://www.whitmorerarebooks.com/pictures/medium/2465.jpg"
+					src={productModalObject.productImageName ?? '../../noimage.png'}
 				/>
 				<div class="w-full lg:mt-0 lg:w-1/2 lg:pb-6 lg:pl-10">
 					<div class="h-1/2">
@@ -261,3 +286,5 @@
 		</div>
 	</div>
 </div>
+
+<SearchProductModal modalOpen={productModalOpen} />

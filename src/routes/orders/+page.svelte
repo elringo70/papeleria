@@ -1,12 +1,14 @@
 <script>
 	import { enhance } from '$app/forms';
+	import { deserialize, applyAction } from '$app/forms';
 	import { tickets, selectedTicket } from './store';
 
 	import Icon from '@iconify/svelte';
 	import Swal from 'sweetalert2';
 	import Ticket from '$lib/components/order/Ticket.svelte';
 	import Modal from '$lib/components/Modal.svelte';
-	import { NumberField, Input, Pill, TableModal } from '$lib/components';
+	import SearchProductModal from '$lib/components/modal/SearchProductModal.svelte';
+	import { NumberField, Input, Pill } from '$lib/components';
 
 	import { customerNameFormat, phoneNumberFormat } from '$utils/stringUtils';
 
@@ -141,53 +143,64 @@
 		ticketPosition = index;
 	};
 
-	const onKeydown = (e) => {
-		switch (e.key) {
-			case 'Escape':
-				closeModal();
-				break;
+	let modalOpen = false;
+
+	const onKeyDown = (event) => {
+		switch (event.key) {
 			case 'F10':
-				openModal();
+				modalOpen = true;
 				break;
+			case 'Escape':
+				resetModal();
 		}
 	};
 
-	////////////////////////////////////////////////////////////////////
-	// Product search modal
-	let tableModal = null;
-	let data, form;
-	$: data;
-
-	const openModal = () => {
-		tableModal.showModal();
+	let products = [];
+	$: products;
+	const productSearch = () => {
+		return async ({ result }) => {
+			switch (result.type) {
+				case 'success':
+					products = result.data.products;
+					break;
+			}
+		};
 	};
 
-	const tableHeader = ['Producto', 'Marca', 'Categoría', 'Precio'];
+	let modalValue = '';
+	const resetModal = () => {
+		modalOpen = false;
+		products = [];
+		modalValue = '';
+	};
 
-	const searchProductInput = async (e) => {
-		const string = e.target.value.normalize('NFC');
-		if (string !== '') {
-			const response = await fetch('/api/orders', {
-				method: 'post',
-				body: JSON.stringify(string)
+	async function selectProductFromModal(event) {
+		const form = new FormData();
+		const product = event.detail._id;
+		form.append('product', product);
+
+		try {
+			const response = await fetch('?/findProduct', {
+				method: 'POST',
+				body: form
 			});
 
-			data = await response.json();
-		} else if (string === '') {
-			data = [];
-		}
-	};
+			const result = deserialize(await response.text());
 
-	function selectProductFromModal(e) {
-		e.preventDefault();
-		form.submit();
-		data = [];
-		tableModal.close();
+			switch (result.type) {
+				case 'success':
+					tickets.addProductToTicket(result.data.product);
+					resetModal();
+					break;
+			}
+			applyAction(result);
+		} catch (error) {
+			console.log(error);
+		}
 	}
-	////////////////////////////////////////////////////////////////////
 </script>
 
-<svelte:window on:keydown={onKeydown} />
+<svelte:window on:keydown={onKeyDown} />
 
 <svelte:head>
 	<title>Cliente nuevo</title>
@@ -393,7 +406,7 @@
 	{open}
 >
 	<div slot="form">
-		<form action="?/findCustomer" method="post" use:enhance={setCustomerTicket}>
+		<form action="?/findCustomer" method="post" use:enhance={setCustomerTicket} autocomplete="off">
 			<NumberField name="phone" required={true} />
 			<div class="modal-action">
 				<div class="flex w-full justify-around">
@@ -415,13 +428,22 @@
 	</div>
 </Modal>
 
-<TableModal
+<!-- <TableModal
 	bind:tableModal
 	bind:form
 	{tableHeader}
 	onInput={searchProductInput}
 	tableRow={data}
 	onDblClick={selectProductFromModal}
+/> -->
+
+<SearchProductModal
+	bind:modalOpen
+	bind:value={modalValue}
+	{productSearch}
+	{products}
+	closeModal={resetModal}
+	on:productId={selectProductFromModal}
 />
 
 <style>

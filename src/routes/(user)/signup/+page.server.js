@@ -22,5 +22,18 @@ export const actions = {
 		};
 
 		return { success: true };
+	},
+	loginWithGoogle: async ({ request, cookies }) => {
+		const body = Object.fromEntries(await request.formData());
+
+		cookies.set('session', body.token, {
+			path: '/',
+			httpOnly: true,
+			sameSite: 'strict',
+			secure: process.env.NODE_ENV === 'production',
+			maxAge: expiresIn
+		});
+
+		throw redirect(303, '/orders');
 	}
 };

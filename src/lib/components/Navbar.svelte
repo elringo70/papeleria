@@ -1,5 +1,28 @@
 <script>
+	import { goto } from '$app/navigation';
+	import { signOut } from 'firebase/auth';
+	import { invalidateAll } from '$app/navigation';
+	import { auth } from '../../utils/firebase';
 	export let user;
+
+	const logout = async () => {
+		const formData = new FormData();
+		formData.append('logout', 'logout');
+
+		const response = await fetch('/api/user/logout', {
+			method: 'POST',
+			body: formData,
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+
+		if (response.ok) {
+			await signOut(auth);
+			await invalidateAll();
+			goto('/');
+		}
+	};
 </script>
 
 {#if user}
@@ -64,7 +87,7 @@
 						<a href="/profile">Profile</a>
 					</li>
 					<li><a>Settings</a></li>
-					<li><a href="/logout">Logout</a></li>
+					<li><button on:click={logout} type="button">Logout</button></li>
 				</ul>
 			</div>
 		</div>

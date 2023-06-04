@@ -4,6 +4,7 @@ import { Product } from '$models/products';
 import { dbConnect, dbDisconnect } from '$utils/db';
 import { validateData } from '$utils/utils';
 import { productSchema } from './productValidationSchema';
+import { uploadImageToFirestorage } from '../../../services/firebase';
 
 export const load = async () => {
 	let categories;
@@ -32,9 +33,28 @@ export const actions = {
 			const form = await request.formData();
 			const { formData, errors } = await validateData(form, productSchema);
 
+			const imageFile = form.get('image');
+
+			let url;
+			if (imageFile) {
+				url = await uploadImageToFirestorage(imageFile);
+			}
+
+			if (errors) {
+				return fail(401, {
+					data: formData,
+					errors: errors.fieldErrors
+				});
+			}
+
 			const findCategory = await Category.findById(formData.category);
 			if (!findCategory) {
 				return fail(400, { message: 'La categoría no existe' });
+			}
+
+			const findProduct = await Product.findById(form.get('_id'));
+			if (findProduct) {
+				return fail(400, { message: 'El código ya existe' });
 			}
 
 			const body = {
@@ -53,29 +73,26 @@ export const actions = {
 							stock: form.get('stock'),
 							stockMinimum: form.get('stockMinimum')
 						}
-					})
+					}),
+				...(url && { productImageName: url })
 			};
-
-			if (errors) {
-				return fail(401, {
-					data: formData,
-					errors: errors.fieldErrors
-				});
-			}
-
-			const findProduct = await Product.findById(body._id);
-			if (findProduct) {
-				return fail(400, { message: 'El código ya existe' });
-			}
 
 			const product = new Product(body);
 			await product.save();
 			return { success: true };
 		} catch (err) {
 			console.log(err);
-			throw error(500, { message: 'Error en la base de datos' });
+			throw error(500, { message: 'Error en el servidor' });
 		} finally {
 			await dbDisconnect();
+		}
+	},
+	getImageFile: async ({ request }) => {
+		try {
+			const url = await getImageLinkFromFirestorage();
+			console.log(url);
+		} catch (error) {
+			console.log(error);
 		}
 	}
 };

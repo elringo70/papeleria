@@ -2,31 +2,47 @@ import { redirect } from '@sveltejs/kit';
 import admin from './utils/firebase-admin';
 
 const publicRoutes = ['/', '/signin', '/signup'];
+const privateRoutes = [
+	'/categories',
+	'/customers',
+	'/orders',
+	'/products',
+	'/logout',
+	'/profile',
+	'/settings',
+	'/test'
+];
 
 export const handle = async ({ event, resolve }) => {
-	const token = event.cookies.get('session');
-	const currentLocation = event.url.pathname;
+	const { cookies, locals, url } = event;
 
-	let decodedToken = null;
-	try {
-		decodedToken = await admin.auth().verifyIdToken(token);
+	const token = cookies.get('session');
+	const currentLocation = url.pathname;
 
-		const user = {
-			name: decodedToken.name,
-			email: decodedToken.email,
-			picture: decodedToken.picture,
-			uid: decodedToken.uid
-		};
+	if (!token) {
+		locals.user = null;
+		if (!publicRoutes.includes(currentLocation)) throw redirect(303, '/signin');
+	} else {
+		try {
+			const decodedToken = await admin.auth().verifyIdToken(token);
 
-		event.locals.user = user;
-	} catch (error) {
-		event.locals.user = null;
-		event.cookies.delete('session');
+			const user = {
+				name: decodedToken.name ?? 'No name',
+				email: decodedToken.email,
+				picture: decodedToken.picture ?? 'No picture',
+				uid: decodedToken.uid
+			};
 
-		if (!publicRoutes.includes(currentLocation)) throw redirect(303, '/');
+			locals.user = user;
+		} catch (error) {
+			cookies.delete('session');
+			locals.user = null;
+			if (privateRoutes.includes(currentLocation)) throw redirect(303, '/signin');
+		}
+
+		if (publicRoutes.includes(currentLocation))
+			return new Response(null, { status: 303, headers: { location: '/profile' } });
 	}
-
-	if (decodedToken && publicRoutes.includes(currentLocation)) throw redirect(301, '/profile');
 
 	const response = await resolve(event);
 	return response;

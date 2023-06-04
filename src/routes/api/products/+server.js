@@ -1,4 +1,3 @@
-import { json } from '@sveltejs/kit';
 import { Product } from '$models/products';
 import { dbConnect, dbDisconnect } from '$utils/db';
 
@@ -7,7 +6,7 @@ export const POST = async ({ request }) => {
 	try {
 		await dbConnect();
 
-		const id = await request.json();
+		const { id } = await request.formData();
 
 		const product = await Product.findById(id);
 

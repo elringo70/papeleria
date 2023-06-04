@@ -15,9 +15,20 @@ export const actions = {
 	loginWithEmailAndPassword: async ({ request, cookies }) => {
 		const body = Object.fromEntries(await request.formData());
 
-		const token = body.token;
+		cookies.set('session', body.token, {
+			path: '/',
+			httpOnly: true,
+			sameSite: 'strict',
+			secure: process.env.NODE_ENV === 'production',
+			maxAge: expiresIn
+		});
 
-		cookies.set('session', token, {
+		throw redirect(303, '/orders');
+	},
+	loginWithGoogle: async ({ request, cookies }) => {
+		const body = Object.fromEntries(await request.formData());
+
+		cookies.set('session', body.token, {
 			path: '/',
 			httpOnly: true,
 			sameSite: 'strict',
