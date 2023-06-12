@@ -1,6 +1,4 @@
 <script>
-	import { onMount } from 'svelte';
-
 	export let label = undefined;
 	export let name;
 	export let type = 'text';
@@ -11,7 +9,7 @@
 	export let maxlength = 100;
 	export let minlength = 0;
 	export let pattern = null;
-	export let bindElement = undefined;
+	export let bindElement = null;
 
 	export let onChange = () => {};
 	export let onKeyup = () => {};

@@ -11,6 +11,7 @@
 	import { NumberField, Input, Pill } from '$lib/components';
 
 	import { customerNameFormat, phoneNumberFormat } from '$utils/stringUtils';
+	import { onMount } from 'svelte';
 
 	let loading = false;
 
@@ -20,6 +21,7 @@
 
 	function selectTicket(index) {
 		tickets.selectTicket(index);
+		focusInputElement();
 	}
 
 	async function removeTicket(e) {
@@ -44,13 +46,18 @@
 		}
 	}
 
-	function addProductToTicket() {
+	async function addProductToTicket({ form, cancel }) {
+		if (form.product.value === '') {
+			cancel();
+			await focusInputElement();
+		}
 		loading = true;
 		return async ({ result, update }) => {
 			switch (result.type) {
 				case 'success':
 					tickets.addProductToTicket(result.data.product);
 					await update();
+					focusInputElement();
 					break;
 				case 'failure':
 					Swal.fire({
@@ -67,10 +74,12 @@
 
 	function removeProduct(productId) {
 		tickets.removeProduct(productId);
+		focusInputElement();
 	}
 
 	function addProduct(productId) {
 		tickets.addProduct(productId);
+		focusInputElement();
 	}
 
 	function deductProduct(productId) {
@@ -198,6 +207,19 @@
 			console.log(error);
 		}
 	}
+
+	let bindInputElement;
+	const focusInputElement = () => {
+		if (!bindInputElement) return;
+
+		setTimeout(() => {
+			bindInputElement.focus();
+		}, 100);
+	};
+
+	onMount(() => {
+		focusInputElement();
+	});
 </script>
 
 <svelte:window on:keydown={onKeyDown} />
@@ -237,7 +259,7 @@
 		<form action="?/findProduct" method="post" use:enhance={addProductToTicket} autocomplete="off">
 			<div class="flex flex-row items-end justify-around pt-3 align-bottom">
 				<div class="basis-4/6">
-					<Input label="Código" name="product" value={''} />
+					<Input label="Código" name="product" value={''} bind:bindElement={bindInputElement} />
 				</div>
 				<div class="basis-1/6 pb-3">
 					<button
@@ -427,15 +449,6 @@
 		</form>
 	</div>
 </Modal>
-
-<!-- <TableModal
-	bind:tableModal
-	bind:form
-	{tableHeader}
-	onInput={searchProductInput}
-	tableRow={data}
-	onDblClick={selectProductFromModal}
-/> -->
 
 <SearchProductModal
 	bind:modalOpen
