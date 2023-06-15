@@ -15,18 +15,21 @@
 
 	let inputElement;
 
-	afterUpdate(() => {
+	afterUpdate(async () => {
 		if (showSearchModal && inputElement) {
-			setTimeout(() => {
-				inputElement.focus();
-			}, 100);
+			inputElement?.focus();
 		}
 	});
 	const dispatch = createEventDispatcher();
 </script>
 
 {#if showSearchModal}
-	<div class="modal-bg flex flex-col rounded-md bg-white px-7 pb-7 pt-3 shadow-lg" transition:fade>
+	<div
+		class="flex flex-col rounded-md bg-white px-7 pb-7 pt-3 shadow-lg"
+		transition:fade
+		aria-hidden="true"
+		tabindex="-1"
+	>
 		<div class="modal" transition:fade>
 			<div class="mb-2 flex justify-end">
 				<div class="text-2xl text-gray-600">

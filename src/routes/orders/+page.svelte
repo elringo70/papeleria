@@ -200,7 +200,7 @@
 			switch (result.type) {
 				case 'success':
 					tickets.addProductToTicket(result.data.product);
-					resetModal();
+					closeSearchModal();
 					break;
 			}
 			applyAction(result);
