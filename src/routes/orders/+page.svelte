@@ -49,7 +49,7 @@
 	async function addProductToTicket({ form, cancel }) {
 		if (form.product.value === '') {
 			cancel();
-			await focusInputElement();
+			focusInputElement();
 		}
 		loading = true;
 		return async ({ result, update }) => {
@@ -152,15 +152,14 @@
 		ticketPosition = index;
 	};
 
-	let modalOpen = false;
-
 	const onKeyDown = (event) => {
 		switch (event.key) {
 			case 'F10':
-				modalOpen = true;
+				openSearchModal();
 				break;
 			case 'Escape':
-				resetModal();
+				closeSearchModal();
+				break;
 		}
 	};
 
@@ -176,12 +175,14 @@
 		};
 	};
 
-	let modalValue = '';
-	const resetModal = () => {
-		modalOpen = false;
-		products = [];
-		modalValue = '';
-	};
+	let showSearchModal = false;
+	function openSearchModal() {
+		showSearchModal = true;
+	}
+
+	function closeSearchModal() {
+		showSearchModal = false;
+	}
 
 	async function selectProductFromModal(event) {
 		const form = new FormData();
@@ -277,25 +278,25 @@
 		<table class="w-full table-auto">
 			<thead>
 				<tr class="bg-gray-200 text-xs uppercase leading-normal text-gray-600">
-					<th class="py-2 px-3 text-left">Código</th>
-					<th class="py-2 px-3 text-center">Producto</th>
-					<th class="py-2 px-3 text-center">Precio</th>
-					<th class="py-2 px-3 text-center">Cantidad</th>
-					<th class="py-2 px-3 text-center">Total</th>
-					<th class="py-2 px-3 text-center">Existencia</th>
-					<th class="py-2 px-3 text-center">Acción</th>
-					<th class="py-2 px-3 text-center">+ / -</th>
+					<th class="px-3 py-2 text-left">Código</th>
+					<th class="px-3 py-2 text-center">Producto</th>
+					<th class="px-3 py-2 text-center">Precio</th>
+					<th class="px-3 py-2 text-center">Cantidad</th>
+					<th class="px-3 py-2 text-center">Total</th>
+					<th class="px-3 py-2 text-center">Existencia</th>
+					<th class="px-3 py-2 text-center">Acción</th>
+					<th class="px-3 py-2 text-center">+ / -</th>
 				</tr>
 			</thead>
 			<tbody class="text-sm font-light text-gray-600">
 				{#each $selectedTicket.products as ticket}
 					<tr class="border-b border-gray-200 bg-gray-50 hover:bg-gray-100">
-						<td class="py-1.5 px-2 text-left">{ticket.product._id}</td>
-						<td class="py-1.5 px-2 text-center">{ticket.product.product}</td>
-						<td class="py-1.5 px-2 text-center">$ {ticket.product.price}</td>
-						<td class="py-1.5 px-2 text-center">{ticket.quantity}</td>
-						<td class="py-1.5 px-2 text-center">$ {ticket.quantity * ticket.product.price}</td>
-						<td class="py-1.5 px-2 text-center">{ticket.product?.stock?.stock - ticket.quantity}</td
+						<td class="px-2 py-1.5 text-left">{ticket.product._id}</td>
+						<td class="px-2 py-1.5 text-center">{ticket.product.product}</td>
+						<td class="px-2 py-1.5 text-center">$ {ticket.product.price}</td>
+						<td class="px-2 py-1.5 text-center">{ticket.quantity}</td>
+						<td class="px-2 py-1.5 text-center">$ {ticket.quantity * ticket.product.price}</td>
+						<td class="px-2 py-1.5 text-center">{ticket.product?.stock?.stock - ticket.quantity}</td
 						>
 
 						<td class="flex items-center justify-center gap-x-2 px-2 py-1.5 text-center">
@@ -309,7 +310,7 @@
 								</div>
 							</button>
 						</td>
-						<td class="py-1.5 px-2 text-center">
+						<td class="px-2 py-1.5 text-center">
 							<div class="flex justify-around">
 								<button
 									type="button"
@@ -420,7 +421,7 @@
 	</div>
 </section>
 
-<Modal
+<!-- <Modal
 	title="Buscar cliente"
 	subtitle="Ingrese el numero del cliente"
 	cancelButton={true}
@@ -435,27 +436,25 @@
 					<button
 						type="button"
 						on:click={closeModal}
-						class="rounded bg-gray-700 py-2 px-3 text-center text-white shadow shadow-gray-700 hover:bg-gray-600"
+						class="rounded bg-gray-700 px-3 py-2 text-center text-white shadow shadow-gray-700 hover:bg-gray-600"
 						on>Cancelar</button
 					>
 
 					<button
 						type="submit"
-						class="rounded bg-indigo-700 py-2 px-3 text-center text-white shadow shadow-indigo-700 hover:bg-indigo-600"
+						class="rounded bg-indigo-700 px-3 py-2 text-center text-white shadow shadow-indigo-700 hover:bg-indigo-600"
 						on>Buscar</button
 					>
 				</div>
 			</div>
 		</form>
 	</div>
-</Modal>
+</Modal> -->
 
 <SearchProductModal
-	bind:modalOpen
-	bind:value={modalValue}
 	{productSearch}
 	{products}
-	closeModal={resetModal}
+	bind:showSearchModal
 	on:productId={selectProductFromModal}
 />
 

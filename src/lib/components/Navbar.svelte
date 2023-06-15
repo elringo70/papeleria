@@ -3,6 +3,21 @@
 	import { signOut } from 'firebase/auth';
 	import { invalidateAll } from '$app/navigation';
 	import { auth } from '../../utils/firebase';
+
+	import {
+		Navbar,
+		NavBrand,
+		NavLi,
+		NavUl,
+		NavHamburger,
+		Avatar,
+		Dropdown,
+		DropdownItem,
+		DropdownHeader,
+		DropdownDivider,
+		Chevron
+	} from 'flowbite-svelte';
+
 	export let user;
 
 	const logout = async () => {
@@ -26,80 +41,42 @@
 </script>
 
 {#if user}
-	<div class="navbar">
-		<div class="navbar-start">
-			<a href="/" class="btn-ghost btn text-xl normal-case">Papelería El Cyber</a>
+	<Navbar let:hidden let:toggle>
+		<NavBrand href="/">
+			<span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white"
+				>Papelería El Cyber</span
+			>
+		</NavBrand>
+		<div class="flex items-center md:order-2">
+			<Avatar id="avatar-menu" src="./noimage.png" />
+			<NavHamburger on:click={toggle} class1="w-full md:flex md:w-auto md:order-1" />
 		</div>
-		<div class="navbar-center">
-			<div class="navbar-center hidden lg:flex">
-				<ul class="menu menu-horizontal px-1">
-					<li><a href="/orders">Caja</a></li>
-					<li tabIndex="0">
-						<a href="#">
-							Productos
-							<svg
-								class="fill-current"
-								xmlns="http://www.w3.org/2000/svg"
-								width="20"
-								height="20"
-								viewBox="0 0 24 24"
-								><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" /></svg
-							>
-						</a>
-						<ul class="bg-base-100 p-2">
-							<li><a href="/products/new-product">Crear productos</a></li>
-							<li><a href="/products/get-products">Ver productos</a></li>
-						</ul>
-					</li>
-					<li tabIndex="0">
-						<a href="#">
-							Clientes
-							<svg
-								class="fill-current"
-								xmlns="http://www.w3.org/2000/svg"
-								width="20"
-								height="20"
-								viewBox="0 0 24 24"
-								><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" /></svg
-							>
-						</a>
-						<ul class="bg-base-100 p-2">
-							<li><a href="/customers/new-customer">Nuevo cliente</a></li>
-							<li><a href="/customers/get-customers">Ver clientes</a></li>
-						</ul>
-					</li>
-					<li><a href="/categories">Categorías</a></li>
-				</ul>
-			</div>
-		</div>
-		<div class="navbar-end">
-			<div class="dropdown-end dropdown">
-				<label tabIndex="0" class="btn-ghost btn-circle avatar btn">
-					<div class="w-10 rounded-full">
-						<img src="https://placeimg.com/80/80/people" />
-					</div>
-				</label>
-				<ul
-					tabIndex="0"
-					class="dropdown-content menu rounded-box menu-compact mt-3 w-52 bg-base-100 p-2 shadow"
-				>
-					<li>
-						<a href="/profile">Profile</a>
-					</li>
-					<li><a>Settings</a></li>
-					<li><button on:click={logout} type="button">Logout</button></li>
-				</ul>
-			</div>
-		</div>
-	</div>
-{:else}
-	<div class="navbar">
-		<div class="navbar-start" />
-		<div class="navbar-center">
-			<a href="/" class="btn-ghost btn text-xl normal-case">Papelería El Cyber</a>
-		</div>
-		<div class="navbar-end">
-			<a href="/signin" class="btn-ghost btn text-xl normal-case">Log in</a>
-		</div>
-	</div>
+		<Dropdown placement="bottom" triggeredBy="#avatar-menu">
+			<DropdownHeader>
+				<span class="block text-sm"> Bonnie Green </span>
+				<span class="block truncate text-sm font-medium"> name@flowbite.com </span>
+			</DropdownHeader>
+			<DropdownItem>Configuración</DropdownItem>
+			<DropdownItem>Perfil</DropdownItem>
+			<DropdownDivider />
+			<DropdownItem on:click={logout}>Logout</DropdownItem>
+		</Dropdown>
+		<NavUl
+			{hidden}
+			ulClass="flex flex-col mt-4 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium"
+		>
+			<NavLi href="/orders">Caja</NavLi>
+			<NavLi id="nav-products" class="cursor-pointer"><Chevron aligned>Productos</Chevron></NavLi>
+			<Dropdown triggeredBy="#nav-products" class="z-20 w-44">
+				<DropdownItem href="/products/new-product">Nuevo Producto</DropdownItem>
+				<DropdownItem href="/products/get-products">Ver Productos</DropdownItem>
+			</Dropdown>
+			<NavLi id="nav-customers" class="cursor-pointer"><Chevron aligned>Clientes</Chevron></NavLi>
+			<Dropdown triggeredBy="#nav-customers" class="z-20 w-44">
+				<DropdownItem href="/customers/new-customer">Nuevo Cliente</DropdownItem>
+				<DropdownItem href="/customers/get-customers">Ver Clientes</DropdownItem>
+			</Dropdown>
+			<NavLi href="/categories">Categoría</NavLi>
+		</NavUl>
+	</Navbar>
 {/if}
