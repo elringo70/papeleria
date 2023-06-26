@@ -25,7 +25,7 @@
 
 {#if showSearchModal}
 	<div
-		class="flex flex-col rounded-md bg-white px-7 pb-7 pt-3 shadow-lg"
+		class="modal-bg flex flex-col rounded-md bg-white px-7 pb-7 pt-3 shadow-lg"
 		transition:fade
 		aria-hidden="true"
 		tabindex="-1"

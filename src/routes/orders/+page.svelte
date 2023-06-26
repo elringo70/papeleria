@@ -12,11 +12,13 @@
 
 	import { customerNameFormat, phoneNumberFormat } from '$utils/stringUtils';
 	import { onMount } from 'svelte';
+	import CustomerSearchModal from '../../lib/components/modal/CustomerSearchModal.svelte';
 
 	let loading = false;
 
 	function addTicket() {
 		tickets.addTicket();
+		focusInputElement();
 	}
 
 	function selectTicket(index) {
@@ -44,6 +46,7 @@
 		} else {
 			tickets.removeTicket(index);
 		}
+		focusInputElement();
 	}
 
 	async function addProductToTicket({ form, cancel }) {
@@ -84,6 +87,7 @@
 
 	function deductProduct(productId) {
 		tickets.deductProduct(productId);
+		focusInputElement();
 	}
 
 	const setCustomerTicket = () => {
@@ -95,7 +99,7 @@
 					} else {
 						tickets.setCustomerTicket(ticketPosition, result.data.phone);
 					}
-					closeModal();
+					showCustomerSearchModal = false;
 					break;
 				case 'failure':
 					Swal.fire({
@@ -140,7 +144,7 @@
 		subtotalProducts($selectedTicket.products) * 0.16 + subtotalProducts($selectedTicket.products);
 
 	//Modal
-	let open = false;
+	let showCustomerSearchModal = false;
 	let ticketPosition;
 
 	const closeModal = () => {
@@ -148,7 +152,7 @@
 	};
 
 	const customerSearchModal = (index) => {
-		open = true;
+		showCustomerSearchModal = true;
 		ticketPosition = index;
 	};
 
@@ -229,7 +233,7 @@
 	<title>Cliente nuevo</title>
 </svelte:head>
 
-<section class="grid-rows-6/6 grid h-[calc(100vh-66px)] grid-cols-6 gap-4 bg-gray-100 p-7">
+<section class="grid-rows-6/6 grid h-[calc(100vh-60px)] grid-cols-6 gap-4 bg-gray-100 p-7">
 	<!-- Ticket List -->
 	<div
 		class="col-span-1 row-span-6 row-start-1 flex h-full flex-col overflow-auto rounded bg-white shadow-md"
@@ -296,8 +300,13 @@
 						<td class="px-2 py-1.5 text-center">$ {ticket.product.price}</td>
 						<td class="px-2 py-1.5 text-center">{ticket.quantity}</td>
 						<td class="px-2 py-1.5 text-center">$ {ticket.quantity * ticket.product.price}</td>
-						<td class="px-2 py-1.5 text-center">{ticket.product?.stock?.stock - ticket.quantity}</td
-						>
+						<td class="px-2 py-1.5 text-center">
+							{#if ticket.requiredStock}
+								{ticket.product?.stock?.stock - ticket.quantity}
+							{:else}
+								ilimitado
+							{/if}
+						</td>
 
 						<td class="flex items-center justify-center gap-x-2 px-2 py-1.5 text-center">
 							<button
@@ -421,35 +430,7 @@
 	</div>
 </section>
 
-<!-- <Modal
-	title="Buscar cliente"
-	subtitle="Ingrese el numero del cliente"
-	cancelButton={true}
-	form={true}
-	{open}
->
-	<div slot="form">
-		<form action="?/findCustomer" method="post" use:enhance={setCustomerTicket} autocomplete="off">
-			<NumberField name="phone" required={true} />
-			<div class="modal-action">
-				<div class="flex w-full justify-around">
-					<button
-						type="button"
-						on:click={closeModal}
-						class="rounded bg-gray-700 px-3 py-2 text-center text-white shadow shadow-gray-700 hover:bg-gray-600"
-						on>Cancelar</button
-					>
-
-					<button
-						type="submit"
-						class="rounded bg-indigo-700 px-3 py-2 text-center text-white shadow shadow-indigo-700 hover:bg-indigo-600"
-						on>Buscar</button
-					>
-				</div>
-			</div>
-		</form>
-	</div>
-</Modal> -->
+<CustomerSearchModal bind:showCustomerSearchModal {setCustomerTicket} />
 
 <SearchProductModal
 	{productSearch}
