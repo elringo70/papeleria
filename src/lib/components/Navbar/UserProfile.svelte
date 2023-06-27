@@ -11,7 +11,7 @@
 	<div>
 		<button
 			type="button"
-			class=" flex rounded-full bg-gray-800 text-sm focus:outline-none"
+			class=" flex rounded-full text-sm focus:outline-none"
 			id="user-menu-button"
 			aria-expanded="false"
 			aria-haspopup="true"
@@ -44,7 +44,7 @@
 			aria-orientation="vertical"
 			aria-labelledby="user-menu-button"
 			tabindex="-1"
-			transition:slide
+			transition:slide={{ duration: 200 }}
 		>
 			<!-- Active: "bg-gray-100", Not Active: "" -->
 			<a

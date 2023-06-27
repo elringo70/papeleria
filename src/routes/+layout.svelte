@@ -9,7 +9,8 @@
 	export let data;
 
 	import '../app.css';
-	import Navbar from '$lib/components/Navbar.svelte';
+	//import Navbar from '$lib/components/Navbar.svelte';
+	import Navbar from '$lib/components/Navbar/Navbar.svelte';
 
 	onMount(() => {
 		if (browser) {
@@ -19,6 +20,6 @@
 	});
 </script>
 
-<Navbar user={data?.user} />
+<Navbar />
 
 <slot />

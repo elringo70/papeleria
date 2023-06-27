@@ -1,11 +1,48 @@
 <script>
+	import { setContext } from 'svelte';
 	import UserProfile from './UserProfile.svelte';
 	import DropdownLink from './DropdownLink.svelte';
+	import NavbarLink from './NavbarLink.svelte';
+
+	const navbarLinks = [
+		{ name: 'Caja', href: '/orders', active: false },
+		{
+			name: 'Clientes',
+			active: false,
+			dropdown: [
+				{ name: 'Nuevo cliente', href: '/customers/new-customer' },
+				{ name: 'Ver clientes', href: '/customers/get-customers' }
+			]
+		},
+		{
+			name: 'Productos',
+			active: false,
+			dropdown: [
+				{ name: 'Crear producto', href: '/products/new-product' },
+				{ name: 'Ver productos', href: '/products/get-products' }
+			]
+		},
+		{ name: 'Test', href: '/test', active: false }
+	];
+
+	const clickOnNavbarLink = (e) => {
+		navbarLinks.forEach((_, index) => {
+			navbarLinks[index].active = false;
+		});
+
+		navbarLinks.forEach((link, index) => {
+			if (e.target.pathname === link.href) {
+				navbarLinks[index].active = true;
+			}
+		});
+	};
+
+	setContext('links', navbarLinks);
 </script>
 
 <!-- Main navigation container -->
-<nav class="bg-gray-800">
-	<div class="mx-auto max-w-7xl px-1 sm:px-6 lg:px-8">
+<nav>
+	<div class="mx-auto max-w-7xl px-1 sm:px-1 lg:px-1">
 		<div class="relative flex h-14 items-center justify-between">
 			<div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
 				<!-- Mobile menu button-->
@@ -67,24 +104,13 @@
 				</div>
 				<div class="hidden sm:ml-6 sm:block">
 					<div class="flex space-x-4">
-						<!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
-						<DropdownLink href="/profile" linkName="Perfil" />
-						<DropdownLink href="/test" linkName="Test" />
-						<a
-							href="#"
-							class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-							>Team</a
-						>
-						<a
-							href="#"
-							class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-							>Projects</a
-						>
-						<a
-							href="#"
-							class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-							>Calendar</a
-						>
+						{#each navbarLinks as link}
+							{#if link.dropdown}
+								<DropdownLink linkName={link.name} submenuLinks={link.dropdown} />
+							{:else}
+								<NavbarLink name={link.name} href={link?.href} {clickOnNavbarLink} />
+							{/if}
+						{/each}
 					</div>
 				</div>
 			</div>
