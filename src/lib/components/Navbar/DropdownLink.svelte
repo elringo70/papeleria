@@ -4,14 +4,12 @@
 	import Icon from '@iconify/svelte';
 
 	export let linkName = '';
+	export let bindElement = null;
 	export let submenuLinks = [];
+	export let isOpen = false;
+	export let clickOnNavbarLink = () => {};
 
 	let path = '';
-	let isOpen = false;
-
-	const toogle = () => {
-		isOpen = !isOpen;
-	};
 
 	$: path = $page.url.pathname;
 </script>
@@ -20,7 +18,8 @@
 	<div>
 		<button
 			class="flex items-center rounded-md px-3 py-2 text-base font-medium text-gray-700"
-			on:click={toogle}
+			on:click={clickOnNavbarLink}
+			bind:this={bindElement}
 			>{linkName} <span class="ml-1"><Icon icon="mdi:arrow-down-drop" /></span></button
 		>
 	</div>

@@ -1,4 +1,7 @@
 <script>
+	import { setContext } from 'svelte';
+	import { navbarLinks } from './store.js';
+
 	import UserProfile from './UserProfile.svelte';
 	import DropdownLink from './DropdownLink.svelte';
 	import NavbarLink from './NavbarLink.svelte';
@@ -29,8 +32,6 @@
 		},
 		{ name: 'Test', href: '/test', active: false }
 	];
-
-	clickOnNavbarLink = () => {};
 </script>
 
 <!-- Main navigation container -->
@@ -106,6 +107,7 @@
 										clickOnNavbarLink(link);
 									}}
 									bind:isOpen={link.dropdown.isOpen}
+									bindElement={link.name}
 								/>
 							{:else}
 								<NavbarLink
