@@ -6,7 +6,7 @@
 	export let max = 9999999999;
 	export let disabled = false;
 	export let required = false;
-	export let bindElement = null
+	export let bindElement = null;
 
 	export let value = '';
 	export let errors = undefined;
@@ -27,8 +27,8 @@
 		step="any"
 		{placeholder}
 		bind:this={bindElement}
-		class={`w-full rounded border border-gray-300 px-3 py-2 text-gray-600 focus:border-gray-500 focus:outline-none
-			${disabled ? 'cursor-default disabled:bg-gray-200' : ''}
+		class={`focus:outline-nonew-full w-full rounded rounded border border border-gray-300 border-gray-300 px-3 px-3 py-2 py-2 text-gray-600 text-gray-600 focus:border-gray-500 focus:border-gray-500 focus:outline-none
+      ${disabled ? 'cursor-default disabled:bg-gray-200' : ''}
 			${errors ? 'border-red-400 focus:border-red-500 focus:outline-none' : ''}`}
 		bind:value
 		{disabled}

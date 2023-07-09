@@ -27,10 +27,11 @@
 				isOpen: false
 			}
 		},
+		{ name: 'Categorías', href: '/categories', active: false },
 		{ name: 'Test', href: '/test', active: false }
 	];
 
-	clickOnNavbarLink = () => {};
+	const clickOnNavbarLink = () => {};
 </script>
 
 <!-- Main navigation container -->
@@ -99,22 +100,9 @@
 					<div class="flex space-x-4">
 						{#each navbarLinks as link}
 							{#if link.dropdown}
-								<DropdownLink
-									linkName={link.name}
-									submenuLinks={link.dropdown.links}
-									clickOnNavbarLink={() => {
-										clickOnNavbarLink(link);
-									}}
-									bind:isOpen={link.dropdown.isOpen}
-								/>
+								<DropdownLink linkName={link.name} submenuLinks={link.dropdown.links} />
 							{:else}
-								<NavbarLink
-									name={link.name}
-									href={link?.href}
-									clickOnNavbarLink={() => {
-										clickOnNavbarLink(link);
-									}}
-								/>
+								<NavbarLink name={link.name} href={link?.href} />
 							{/if}
 						{/each}
 					</div>

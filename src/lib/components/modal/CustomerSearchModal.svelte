@@ -17,10 +17,9 @@
 
 	afterUpdate(async () => {
 		if (showCustomerSearchModal && inputElement) {
-      setTimeout(()=>{
-
-        inputElement.focus();
-      }, 300)
+			setTimeout(() => {
+				inputElement.focus();
+			}, 100);
 		}
 	});
 </script>
@@ -28,8 +27,11 @@
 {#if showCustomerSearchModal}
 	<div class="modal-bg" transition:fade>
 		<div class="modal w-1/3 rounded" transition:fade>
-			<div class="mb-2 flex justify-end">
-				<div class="text-2xl text-gray-600">
+			<div class="flex justify-between">
+				<div class="mb-1">
+					<h6 class="text-xl text-gray-800">Buscar cliente</h6>
+				</div>
+				<div class="left-0 text-2xl text-gray-600">
 					<button type="button" on:click={closeModal}><Icon icon="material-symbols:close" /></button
 					>
 				</div>

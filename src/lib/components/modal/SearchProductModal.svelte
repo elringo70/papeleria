@@ -1,5 +1,5 @@
 <script>
-	import { afterUpdate, createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { enhance } from '$app/forms';
 	import Icon from '@iconify/svelte';
@@ -15,11 +15,13 @@
 
 	let inputElement;
 
-	afterUpdate(async () => {
-		if (showSearchModal && inputElement) {
-			inputElement?.focus();
+	$: if (showSearchModal) {
+		if (inputElement) {
+			setTimeout(() => {
+				inputElement.focus();
+			}, 100);
 		}
-	});
+	}
 	const dispatch = createEventDispatcher();
 </script>
 
@@ -30,7 +32,7 @@
 		aria-hidden="true"
 		tabindex="-1"
 	>
-		<div class="modal" transition:fade>
+		<div class="modal rounded" transition:fade tabindex="-1">
 			<div class="mb-2 flex justify-end">
 				<div class="text-2xl text-gray-600">
 					<button type="button" on:click={closeSearchModal}
@@ -38,8 +40,14 @@
 					>
 				</div>
 			</div>
-			<div class="w-full">
-				<form action="?/searchProduct" method="post" autocomplete="off" use:enhance={productSearch}>
+			<div class="w-full" tabindex="-1">
+				<form
+					action="?/searchProduct"
+					method="post"
+					autocomplete="off"
+					use:enhance={productSearch}
+					tabindex="-1"
+				>
 					<div class="flex gap-x-5">
 						<div class="basis-2/3">
 							<Input name="productName" bind:bindElement={inputElement} />
@@ -55,9 +63,9 @@
 				</form>
 			</div>
 
-			<div class="max-h-96 overflow-auto">
-				<table class="w-full min-w-max table-auto">
-					<thead>
+			<div class="max-h-96 overflow-auto" tabindex="-1">
+				<table class="w-full min-w-max table-auto" tabindex="-1">
+					<thead tabindex="-1">
 						<tr class="bg-gray-200 text-sm uppercase leading-normal text-gray-600">
 							<th class="px-6 py-3 text-left">Producto</th>
 							<th class="px-6 py-3 text-left">Marca</th>
@@ -67,7 +75,7 @@
 							<th class="px-6 py-3 text-center">Cantidad</th>
 						</tr>
 					</thead>
-					<tbody class="text-sm font-light text-gray-600">
+					<tbody class="text-sm font-light text-gray-600" tabindex="-1">
 						{#each products as product}
 							<tr
 								class="border-b border-gray-200 bg-gray-50 hover:bg-gray-100"
