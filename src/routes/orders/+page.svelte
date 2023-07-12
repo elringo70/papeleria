@@ -1,96 +1,17 @@
 <script>
 	import { setContext } from 'svelte';
-	import { enhance } from '$app/forms';
 	import { deserialize, applyAction } from '$app/forms';
 	import { tickets, selectedTicket } from './store';
 
-	import Icon from '@iconify/svelte';
 	import Swal from 'sweetalert2';
-	import Ticket from '$lib/components/order/Ticket.svelte';
-	import Modal from '$lib/components/Modal.svelte';
 	import SearchProductModal from '$lib/components/modal/SearchProductModal.svelte';
-	import { NumberField, Input, Pill } from '$lib/components';
 
-	import { customerNameFormat, phoneNumberFormat } from '$utils/stringUtils';
 	import { onMount } from 'svelte';
 	import CustomerSearchModal from '../../lib/components/modal/CustomerSearchModal.svelte';
 	import PurchaseSummary from '../../lib/components/order/PurchaseSummary.svelte';
-
-	let loading = false;
-
-	function addTicket() {
-		tickets.addTicket();
-		focusInputElement();
-	}
-
-	function selectTicket(index) {
-		tickets.selectTicket(index);
-		focusInputElement();
-	}
-
-	async function removeTicket(e) {
-		e.stopPropagation();
-
-		const index = this.value;
-
-		if ($tickets[index].products.length > 0) {
-			const modalConfirmation = await Swal.fire({
-				icon: 'warning',
-				title: '¿Desea eliminar el ticket?',
-				showCancelButton: true,
-				cancelButtonText: 'Cancelar',
-				confirmButtonText: 'Eliminar'
-			});
-
-			if (modalConfirmation.isConfirmed) {
-				tickets.removeTicket(index);
-			}
-		} else {
-			tickets.removeTicket(index);
-		}
-		focusInputElement();
-	}
-
-	async function addProductToTicket({ form, cancel }) {
-		if (form.product.value === '') {
-			cancel();
-			focusInputElement();
-		}
-		loading = true;
-		return async ({ result, update }) => {
-			switch (result.type) {
-				case 'success':
-					tickets.addProductToTicket(result.data.product);
-					await update();
-					focusInputElement();
-					break;
-				case 'failure':
-					Swal.fire({
-						icon: 'error',
-						title: result.data.message,
-						timer: 1250,
-						timerProgressBar: true
-					});
-					break;
-			}
-			loading = false;
-		};
-	}
-
-	function removeProduct(productId) {
-		tickets.removeProduct(productId);
-		focusInputElement();
-	}
-
-	function addProduct(productId) {
-		tickets.addProduct(productId);
-		focusInputElement();
-	}
-
-	function deductProduct(productId) {
-		tickets.deductProduct(productId);
-		focusInputElement();
-	}
+	import TicketDetail from '../../lib/components/order/TicketDetail.svelte';
+	import TicketList from '../../lib/components/order/TicketList.svelte';
+	import ProductInput from '../../lib/components/order/ProductInput.svelte';
 
 	const setCustomerTicket = () => {
 		return async ({ result, update }) => {
@@ -116,42 +37,9 @@
 		};
 	};
 
-	const subtotalProducts = (products) => {
-		let total = 0;
-		if (products.length > 0) {
-			for (let i = 0; i < products.length; i++) {
-				total += products[i].product.price * products[i].quantity;
-			}
-		}
-		return total;
-	};
-
-	//Order Summary
-	let customerName, customerAddress, phoneNumber, subtotal, total;
-	$: customerName =
-		JSON.stringify($selectedTicket.customer) === '{}'
-			? ''
-			: JSON.stringify($selectedTicket.customer) !== '{}' &&
-			  $selectedTicket.customer.hasOwnProperty('name')
-			? customerNameFormat($selectedTicket.customer)
-			: '';
-	$: phoneNumber = $selectedTicket.customer.phone
-		? phoneNumberFormat($selectedTicket.customer.phone)
-		: '';
-	$: customerAddress = $selectedTicket.customer.address
-		? `${$selectedTicket.customer.address.street} ${$selectedTicket.customer.address.number}`
-		: '';
-	$: subtotal = subtotalProducts($selectedTicket.products);
-	$: total =
-		subtotalProducts($selectedTicket.products) * 0.16 + subtotalProducts($selectedTicket.products);
-
 	//Modal
 	let showCustomerSearchModal = false;
 	let ticketPosition;
-
-	const closeModal = () => {
-		open = false;
-	};
 
 	const customerSearchModal = (index) => {
 		showCustomerSearchModal = true;
@@ -188,6 +76,7 @@
 
 	function closeSearchModal() {
 		showSearchModal = false;
+		products = [];
 	}
 
 	async function selectProductFromModal(event) {
@@ -205,8 +94,18 @@
 
 			switch (result.type) {
 				case 'success':
-					tickets.addProductToTicket(result.data.product);
-					closeSearchModal();
+					if (result.data.product.stock.stock === 0) {
+						Swal.fire({
+							icon: 'error',
+							title: 'Producto sin stock',
+							timer: 1250,
+							timerProgressBar: true
+						});
+						break;
+					} else {
+						tickets.addProductToTicket(result.data.product);
+						closeSearchModal();
+					}
 					break;
 			}
 			applyAction(result);
@@ -229,6 +128,7 @@
 	});
 
 	setContext('selectedTicket', selectedTicket);
+	setContext('tickets', tickets);
 </script>
 
 <svelte:window on:keydown={onKeyDown} />
@@ -237,151 +137,28 @@
 	<title>Cliente nuevo</title>
 </svelte:head>
 
-<section class="grid-rows-6/6 grid h-[calc(100vh-60px)] grid-cols-6 gap-4 bg-gray-100 p-7">
+<section class="grid-rows-6/6 grid h-[calc(100vh-60px)] grid-cols-12 gap-4 bg-gray-100 p-7">
 	<!-- Ticket List -->
 	<div
-		class="col-span-1 row-span-6 row-start-1 flex h-full flex-col overflow-auto rounded bg-white shadow-md"
+		class="col-span-2 row-span-6 row-start-1 flex h-full flex-col overflow-auto rounded bg-white shadow-md"
 	>
-		<div class="overflow-auto">
-			{#each $tickets as ticket, index}
-				<Ticket
-					{ticket}
-					{index}
-					onClick={() => selectTicket(index)}
-					onDblClick={() => customerSearchModal(index)}
-					{removeTicket}
-				/>
-			{/each}
-		</div>
-		<div class="mt-auto p-2">
-			<button
-				type="button"
-				class="mt-auto w-full rounded border-indigo-600 bg-indigo-600 py-2 text-white hover:border-indigo-700 hover:bg-indigo-700"
-				disabled={loading}
-				on:click={addTicket}>Agregar ticket</button
-			>
-		</div>
+		<TicketList {customerSearchModal} {focusInputElement} />
 	</div>
 
 	<!-- Add Product Input Component -->
-	<div class="col-span-3 row-span-1 row-start-1 rounded bg-white shadow-md">
-		<form action="?/findProduct" method="post" use:enhance={addProductToTicket} autocomplete="off">
-			<div class="flex flex-row items-end justify-around pt-3 align-bottom">
-				<div class="basis-4/6">
-					<Input label="Código" name="product" value={''} bind:bindElement={bindInputElement} />
-				</div>
-				<div class="basis-1/6 pb-3">
-					<button
-						type="submit"
-						class="w-full rounded bg-indigo-500 py-2 text-white shadow shadow-indigo-500 hover:bg-indigo-600"
-						>Agregar</button
-					>
-				</div>
-			</div>
-		</form>
+	<div class="col-span-7 row-span-1 row-start-1 rounded bg-white shadow-md">
+		<ProductInput {focusInputElement} bind:bindInputElement />
 	</div>
 
 	<!-- Ticket Detail -->
-	<div class="col-span-3 row-span-5 row-start-2 overflow-auto rounded bg-white shadow-md">
-		<table class="w-full table-auto">
-			<thead>
-				<tr class="bg-gray-200 text-xs uppercase leading-normal text-gray-600">
-					<th class="px-3 py-2 text-left">Código</th>
-					<th class="px-3 py-2 text-center">Producto</th>
-					<th class="px-3 py-2 text-center">Precio</th>
-					<th class="px-3 py-2 text-center">Cantidad</th>
-					<th class="px-3 py-2 text-center">Total</th>
-					<th class="px-3 py-2 text-center">Existencia</th>
-					<th class="px-3 py-2 text-center">Acción</th>
-					<th class="px-3 py-2 text-center">+ / -</th>
-				</tr>
-			</thead>
-			<tbody class="text-sm font-light text-gray-600">
-				{#each $selectedTicket.products as ticket}
-					<tr class="border-b border-gray-200 bg-gray-50 hover:bg-gray-100">
-						<td class="px-2 py-1.5 text-left">{ticket.product._id}</td>
-						<td class="px-2 py-1.5 text-center">{ticket.product.product}</td>
-						<td class="px-2 py-1.5 text-center">$ {ticket.product.price}</td>
-						<td class="px-2 py-1.5 text-center">{ticket.quantity}</td>
-						<td class="px-2 py-1.5 text-center">$ {ticket.quantity * ticket.product.price}</td>
-						<td class="px-2 py-1.5 text-center">
-							{#if ticket.requiredStock}
-								{ticket.product?.stock?.stock - ticket.quantity}
-							{:else}
-								ilimitado
-							{/if}
-						</td>
-
-						<td class="flex items-center justify-center gap-x-2 px-2 py-1.5 text-center">
-							<button
-								on:click={() => {
-									removeProduct(ticket.product._id);
-								}}
-							>
-								<div class="cursor-pointer text-base hover:text-red-700">
-									<Icon icon="uil:trash-alt" />
-								</div>
-							</button>
-						</td>
-						<td class="px-2 py-1.5 text-center">
-							<div class="flex justify-around">
-								<button
-									type="button"
-									class="cursor-pointer rounded-sm bg-gray-400 p-0.5 text-white"
-									on:click={() => deductProduct(ticket.product._id)}
-								>
-									<Icon icon="ic:baseline-minus" />
-								</button>
-								<button
-									type="button"
-									class="cursor-pointer rounded-sm bg-blue-500 p-0.5 text-white"
-									on:click={() => addProduct(ticket.product._id)}
-								>
-									<Icon icon="ic:baseline-plus" />
-								</button>
-							</div>
-						</td>
-					</tr>
-				{:else}
-					<tr class="border-b border-gray-200 bg-gray-50 italic text-gray-400 cursor-default">
-						<td class="py-1.5 px-2 text-left">123456789</td>
-						<td class="py-1.5 px-2 text-center">Borrador</td>
-						<td class="py-1.5 px-2 text-center">$ 3.5</td>
-						<td class="py-1.5 px-2 text-center">2</td>
-						<td class="py-1.5 px-2 text-center">$ 7</td>
-						<td class="py-1.5 px-2 text-center">ilimitado</td>
-
-						<td class="flex items-center justify-center gap-x-2 px-2 py-1.5 text-center">
-							<button>
-								<div class="cursor-default text-base">
-									<Icon icon="uil:trash-alt" />
-								</div>
-							</button>
-						</td>
-						<td class="py-1.5 px-2 text-center">
-							<div class="flex justify-around">
-								<button
-									type="button"
-									class="cursor-default rounded-sm bg-gray-200 p-0.5 text-white"
-								>
-									<Icon icon="ic:baseline-minus" />
-								</button>
-								<button
-									type="button"
-									class="cursor-default rounded-sm bg-blue-300 p-0.5 text-white"
-								>
-									<Icon icon="ic:baseline-plus" />
-								</button>
-							</div>
-						</td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
+	<div class="col-span-7 row-span-5 row-start-2 overflow-auto rounded bg-white shadow-md">
+		<TicketDetail {focusInputElement} />
 	</div>
 
 	<!-- Purchase summary -->
-	<PurchaseSummary />
+	<div class="col-span-3 row-span-6 row-start-1 rounded bg-white p-5 shadow-md">
+		<PurchaseSummary />
+	</div>
 </section>
 
 <CustomerSearchModal bind:showCustomerSearchModal {setCustomerTicket} />

@@ -11,6 +11,7 @@
 
 	const closeSearchModal = () => {
 		showSearchModal = false;
+		products = [];
 	};
 
 	let inputElement;
@@ -78,14 +79,17 @@
 					<tbody class="text-sm font-light text-gray-600" tabindex="-1">
 						{#each products as product}
 							<tr
-								class="border-b border-gray-200 bg-gray-50 hover:bg-gray-100"
+								class="border-b border-gray-200 bg-gray-50 {product.requiredStock &&
+								product.stock.stock === 0
+									? 'bg-red-100 text-red-500'
+									: 'hover:bg-gray-100'}"
 								on:dblclick={() => {
 									dispatch('productId', { _id: product._id });
 								}}
 							>
 								<td class="px-5 py-2 text-left">
 									<div class="flex items-center">
-										<span class="font-medium">{product.product}</span>
+										<span>{product.product}</span>
 									</div>
 								</td>
 								<td class="px-5 py-2 text-left">
