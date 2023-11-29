@@ -1,49 +1,36 @@
-<script>
-	export let open = false;
-
-	export let title = '';
-	export let subtitle = '';
-	export let saveButton = () => {};
-	export let cancelButton = undefined;
-	export let form = true;
-
-	const saveFunction = () => {
-		saveButton();
-		closeModal();
-	};
-
-	const closeModal = () => {
-		open = false;
-	};
+<script context="module">
+	/**
+	 * Create a Svelte component with props bound to it.
+	 * @type {(component: Component, props: Record<string, any>) => Component}
+	 */
+	export function bind(Component, props = {}) {
+		return function ModalComponent(options) {
+			return new Component({
+				...options,
+				props: {
+					...props,
+					...options.props
+				}
+			});
+		};
+	}
 </script>
 
-<div class="modal" class:modal-open={open}>
-	<div class="modal-box">
-		<h3 class="text-2xl font-semibold text-gray-800">{title}</h3>
-		<p class="text-gray-400">{subtitle}</p>
+<script>
+	import * as svelte from 'svelte';
+	import { fade } from 'svelte/transition';
+	import { createEventDispatcher } from 'svelte';
 
-		<slot name="content"><div /></slot>
-		{#if form}
-			<slot name="form" />
-		{:else}
-			<div class="modal-action">
-				<div class="flex w-full justify-around">
-					{#if cancelButton}
-						<button
-							type="button"
-							class="w-full rounded bg-gray-700 py-2 px-3 text-center text-white shadow shadow-gray-700 hover:bg-gray-600"
-							on:click={closeModal}
-							on>Cancelar</button
-						>
-					{/if}
-					<button
-						type="button"
-						class="w-full rounded bg-indigo-700 py-2 px-3 text-center text-white shadow shadow-indigo-700 hover:bg-indigo-600"
-						on:click={saveFunction}
-						on>Entendido</button
-					>
-				</div>
-			</div>
-		{/if}
-	</div>
-</div>
+	const dispatch = createEventDispatcher();
+	const baseSetContext = svelte.setContext;
+
+	export let show = null;
+	export let closeButton = true;
+	export let closeOnEsc = true;
+	export let closeOnOuterClick = true;
+	export let setContext = baseSetContext;
+</script>
+
+{#if Component}
+	<div />
+{/if}

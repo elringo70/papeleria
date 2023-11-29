@@ -29,6 +29,21 @@
 	$: total =
 		subtotalProducts($selectedTicket.products) * 0.16 + subtotalProducts($selectedTicket.products);
 
+	const orderStatus = {
+		status: {
+			open: 'Abierto',
+			pending: 'Pendiente',
+			closed: 'Cerrado'
+		},
+		delivered: {
+			pending: 'Pendiente',
+			delivered: 'Entregado'
+		}
+	};
+
+	$: status = orderStatus.status[$selectedTicket.status];
+	$: delivered = orderStatus.delivered[$selectedTicket.delivered];
+
 	const subtotalProducts = (products) => {
 		let total = 0;
 		if (products.length > 0) {
@@ -59,8 +74,8 @@
 	</div>
 
 	<div class="flex justify-around">
-		<Pill pill="success" text={$selectedTicket.status} />
-		<Pill pill="primary" text={$selectedTicket.delivered} />
+		<Pill pill="success" text={status} />
+		<Pill pill="primary" text={delivered} />
 	</div>
 
 	<div class="divide-y divide-solid overflow-auto">

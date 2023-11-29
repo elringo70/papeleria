@@ -69,5 +69,19 @@ export const actions = {
 		} finally {
 			await dbDisconnect();
 		}
+	},
+	submitOrder: async ({ request }) => {
+		try {
+			await dbConnect();
+
+			console.log(Object.fromEntries(await request.formData()));
+
+			return { success: true };
+		} catch (err) {
+			console.log('Error: ', err);
+			throw error(500, err);
+		} finally {
+			await dbDisconnect();
+		}
 	}
 };

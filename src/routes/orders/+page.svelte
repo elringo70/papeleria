@@ -1,17 +1,19 @@
 <script>
-	import { setContext } from 'svelte';
+	import { setContext, onMount } from 'svelte';
 	import { deserialize, applyAction } from '$app/forms';
 	import { tickets, selectedTicket } from './store';
 
 	import Swal from 'sweetalert2';
 	import SearchProductModal from '$lib/components/modal/SearchProductModal.svelte';
 
-	import { onMount } from 'svelte';
-	import CustomerSearchModal from '../../lib/components/modal/CustomerSearchModal.svelte';
 	import PurchaseSummary from '../../lib/components/order/PurchaseSummary.svelte';
 	import TicketDetail from '../../lib/components/order/TicketDetail.svelte';
 	import TicketList from '../../lib/components/order/TicketList.svelte';
 	import ProductInput from '../../lib/components/order/ProductInput.svelte';
+	import CheckoutModal from './components/CheckoutModal.svelte';
+	import CustomerSearchModal from './components/CustomerSearchModal.svelte';
+
+	export let form;
 
 	const setCustomerTicket = () => {
 		return async ({ result, update }) => {
@@ -19,10 +21,12 @@
 				case 'success':
 					if (result.data.customer) {
 						tickets.setCustomerTicket(ticketPosition, result.data.customer);
+						tickets.selectTicket(ticketPosition);
 					} else {
 						tickets.setCustomerTicket(ticketPosition, result.data.phone);
+						tickets.selectTicket(ticketPosition);
 					}
-					showCustomerSearchModal = false;
+
 					break;
 				case 'failure':
 					Swal.fire({
@@ -38,11 +42,11 @@
 	};
 
 	//Modal
-	let showCustomerSearchModal = false;
 	let ticketPosition;
 
+	let elementCustomerSearchModal;
 	const customerSearchModal = (index) => {
-		showCustomerSearchModal = true;
+		elementCustomerSearchModal.showModal();
 		ticketPosition = index;
 	};
 
@@ -53,6 +57,10 @@
 				break;
 			case 'Escape':
 				closeSearchModal();
+				break;
+			case 'F2':
+				if ($selectedTicket.products.length === 0) return;
+				showPurchaseModal();
 				break;
 		}
 	};
@@ -75,6 +83,7 @@
 	}
 
 	function closeSearchModal() {
+		purchaseModal = false;
 		showSearchModal = false;
 		products = [];
 	}
@@ -123,8 +132,14 @@
 		}, 100);
 	};
 
+	let purchaseModal = false;
+	const showPurchaseModal = () => {
+		document.getElementById('checkoutModal').showModal();
+	};
+
 	onMount(() => {
 		focusInputElement();
+		elementCustomerSearchModal = document.getElementById('customerSearchModal');
 	});
 
 	setContext('selectedTicket', selectedTicket);
@@ -137,7 +152,7 @@
 	<title>Cliente nuevo</title>
 </svelte:head>
 
-<section class="grid-rows-6/6 grid h-[calc(100vh-60px)] grid-cols-12 gap-4 bg-gray-100 p-7">
+<section class="grid h-[calc(100vh-60px)] grid-cols-12 grid-rows-6 gap-4 bg-gray-100 p-7">
 	<!-- Ticket List -->
 	<div
 		class="col-span-2 row-span-6 row-start-1 flex h-full flex-col overflow-auto rounded bg-white shadow-md"
@@ -146,12 +161,12 @@
 	</div>
 
 	<!-- Add Product Input Component -->
-	<div class="col-span-7 row-span-1 row-start-1 rounded bg-white shadow-md">
+	<div class="col-span-7 row-span-2 row-start-1 rounded bg-white shadow-md">
 		<ProductInput {focusInputElement} bind:bindInputElement />
 	</div>
 
 	<!-- Ticket Detail -->
-	<div class="col-span-7 row-span-5 row-start-2 overflow-auto rounded bg-white shadow-md">
+	<div class="col-span-7 row-span-4 row-start-3 rounded bg-white shadow-md">
 		<TicketDetail {focusInputElement} />
 	</div>
 
@@ -161,7 +176,7 @@
 	</div>
 </section>
 
-<CustomerSearchModal bind:showCustomerSearchModal {setCustomerTicket} />
+<CustomerSearchModal {setCustomerTicket} />
 
 <SearchProductModal
 	{productSearch}
@@ -170,16 +185,4 @@
 	on:productId={selectProductFromModal}
 />
 
-<style>
-	::-webkit-scrollbar {
-		width: 0.5em;
-	}
-	::-webkit-scrollbar-track {
-		background-color: rgb(229 231 235);
-		border-radius: 100vw;
-	}
-	::-webkit-scrollbar-thumb {
-		background-color: rgb(209 213 219);
-		border-radius: 100vw;
-	}
-</style>
+<CheckoutModal Form={form} />

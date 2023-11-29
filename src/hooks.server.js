@@ -14,7 +14,7 @@ const privateRoutes = [
 ];
 
 export const handle = async ({ event, resolve }) => {
-	const { cookies, locals, url } = event;
+	/* const { cookies, locals, url } = event;
 
 	const token = cookies.get('session');
 	const currentLocation = url.pathname;
@@ -42,7 +42,7 @@ export const handle = async ({ event, resolve }) => {
 
 		if (publicRoutes.includes(currentLocation))
 			return new Response(null, { status: 303, headers: { location: '/profile' } });
-	}
+	} */
 
 	const response = await resolve(event);
 	return response;
