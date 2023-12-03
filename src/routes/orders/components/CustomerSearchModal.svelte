@@ -25,12 +25,18 @@
 	<div class="modal-box w-1/3 max-w-none rounded-none bg-white text-gray-700">
 		<h3 class="text-lg font-bold">Buscar cliente</h3>
 		<form action="?/findCustomer" use:enhance={setCustomerTicket} method="post" autocomplete="off">
-			<NumberField placeholder="Numero del cliente" name="phone" />
+			<NumberField
+				placeholder="Numero del cliente"
+				name="phone"
+				minlength="10"
+				maxlength="10"
+				required
+			/>
 			<div class="modal-action">
-				<button class="btn" type="submit">Buscar</button>
 				<button class="btn-error btn" type="button" on:click={customerSearchModal.close()}
 					>Cancelar</button
 				>
+				<button class="btn" type="submit">Buscar</button>
 			</div>
 		</form>
 	</div>

@@ -18,7 +18,7 @@
 
 		const index = this.value;
 
-		if ($tickets[index].products.length > 0) {
+		if ($tickets[index].products.length > 0 || $tickets[index].customer.phone) {
 			const modalConfirmation = await Swal.fire({
 				icon: 'warning',
 				title: '¿Desea eliminar el ticket?',

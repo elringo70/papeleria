@@ -10,6 +10,7 @@ import Pill from './Pill.svelte';
 import TableModal from './TableModal.svelte';
 import Pagination from './Pagination.svelte';
 import InputFile from './InputFile.svelte';
+import CheckboxPressed from './CheckboxPressed.svelte';
 
 export {
 	Alert,
@@ -23,5 +24,6 @@ export {
 	Pill,
 	TableModal,
 	Pagination,
-	InputFile
+	InputFile,
+	CheckboxPressed
 };

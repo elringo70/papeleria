@@ -1,37 +1,41 @@
 <script>
 	import { setContext, onMount } from 'svelte';
 	import { deserialize, applyAction } from '$app/forms';
-	import { tickets, selectedTicket } from './store';
+	import { tickets, selectedTicket } from './stores/store';
 
 	import Swal from 'sweetalert2';
 	import SearchProductModal from '$lib/components/modal/SearchProductModal.svelte';
 
-	import PurchaseSummary from '../../lib/components/order/PurchaseSummary.svelte';
-	import TicketDetail from '../../lib/components/order/TicketDetail.svelte';
-	import TicketList from '../../lib/components/order/TicketList.svelte';
-	import ProductInput from '../../lib/components/order/ProductInput.svelte';
+	import PurchaseSummary from '$lib/components/order/PurchaseSummary.svelte';
+	import TicketDetail from '$lib/components/order/TicketDetail.svelte';
+	import TicketList from '$lib/components/order/TicketList.svelte';
+	import ProductInput from '$lib/components/order/ProductInput.svelte';
 	import CheckoutModal from './components/CheckoutModal.svelte';
 	import CustomerSearchModal from './components/CustomerSearchModal.svelte';
 
+	/** @type {import('./$types').ActionData} */
 	export let form;
 
 	const setCustomerTicket = () => {
 		return async ({ result, update }) => {
-			switch (result.type) {
+			const { type, data } = result;
+
+			switch (type) {
 				case 'success':
-					if (result.data.customer) {
-						tickets.setCustomerTicket(ticketPosition, result.data.customer);
+					if (data.customer) {
+						tickets.setCustomerTicket(ticketPosition, data.customer);
 						tickets.selectTicket(ticketPosition);
 					} else {
-						tickets.setCustomerTicket(ticketPosition, result.data.phone);
+						tickets.setCustomerTicket(ticketPosition, data.phone);
 						tickets.selectTicket(ticketPosition);
 					}
 
+					elementCustomerSearchModal.close();
 					break;
 				case 'failure':
 					Swal.fire({
 						icon: 'error',
-						title: result.data.message,
+						title: data.message,
 						timer: 1250,
 						timerProgressBar: true
 					});

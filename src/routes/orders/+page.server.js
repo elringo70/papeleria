@@ -6,6 +6,7 @@ import { redis } from '$lib/server/redis';
 import { orderSchema } from './orderValidation.js';
 import { validateData } from '$utils/utils';
 
+/** @type {import('./$types').Actions} */
 export const actions = {
 	findProduct: async ({ request }) => {
 		try {
