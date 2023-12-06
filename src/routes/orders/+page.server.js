@@ -59,9 +59,9 @@ export const actions = {
 		try {
 			await dbConnect();
 
-			const { productName } = Object.fromEntries(await request.formData());
+			const { product } = Object.fromEntries(await request.formData());
 
-			const findProducts = await Product.find({ product: { $regex: productName, $options: 'i' } });
+			const findProducts = await Product.find({ product: { $regex: product, $options: 'i' } });
 
 			return { products: JSON.parse(JSON.stringify(findProducts)) };
 		} catch (err) {

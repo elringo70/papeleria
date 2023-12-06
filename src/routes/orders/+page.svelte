@@ -1,10 +1,8 @@
 <script>
-	import { setContext, onMount } from 'svelte';
-	import { deserialize, applyAction } from '$app/forms';
+	import { setContext, onMount, getContext } from 'svelte';
 	import { tickets, selectedTicket } from './stores/store';
 
 	import Swal from 'sweetalert2';
-	import SearchProductModal from '$lib/components/modal/SearchProductModal.svelte';
 
 	import PurchaseSummary from '$lib/components/order/PurchaseSummary.svelte';
 	import TicketDetail from '$lib/components/order/TicketDetail.svelte';
@@ -12,9 +10,15 @@
 	import ProductInput from '$lib/components/order/ProductInput.svelte';
 	import CheckoutModal from './components/CheckoutModal.svelte';
 	import CustomerSearchModal from './components/CustomerSearchModal.svelte';
+	import SearchProductModal from './components/SearchProductModal.svelte';
 
 	/** @type {import('./$types').ActionData} */
 	export let form;
+
+	let checkoutModal;
+	let searchProductModal;
+	let ticketPosition;
+	let elementCustomerSearchModal;
 
 	const setCustomerTicket = () => {
 		return async ({ result, update }) => {
@@ -45,10 +49,6 @@
 		};
 	};
 
-	//Modal
-	let ticketPosition;
-
-	let elementCustomerSearchModal;
 	const customerSearchModal = (index) => {
 		elementCustomerSearchModal.showModal();
 		ticketPosition = index;
@@ -56,76 +56,29 @@
 
 	const onKeyDown = (event) => {
 		switch (event.key) {
-			case 'F10':
-				openSearchModal();
-				break;
 			case 'Escape':
-				closeSearchModal();
+				break;
+			case 'F1':
+				event.preventDefault();
 				break;
 			case 'F2':
-				if ($selectedTicket.products.length === 0) return;
 				showPurchaseModal();
+				break;
+			case 'F10':
+				event.preventDefault();
+				showSearchModal();
+				break;
+			case 'F11':
+				event.preventDefault();
+			case 'F12':
+				event.preventDefault();
 				break;
 		}
 	};
 
-	let products = [];
-	$: products;
-	const productSearch = () => {
-		return async ({ result }) => {
-			switch (result.type) {
-				case 'success':
-					products = result.data.products;
-					break;
-			}
-		};
+	const showSearchModal = () => {
+		searchProductModal.showModal();
 	};
-
-	let showSearchModal = false;
-	function openSearchModal() {
-		showSearchModal = true;
-	}
-
-	function closeSearchModal() {
-		purchaseModal = false;
-		showSearchModal = false;
-		products = [];
-	}
-
-	async function selectProductFromModal(event) {
-		const form = new FormData();
-		const product = event.detail._id;
-		form.append('product', product);
-
-		try {
-			const response = await fetch('?/findProduct', {
-				method: 'POST',
-				body: form
-			});
-
-			const result = deserialize(await response.text());
-
-			switch (result.type) {
-				case 'success':
-					if (result.data.product.stock.stock === 0) {
-						Swal.fire({
-							icon: 'error',
-							title: 'Producto sin stock',
-							timer: 1250,
-							timerProgressBar: true
-						});
-						break;
-					} else {
-						tickets.addProductToTicket(result.data.product);
-						closeSearchModal();
-					}
-					break;
-			}
-			applyAction(result);
-		} catch (error) {
-			console.log(error);
-		}
-	}
 
 	let bindInputElement;
 	const focusInputElement = () => {
@@ -136,13 +89,14 @@
 		}, 100);
 	};
 
-	let purchaseModal = false;
 	const showPurchaseModal = () => {
-		document.getElementById('checkoutModal').showModal();
+		if ($selectedTicket.products.length === 0) return;
+		checkoutModal.showModal();
 	};
 
 	onMount(() => {
-		focusInputElement();
+		checkoutModal = document.getElementById('checkoutModal');
+		searchProductModal = document.getElementById('searchProductModal');
 		elementCustomerSearchModal = document.getElementById('customerSearchModal');
 	});
 
@@ -176,17 +130,12 @@
 
 	<!-- Purchase summary -->
 	<div class="col-span-3 row-span-6 row-start-1 rounded bg-white p-5 shadow-md">
-		<PurchaseSummary />
+		<PurchaseSummary {showPurchaseModal} />
 	</div>
 </section>
 
-<CustomerSearchModal {setCustomerTicket} />
+<SearchProductModal />
 
-<SearchProductModal
-	{productSearch}
-	{products}
-	bind:showSearchModal
-	on:productId={selectProductFromModal}
-/>
+<CustomerSearchModal {setCustomerTicket} />
 
 <CheckoutModal Form={form} />

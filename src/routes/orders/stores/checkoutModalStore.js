@@ -1,59 +1,58 @@
-//ts-check
-import { writable } from 'svelte/store';
+import { browser } from '$app/environment';
+import { writable, get } from 'svelte/store';
 
 /**
  * @typedef Payment
  * @prop {number} cash
- * @prop {boolean} cashEnable
  * @prop {number} creditDebit
- * @prop {boolean} creditDebitEnable
  * @prop {number} eTransfer
- * @prop {boolean} eTransferEnable
  * @prop {number} total
  * @prop {number} customerPayment
  */
 
 /** @type {Payment} */
 const initialValues = {
-	cash: 0,
-	cashEnable: true,
-	creditDebit: 0,
-	creditDebitEnable: false,
-	eTransfer: 0,
-	eTransferEnable: false,
-	total: 0,
-	customerPayment: 0
+  cash: 0,
+  creditDebit: 0,
+  eTransfer: 0,
+  total: 0,
+  customerPayment: 0
 };
 
+const checkoutModalStorage = writable((browser && JSON.parse(localStorage.getItem('checkoutModal'))) || initialValues)
+
+checkoutModalStorage.subscribe((values) => browser && localStorage.setItem('checkoutModalStorage', JSON.stringify(values)))
+
 function createCheckouModalStore() {
-	const { subscribe, update, set } = writable(initialValues);
+  const { subscribe, update, set } = writable(get(checkoutModalStorage));
 
-	const setValue = (attribute, value) => {
-		console.log(attribute, value);
-		update((store) => ({
-			...store,
-			[attribute]: value
-		}));
+  const setValue = (attribute, value) => {
+    update((store) => ({
+      ...store,
+      [attribute]: Number(value)
+    }));
 
-		calculateTotal();
-	};
+    calculateTotal();
+  };
 
-	const calculateTotal = () => {
-		update((store) => ({
-			...store,
-			customerPayment: store.cash + store.creditDebit + store.eTransfer
-		}));
-	};
+  const calculateTotal = () => {
+    update((store) => ({
+      ...store,
+      customerPayment: store.cash + store.creditDebit + store.eTransfer
+    }));
+  };
 
-	const reset = () => {
-		set(initialValues);
-	};
+  const reset = () => {
+    set(initialValues);
+  };
 
-	return {
-		subscribe,
-		setValue,
-		reset
-	};
+  return {
+    subscribe,
+    setValue,
+    reset
+  };
 }
 
 export const checkoutModalStore = createCheckouModalStore();
+
+checkoutModalStore.subscribe((values) => browser && localStorage.setItem('checkoutModalStorage', JSON.stringify(values)))

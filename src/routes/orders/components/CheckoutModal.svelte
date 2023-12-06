@@ -1,7 +1,8 @@
 <script>
 	import { getContext, onMount } from 'svelte';
 	import { enhance } from '$app/forms';
-	import { checkoutModalStore, derivedStore } from '../stores/checkoutModalStore';
+	import { checkoutModalStore } from '../stores/checkoutModalStore';
+	import { paymentMethodsStore } from '../stores/paymentMethodsStore';
 
 	import { selectedTicket } from '../stores/store';
 	import { CheckboxPressed, NumberField } from '$lib/components';
@@ -47,8 +48,11 @@
 		checkoutModalStore.setValue(attribute, event.target.value);
 	};
 
-	const onChange = (value, attribute) => {
-		checkoutModalStore.setValue(attribute, value);
+	const onChange = (attribute) => {
+		if ($paymentMethodsStore[attribute]) {
+			checkoutModalStore.setValue(attribute, 0);
+		}
+		paymentMethodsStore.setValue(attribute);
 	};
 
 	onMount(() => {
@@ -56,7 +60,6 @@
 	});
 
 	const tickets = getContext('tickets');
-	$: console.log($derivedStore);
 </script>
 
 <dialog id="checkoutModal" class="modal">
@@ -66,7 +69,7 @@
 				<div class="col-span-2 row-span-3 border-2 border-gray-200 p-3">
 					<div class="flex h-full flex-col justify-between gap-5">
 						<h1 class="text-center text-7xl text-gray-700">
-							${$checkoutModalStore.total}
+							${$selectedTicket.total}
 						</h1>
 
 						<div class="grid grid-cols-3 gap-2">
@@ -76,8 +79,8 @@
 								unCheckedText="Efectivo"
 								unCheckedIcon="mdi:cash"
 								checkedIcon="mdi:cash"
-								checked={$checkoutModalStore.cashEnable}
-								onChange={() => onChange(!$checkoutModalStore.cashEnable, 'cashEnable')}
+								checked={$paymentMethodsStore.cash}
+								onChange={() => onChange('cash')}
 							/>
 							<CheckboxPressed
 								name="credit-debit"
@@ -85,9 +88,8 @@
 								unCheckedText="Crédito o Débito"
 								unCheckedIcon="majesticons:creditcard"
 								checkedIcon="majesticons:creditcard"
-								checked={$checkoutModalStore.creditDebitEnable}
-								onChange={() =>
-									onChange(!$checkoutModalStore.creditDebitEnable, 'creditDebitEnable')}
+								checked={$paymentMethodsStore.creditDebit}
+								onChange={() => onChange('creditDebit')}
 							/>
 							<CheckboxPressed
 								name="e-transfer"
@@ -95,8 +97,8 @@
 								unCheckedText="Transferencia"
 								unCheckedIcon="solar:card-transfer-bold"
 								checkedIcon="solar:card-transfer-bold"
-								checked={$checkoutModalStore.eTransferEnable}
-								onChange={() => onChange(!$checkoutModalStore.eTransferEnable, 'eTransferEnable')}
+								checked={$paymentMethodsStore.eTransfer}
+								onChange={() => onChange('eTransfer')}
 							/>
 						</div>
 
@@ -109,8 +111,9 @@
 									<NumberField
 										placeholder="$0.00"
 										name="cash"
+										value={$checkoutModalStore.cash === 0 ? '' : $checkoutModalStore.cash}
 										onInput={(e) => onInput(e, 'cash')}
-										disabled={!$checkoutModalStore.cashEnable}
+										disabled={!$paymentMethodsStore.cash}
 									/>
 								</div>
 							</div>
@@ -122,8 +125,11 @@
 									<NumberField
 										placeholder="$0.00"
 										name="credit-debit"
+										value={$checkoutModalStore.creditDebit === 0
+											? ''
+											: $checkoutModalStore.creditDebit}
 										onInput={(e) => onInput(e, 'creditDebit')}
-										disabled={!$checkoutModalStore.creditDebitEnable}
+										disabled={!$paymentMethodsStore.creditDebit}
 									/>
 								</div>
 							</div>
@@ -135,8 +141,9 @@
 									<NumberField
 										placeholder="$0.00"
 										name="e-transfer"
+										value={$checkoutModalStore.eTransfer === 0 ? '' : $checkoutModalStore.eTransfer}
 										onInput={(e) => onInput(e, 'eTransfer')}
-										disabled={!$checkoutModalStore.eTransferEnable}
+										disabled={!$paymentMethodsStore.eTransfer}
 									/>
 								</div>
 							</div>
@@ -145,12 +152,16 @@
 						<div>
 							<div class="flex justify-end gap-5">
 								<p class="text-2xl font-medium text-gray-900">Paga con:</p>
-								<p class="text-3xl font-semibold text-gray-900">${$checkoutModalStore.total}</p>
+								<p class="text-3xl font-semibold text-gray-900">
+									${$checkoutModalStore.customerPayment}
+								</p>
 							</div>
 							<div class="flex justify-end gap-5">
 								<p class="text-3xl font-medium text-gray-900">Su cambio:</p>
 								<p class="text-3xl font-semibold text-gray-900">
-									${$selectedTicket.total - $checkoutModalStore.total}
+									${$checkoutModalStore.customerPayment - $selectedTicket.total < 0
+										? 0
+										: $checkoutModalStore.customerPayment - $selectedTicket.total}
 								</p>
 							</div>
 						</div>
@@ -173,8 +184,8 @@
 									name="status"
 									value={$selectedTicket.status}
 									checked={$selectedTicket.status}
-									checkedText="Cerrado"
-									unCheckedText="Abierto"
+									checkedText="Entregado"
+									unCheckedText="Sin entregar"
 									unCheckedIcon="solar:delivery-bold"
 									checkedIcon="solar:delivery-linear"
 									onChange={checkedStatus}
@@ -198,20 +209,14 @@
 
 				<div class="col-span-1 row-span-1">
 					<div class="flex h-full flex-col justify-between">
-						<button
-							type="submit"
-							class="btn-outline btn btn-block btn-sm rounded-none"
-							disabled={formCompleted}>TERMINAR COMPRA</button
-						>
-						<button
-							type="button"
-							class="btn-info btn-outline btn btn-block btn-sm rounded-none"
-							disabled={formCompleted}>TERMINAR E IMPRIMIR</button
+						<button type="submit" class="btn btn-block btn-sm rounded-none">TERMINAR COMPRA</button>
+						<button type="button" class="btn-info btn btn-block btn-sm rounded-none"
+							>TERMINAR E IMPRIMIR</button
 						>
 						<button
 							type="button"
 							on:click={checkoutModal.close()}
-							class="btn-outline btn-error btn btn-block btn-sm rounded-none">CANCELAR</button
+							class="btn-error btn btn-block btn-sm rounded-none">CANCELAR</button
 						>
 					</div>
 				</div>

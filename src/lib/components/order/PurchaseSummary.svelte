@@ -4,6 +4,7 @@
 
 	import { customerNameFormat, phoneNumberFormat } from '$utils/stringUtils';
 
+	export let showPurchaseModal;
 	const selectedTicket = getContext('selectedTicket');
 
 	let customerName = '',
@@ -23,26 +24,13 @@
 		? phoneNumberFormat($selectedTicket.customer.phone)
 		: '';
 	$: customerAddress = $selectedTicket.customer.address
-		? `${$selectedTicket.customer.address.street} ${$selectedTicket.customer.address.number}`
+		? `${$selectedTicket.customer.address.street}, ${$selectedTicket.customer.address.number}`
 		: '';
 	$: subtotal = subtotalProducts($selectedTicket.products);
-	$: total =
-		subtotalProducts($selectedTicket.products) * 0.16 + subtotalProducts($selectedTicket.products);
+	$: total = subtotalProducts($selectedTicket.products);
 
-	const orderStatus = {
-		status: {
-			open: 'Abierto',
-			pending: 'Pendiente',
-			closed: 'Cerrado'
-		},
-		delivered: {
-			pending: 'Pendiente',
-			delivered: 'Entregado'
-		}
-	};
-
-	$: status = orderStatus.status[$selectedTicket.status];
-	$: delivered = orderStatus.delivered[$selectedTicket.delivered];
+	$: status = $selectedTicket.status ? 'Entregado' : 'Sin Entregar';
+	$: delivered = $selectedTicket.delivered ? 'Pagado' : 'Pendiente';
 
 	const subtotalProducts = (products) => {
 		let total = 0;
@@ -97,8 +85,10 @@
 		</div>
 	</div>
 	<div class="mt-auto">
-		<button type="button" class="w-full rounded bg-indigo-600 py-2 text-white hover:bg-indigo-700"
-			>Completar orden</button
+		<button
+			type="button"
+			class="w-full rounded bg-indigo-600 py-2 text-white hover:bg-indigo-700"
+			on:click={showPurchaseModal}>Completar orden</button
 		>
 	</div>
 </div>

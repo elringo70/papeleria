@@ -279,48 +279,6 @@ function ticketStore() {
 		});
 	};
 
-	/* const completeOrder = (status, delivery) => {
-		update((tickets) => {
-			const ticketPosition = tickets.findIndex((ticket) => ticket.selectedTicket === true);
-
-			tickets[ticketPosition].status = status;
-			tickets[ticketPosition].delivery = delivery;
-
-			postOrder(tickets[ticketPosition]).then((res) => (response = res));
-
-			if (tickets.length === 1) {
-				tickets = tickets.filter((ticket, index) => index !== ticketPosition);
-				tickets = [
-					{
-						customer: {},
-						products: [],
-						total: 0,
-						selectedTicket: false,
-						status: 'open',
-						devivered: 'pending'
-					}
-				];
-
-				tickets[0].selectedTicket = true;
-
-				selectedTicket.set(tickets[0]);
-				ticketStorage.set(tickets);
-			} else {
-				for (let i = 0; i < tickets.length; i++) {
-					tickets[i].selectedTicket = false;
-				}
-
-				tickets[0].selectedTicket = true;
-
-				tickets = tickets.filter((ticket, index) => index !== ticketPosition);
-
-				selectedTicket.set(initialValues[0]);
-				ticketStorage.set(tickets);
-			}
-			return [...tickets];
-		});
-	}; */
-
 	const completeOrder = () => {
 		update((tickets) => {
 			const ticketPosition = tickets.findIndex((ticket) => ticket.selectedTicket === true);
