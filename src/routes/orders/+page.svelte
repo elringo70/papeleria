@@ -56,8 +56,6 @@
 
 	const onKeyDown = (event) => {
 		switch (event.key) {
-			case 'Escape':
-				break;
 			case 'F1':
 				event.preventDefault();
 				break;
@@ -107,7 +105,7 @@
 <svelte:window on:keydown={onKeyDown} />
 
 <svelte:head>
-	<title>Cliente nuevo</title>
+	<title>Caja</title>
 </svelte:head>
 
 <section class="grid h-[calc(100vh-60px)] grid-cols-12 grid-rows-6 gap-4 bg-gray-100 p-7">
@@ -120,7 +118,7 @@
 
 	<!-- Add Product Input Component -->
 	<div class="col-span-7 row-span-2 row-start-1 rounded bg-white shadow-md">
-		<ProductInput {focusInputElement} bind:bindInputElement />
+		<ProductInput {focusInputElement} bind:bindInputElement {showSearchModal} />
 	</div>
 
 	<!-- Ticket Detail -->

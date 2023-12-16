@@ -3,6 +3,7 @@
 	import { Pill } from '$lib/components';
 
 	import { customerNameFormat, phoneNumberFormat } from '$utils/stringUtils';
+	import { decimalsFixed } from '$utils/numberUtils';
 
 	export let showPurchaseModal;
 	const selectedTicket = getContext('selectedTicket');
@@ -26,8 +27,9 @@
 	$: customerAddress = $selectedTicket.customer.address
 		? `${$selectedTicket.customer.address.street}, ${$selectedTicket.customer.address.number}`
 		: '';
-	$: subtotal = subtotalProducts($selectedTicket.products);
-	$: total = subtotalProducts($selectedTicket.products);
+	$: subtotal = decimalsFixed(subtotalProducts($selectedTicket.products), 2);
+	$: IVA = taxes($selectedTicket.products);
+	$: total = decimalsFixed(subtotalProducts($selectedTicket.products), 2);
 
 	$: status = $selectedTicket.status ? 'Entregado' : 'Sin Entregar';
 	$: delivered = $selectedTicket.delivered ? 'Pagado' : 'Pendiente';
@@ -40,6 +42,11 @@
 			}
 		}
 		return total;
+	};
+
+	const taxes = (products) => {
+		const subtotal = subtotalProducts(products) * 0.16;
+		return decimalsFixed(subtotal, 2);
 	};
 </script>
 
@@ -66,7 +73,7 @@
 		<Pill pill="primary" text={delivered} />
 	</div>
 
-	<div class="divide-y divide-solid overflow-auto">
+	<div class="w-full divide-y divide-solid">
 		<div class="flex w-full justify-between py-3 text-gray-500">
 			<div>Total de articulos</div>
 			<div>{$selectedTicket.products.length}</div>
@@ -77,7 +84,7 @@
 		</div>
 		<div class="flex w-full justify-between py-3 text-gray-500">
 			<div>IVA</div>
-			<div>$ {subtotalProducts($selectedTicket.products) * 0.16}</div>
+			<div>$ {IVA}</div>
 		</div>
 		<div class="flex w-full justify-between py-6">
 			<h3 class="text-xl font-semibold text-gray-800">Total de la orden</h3>

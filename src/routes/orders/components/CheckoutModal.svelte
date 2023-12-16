@@ -7,23 +7,31 @@
 	import { selectedTicket } from '../stores/store';
 	import { CheckboxPressed, NumberField } from '$lib/components';
 
-	let Form;
-	export { Form as form };
+	export let Form;
 
 	let checkoutModal;
-	let formCompleted = false;
+	let missingTotal = false;
+	const tickets = getContext('tickets');
 
 	$: customerName = $selectedTicket.customer.name ?? '';
 	$: phone = $selectedTicket.customer.phone ?? '';
 	$: address = $selectedTicket.customer.address
 		? $selectedTicket.customer.address.street + ' ' + $selectedTicket.customer.address.number
 		: '';
+	$: submitButtonAvailable =
+		$paymentMethodsStore.cash || $paymentMethodsStore.creditDebit || $paymentMethodsStore.eTransfer;
 
 	const handleSubmit = ({ formData, cancel }) => {
 		const { status, delivery } = Object.fromEntries(formData);
 
-		if (!(status && delivery)) {
+		checkoutModalStore.calculateTotal();
+
+		if ($checkoutModalStore.customerPayment < $selectedTicket.total) {
+			missingTotal = true;
+			cancel();
+		} else if (!(status && delivery)) {
 			checkoutModal.close();
+			missingTotal = false;
 			cancel();
 		}
 
@@ -31,9 +39,22 @@
 			switch (result.type) {
 				case 'success':
 					checkoutModal.close();
+					tickets.completeOrder();
+					resetModal();
 					break;
 			}
+			missingTotal = false;
 		};
+	};
+
+	const resumeOrder = () => {
+		checkoutModal.close();
+		resetModal();
+	};
+
+	const resetModal = () => {
+		checkoutModalStore.reset();
+		paymentMethodsStore.reset();
 	};
 
 	const checkedStatus = () => {
@@ -57,9 +78,18 @@
 
 	onMount(() => {
 		checkoutModal = document.getElementById('checkoutModal');
-	});
 
-	const tickets = getContext('tickets');
+		addEventListener('keydown', function (event) {
+			switch (event.key) {
+				case 'Escape':
+					if ($checkoutModalStore.customerPayment < $selectedTicket.total) {
+						missingTotal = false;
+					}
+					resetModal();
+					break;
+			}
+		});
+	});
 </script>
 
 <dialog id="checkoutModal" class="modal">
@@ -74,7 +104,7 @@
 
 						<div class="grid grid-cols-3 gap-2">
 							<CheckboxPressed
-								name="cash"
+								name="payment-cash"
 								checkedText="Efectivo"
 								unCheckedText="Efectivo"
 								unCheckedIcon="mdi:cash"
@@ -83,7 +113,7 @@
 								onChange={() => onChange('cash')}
 							/>
 							<CheckboxPressed
-								name="credit-debit"
+								name="payment-credit-debit"
 								checkedText="Crédito o Débito"
 								unCheckedText="Crédito o Débito"
 								unCheckedIcon="majesticons:creditcard"
@@ -92,7 +122,7 @@
 								onChange={() => onChange('creditDebit')}
 							/>
 							<CheckboxPressed
-								name="e-transfer"
+								name="payment-e-transfer"
 								checkedText="Transferencia"
 								unCheckedText="Transferencia"
 								unCheckedIcon="solar:card-transfer-bold"
@@ -110,10 +140,11 @@
 								<div class="basis-2/3">
 									<NumberField
 										placeholder="$0.00"
-										name="cash"
+										name="input-cash"
 										value={$checkoutModalStore.cash === 0 ? '' : $checkoutModalStore.cash}
 										onInput={(e) => onInput(e, 'cash')}
 										disabled={!$paymentMethodsStore.cash}
+										required={$paymentMethodsStore.cash}
 									/>
 								</div>
 							</div>
@@ -124,12 +155,13 @@
 								<div class="basis-2/3">
 									<NumberField
 										placeholder="$0.00"
-										name="credit-debit"
+										name="input-credit-debit"
 										value={$checkoutModalStore.creditDebit === 0
 											? ''
 											: $checkoutModalStore.creditDebit}
 										onInput={(e) => onInput(e, 'creditDebit')}
 										disabled={!$paymentMethodsStore.creditDebit}
+										required={$paymentMethodsStore.creditDebit}
 									/>
 								</div>
 							</div>
@@ -140,10 +172,11 @@
 								<div class="basis-2/3">
 									<NumberField
 										placeholder="$0.00"
-										name="e-transfer"
+										name="input-e-transfer"
 										value={$checkoutModalStore.eTransfer === 0 ? '' : $checkoutModalStore.eTransfer}
 										onInput={(e) => onInput(e, 'eTransfer')}
 										disabled={!$paymentMethodsStore.eTransfer}
+										required={$paymentMethodsStore.eTransfer}
 									/>
 								</div>
 							</div>
@@ -151,8 +184,16 @@
 
 						<div>
 							<div class="flex justify-end gap-5">
-								<p class="text-2xl font-medium text-gray-900">Paga con:</p>
-								<p class="text-3xl font-semibold text-gray-900">
+								<p
+									class={`text-2xl font-medium ${missingTotal ? 'text-red-600' : 'text-gray-900'}`}
+								>
+									Paga con:
+								</p>
+								<p
+									class={`text-3xl font-semibold ${
+										missingTotal ? 'text-red-600' : 'text-gray-900'
+									}`}
+								>
 									${$checkoutModalStore.customerPayment}
 								</p>
 							</div>
@@ -208,11 +249,21 @@
 				</div>
 
 				<div class="col-span-1 row-span-1">
-					<div class="flex h-full flex-col justify-between">
-						<button type="submit" class="btn btn-block btn-sm rounded-none">TERMINAR COMPRA</button>
-						<button type="button" class="btn-info btn btn-block btn-sm rounded-none"
-							>TERMINAR E IMPRIMIR</button
-						>
+					<div class="flex h-full flex-col justify-end gap-5">
+						{#if $selectedTicket.status && $selectedTicket.delivered}
+							<button
+								type="submit"
+								class="btn btn-block btn-sm rounded-none"
+								disabled={!submitButtonAvailable}>TERMINAR COMPRA</button
+							>
+						{:else}
+							<button
+								type="button"
+								class="btn-info btn btn-block btn-sm rounded-none"
+								on:click={resumeOrder}
+								disabled={!submitButtonAvailable}>RESUMIR COMPRA</button
+							>
+						{/if}
 						<button
 							type="button"
 							on:click={checkoutModal.close()}
@@ -222,8 +273,13 @@
 				</div>
 			</div>
 
-			<input type="hidden" name="change" value="" />
+			<input
+				type="hidden"
+				name="change"
+				value={$checkoutModalStore.customerPayment - $selectedTicket.total}
+			/>
 			<input type="hidden" name="customer" value={$selectedTicket.customer.phone} />
+			<input type="hidden" name="total" value={$selectedTicket.total} />
 			{#each $selectedTicket.products as product, i}
 				<input
 					type="hidden"

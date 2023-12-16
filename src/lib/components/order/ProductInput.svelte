@@ -1,6 +1,7 @@
 <script>
 	import { enhance } from '$app/forms';
 	import { getContext } from 'svelte';
+	import { selectedTicket } from '../../../routes/orders/stores/store';
 	import Swal from 'sweetalert2';
 
 	import { Input } from '$lib/components';
@@ -9,18 +10,42 @@
 
 	export let focusInputElement;
 	export let bindInputElement;
+	export let showSearchModal;
 
-	async function addProductToTicket({ form, cancel }) {
-		if (form.product.value === '') {
+	const addProduct = (dataProduct) => {
+		if (dataProduct.requiredStock) {
+			if ($selectedTicket.products.length > 0) {
+				$selectedTicket.products.forEach((product, index) => {
+					console.log(product.quantity, $selectedTicket.products[index].quantity);
+				});
+			} else {
+				if (dataProduct.stock.stock === 0) {
+					Swal.fire({
+						title: 'Sin existencia',
+						icon: 'error'
+					});
+				} else {
+					tickets.addProductToTicket(dataProduct);
+				}
+			}
+		} else {
+			tickets.addProductToTicket(dataProduct);
+		}
+	};
+
+	async function addProductToTicket({ formElement, cancel }) {
+		if (formElement.product.value === '') {
 			cancel();
 			focusInputElement();
 		}
 
-		return async ({ result, update }) => {
-			switch (result.type) {
+		return async ({ result }) => {
+			const { type, data } = result;
+
+			switch (type) {
 				case 'success':
-					tickets.addProductToTicket(result.data.product);
-					await update();
+					addProduct(data.product);
+					formElement.product.value = '';
 					focusInputElement();
 					break;
 				case 'failure':
@@ -42,7 +67,7 @@
 			<div class="basis-4/6">
 				<Input label="Código" name="product" value={''} bind:bindElement={bindInputElement} />
 			</div>
-			<div class="basis-1/6 pb-3">
+			<div class="mb-3 basis-1/6">
 				<button
 					type="submit"
 					class="w-full rounded bg-indigo-500 py-2 text-white shadow shadow-indigo-500 hover:bg-indigo-600"
@@ -54,13 +79,13 @@
 
 	<div class="flex h-full flex-row items-end justify-around gap-4">
 		<button
-			type="submit"
+			type="button"
 			class="w-full rounded bg-blue-500 py-2 text-white shadow shadow-blue-500 hover:bg-blue-600"
-			>Buscar Producto</button
+			on:click={showSearchModal}>Buscar Producto</button
 		>
 
 		<button
-			type="submit"
+			type="button"
 			class="w-full rounded bg-green-500 py-2 text-white shadow shadow-green-500 hover:bg-green-600"
 			>Detalle de Ticket</button
 		>

@@ -1,30 +1,30 @@
-import { writable } from "svelte/store";
+import { writable } from 'svelte/store';
 
 const initialValues = {
-  cash: true,
-  creditDebit: false,
-  eTransfer: false
-}
+	cash: true,
+	creditDebit: false,
+	eTransfer: false
+};
 
 function createPaymentMethodsStore() {
-  const { subscribe, update } = writable(initialValues)
+	const { subscribe, update, set } = writable(initialValues);
 
-  const setValue = (attrubite) => {
-    update((store) => ({
-      ...store,
-      [attrubite]: !store[attrubite]
-    }))
-  }
+	const setValue = (attrubite) => {
+		update((store) => ({
+			...store,
+			[attrubite]: !store[attrubite]
+		}));
+	};
 
-  const reset = () => {
-    set(initialValues)
-  }
+	const reset = () => {
+		set(initialValues);
+	};
 
-  return {
-    subscribe,
-    setValue,
-    reset
-  }
+	return {
+		subscribe,
+		setValue,
+		reset
+	};
 }
 
-export const paymentMethodsStore = createPaymentMethodsStore()
+export const paymentMethodsStore = createPaymentMethodsStore();
