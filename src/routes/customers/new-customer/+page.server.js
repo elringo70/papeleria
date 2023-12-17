@@ -50,7 +50,7 @@ export const actions = {
 			return { success: true };
 		} catch (err) {
 			console.log('Error: ', err);
-			error(500, err);
+			throw error(500, err);
 		} finally {
 			await dbDisconnect();
 		}

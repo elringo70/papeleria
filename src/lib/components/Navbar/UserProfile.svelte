@@ -44,7 +44,7 @@
 			aria-orientation="vertical"
 			aria-labelledby="user-menu-button"
 			tabindex="-1"
-			transition:slide|global={{ duration: 200 }}
+			transition:slide={{ duration: 200 }}
 		>
 			<!-- Active: "bg-gray-100", Not Active: "" -->
 			<a

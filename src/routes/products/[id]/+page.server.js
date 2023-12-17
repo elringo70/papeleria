@@ -20,7 +20,7 @@ export async function load({ params }) {
 		};
 	} catch (err) {
 		console.log('Error: ', err);
-		error(500, err);
+		throw error(500, err);
 	} finally {
 		await dbDisconnect();
 	}
@@ -79,12 +79,12 @@ export const actions = {
 			});
 		} catch (err) {
 			console.log('Error: ', err);
-			error(500, err);
+			throw error(500, err);
 		} finally {
 			await dbDisconnect();
 		}
 
-		if (productError) error(500, { message: 'Error en la base de datos' });
+		if (productError) throw error(500, { message: 'Error en la base de datos' });
 
 		return { success: true };
 	}

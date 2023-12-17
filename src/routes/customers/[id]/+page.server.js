@@ -15,7 +15,7 @@ export async function load({ params }) {
 		return { customer: JSON.parse(JSON.stringify(findCustomer)) };
 	} catch (err) {
 		console.log('Error: ', err);
-		error(500, err);
+		throw error(500, err);
 	} finally {
 		await dbDisconnect();
 	}
@@ -70,12 +70,12 @@ export const actions = {
 			});
 		} catch (err) {
 			console.log('Error: ', err);
-			error(500, err);
+			throw error(500, err);
 		} finally {
 			await dbDisconnect();
 		}
 
-		if (customerError) error(500, { message: 'Error en la base de datos' });
+		if (customerError) throw error(500, { message: 'Error en la base de datos' });
 		return { success: true };
 	}
 };

@@ -20,7 +20,7 @@ export const load = async () => {
 		return { categories: JSON.parse(JSON.stringify(categories)) };
 	} catch (err) {
 		console.log('Error: ', err);
-		error(500, err);
+		throw error(500, err);
 	} finally {
 		await dbDisconnect();
 	}
@@ -50,7 +50,7 @@ export const actions = {
 			return { success: true, message: 'Categoría creada' };
 		} catch (err) {
 			console.log('Error: ', err);
-			error(500, err);
+			throw error(500, err);
 		} finally {
 			await dbDisconnect();
 		}
@@ -71,7 +71,7 @@ export const actions = {
 			return { success: true };
 		} catch (err) {
 			console.log('Error: ', err);
-			error(500, err);
+			throw error(500, err);
 		} finally {
 			await dbDisconnect();
 		}

@@ -37,7 +37,7 @@
 				<li class="cursor-pointer bg-white py-2 px-3 text-sm hover:bg-gray-200">...</li>
 			{:else}
 				{#each list as item, i}
-					<div transition:slide|global={{ duration: 150 }}>
+					<div transition:slide={{ duration: 150 }}>
 						<li
 							class="cursor-pointer bg-white py-2 px-3 text-sm hover:bg-gray-200"
 							value={i}
