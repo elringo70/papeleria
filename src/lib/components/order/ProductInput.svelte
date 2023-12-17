@@ -13,20 +13,29 @@
 	export let showSearchModal;
 
 	const addProduct = (dataProduct) => {
+		console.log(dataProduct);
 		if (dataProduct.requiredStock) {
-			if ($selectedTicket.products.length > 0) {
-				$selectedTicket.products.forEach((product, index) => {
-					console.log(product.quantity, $selectedTicket.products[index].quantity);
+			if (dataProduct.stock.stock === 0)
+				return Swal.fire({
+					title: 'Sin existencia',
+					icon: 'error'
 				});
-			} else {
-				if (dataProduct.stock.stock === 0) {
+
+			const index = $selectedTicket.products.findIndex(
+				(product) => product.product._id === dataProduct._id
+			);
+
+			if (index !== -1) {
+				if ($selectedTicket.products[index].quantity >= dataProduct.stock.stock) {
 					Swal.fire({
-						title: 'Sin existencia',
+						title: 'Sin mas existencia',
 						icon: 'error'
 					});
 				} else {
 					tickets.addProductToTicket(dataProduct);
 				}
+			} else {
+				tickets.addProductToTicket(dataProduct);
 			}
 		} else {
 			tickets.addProductToTicket(dataProduct);

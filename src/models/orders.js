@@ -4,12 +4,14 @@ import { userSchema } from '$models/users';
 
 const orderSchema = new Schema(
 	{
-		customer: { type: undefined | userSchema | String },
-		products: { type: [productSchema], required: true },
+		customer: Schema.Types.Mixed,
+		products: { type: [], required: true },
 		status: { type: Boolean, required: true },
 		delivered: { type: Boolean, required: true },
 		change: { type: Number, required: true },
-		customerPayment: { type: Number, required: true }
+		customerPayment: { type: Number, required: true },
+		paymentCreditDebit: { type: Number, required: true },
+		paymentETransfer: { type: Number, required: true }
 	},
 	{
 		timestamps: true
