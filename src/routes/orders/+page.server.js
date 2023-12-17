@@ -33,7 +33,7 @@ export const actions = {
       return fail(404, { message: 'Producto no encontrado' });
     } catch (err) {
       console.log('Error: ', err);
-      throw error(500, err);
+      error(500, err);
     } finally {
       await dbDisconnect();
     }
@@ -49,7 +49,7 @@ export const actions = {
       return { phone: JSON.parse(JSON.stringify(phone)) };
     } catch (err) {
       console.log('Error: ', err);
-      throw error(500, err);
+      error(500, err);
     } finally {
       await dbDisconnect();
     }
@@ -65,7 +65,7 @@ export const actions = {
       return { products: JSON.parse(JSON.stringify(findProducts)) };
     } catch (err) {
       console.log('Error: ', err);
-      throw error(500, err);
+      error(500, err);
     } finally {
       await dbDisconnect();
     }
@@ -199,7 +199,7 @@ export const actions = {
       return { success: true };
     } catch (err) {
       console.log('Error: ', err);
-      throw error(500, err);
+      error(500, err);
     } finally {
       await dbDisconnect();
     }

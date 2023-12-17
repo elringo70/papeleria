@@ -34,6 +34,6 @@ export const actions = {
 			maxAge: expiresIn
 		});
 
-		throw redirect(303, '/orders');
+		redirect(303, '/orders');
 	}
 };

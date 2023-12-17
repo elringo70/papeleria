@@ -3,7 +3,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../../../utils/firebase';
 
 export async function POST({ cookies }) {
-	cookies.delete('session');
+	/* @migration task: add path argument */ cookies.delete('session');
 	await signOut(auth);
-	throw redirect(303, '/');
+	redirect(303, '/');
 }

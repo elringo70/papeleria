@@ -42,7 +42,7 @@ export const load = async ({ params, url }) => {
 		};
 	} catch (err) {
 		console.log('Error: ', err);
-		throw error(500, err);
+		error(500, err);
 	} finally {
 		await dbDisconnect();
 	}
@@ -63,7 +63,7 @@ export const actions = {
 			}
 		} catch (err) {
 			console.log('Error: ', err);
-			throw error(500, err);
+			error(500, err);
 		} finally {
 			await dbDisconnect();
 		}
@@ -82,7 +82,7 @@ export const actions = {
 			}
 		} catch (err) {
 			console.log('Error: ', err);
-			throw error(500, err);
+			error(500, err);
 		} finally {
 			await dbDisconnect();
 		}

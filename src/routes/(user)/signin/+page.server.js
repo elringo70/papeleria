@@ -7,7 +7,7 @@ export const load = async ({ locals }) => {
 		return { user: JSON.parse(JSON.stringify(locals.user)) };
 	} catch (err) {
 		console.log('Error:', err);
-		throw error(500, err);
+		error(500, err);
 	}
 };
 
@@ -23,7 +23,7 @@ export const actions = {
 			maxAge: expiresIn
 		});
 
-		throw redirect(303, '/orders');
+		redirect(303, '/orders');
 	},
 	loginWithGoogle: async ({ request, cookies }) => {
 		const body = Object.fromEntries(await request.formData());
@@ -36,6 +36,6 @@ export const actions = {
 			maxAge: expiresIn
 		});
 
-		throw redirect(303, '/orders');
+		redirect(303, '/orders');
 	}
 };
