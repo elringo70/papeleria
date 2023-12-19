@@ -6,8 +6,6 @@
 	import { onAuthStateChanged } from 'firebase/auth';
 	import { auth } from '../utils/firebase';
 
-	export let data;
-
 	import '../app.css';
 	//import Navbar from '$lib/components/Navbar.svelte';
 	import Navbar from '$lib/components/Navbar/Navbar.svelte';

@@ -1,6 +1,7 @@
 <script>
-	import { setContext, onMount, getContext } from 'svelte';
+	import { setContext, onMount } from 'svelte';
 	import { tickets, selectedTicket } from './stores/store';
+	import { dailySalesStore } from './stores/dailySalesStore';
 
 	import Swal from 'sweetalert2';
 
@@ -11,6 +12,7 @@
 	import CheckoutModal from './components/CheckoutModal.svelte';
 	import CustomerSearchModal from './components/CustomerSearchModal.svelte';
 	import SearchProductModal from './components/SearchProductModal.svelte';
+	import DailySalesModal from './components/DailySalesModal.svelte';
 
 	/** @type {import('./$types').ActionData} */
 	export let form;
@@ -19,6 +21,7 @@
 	let searchProductModal;
 	let ticketPosition;
 	let elementCustomerSearchModal;
+	let dailySalesModal;
 
 	const setCustomerTicket = () => {
 		return async ({ result, update }) => {
@@ -52,6 +55,24 @@
 	const customerSearchModal = (index) => {
 		elementCustomerSearchModal.showModal();
 		ticketPosition = index;
+	};
+
+	const showDailySalesModal = async () => {
+		await getDailySales();
+		await dailySalesModal.showModal();
+	};
+
+	const getDailySales = async () => {
+		const fromDate = new Date();
+		const toDate = new Date();
+
+		try {
+			const response = await fetch(`/api/orders?fromDate=${fromDate}&toDate=${toDate}`);
+			const data = await response.json();
+			dailySalesStore.setData(data);
+		} catch (error) {
+			console.log(error);
+		}
 	};
 
 	const onKeyDown = (event) => {
@@ -96,6 +117,7 @@
 		checkoutModal = document.getElementById('checkoutModal');
 		searchProductModal = document.getElementById('searchProductModal');
 		elementCustomerSearchModal = document.getElementById('customerSearchModal');
+		dailySalesModal = document.getElementById('dailySalesModal');
 	});
 
 	setContext('selectedTicket', selectedTicket);
@@ -118,7 +140,12 @@
 
 	<!-- Add Product Input Component -->
 	<div class="col-span-7 row-span-2 row-start-1 rounded bg-white shadow-md">
-		<ProductInput {focusInputElement} bind:bindInputElement {showSearchModal} />
+		<ProductInput
+			{focusInputElement}
+			bind:bindInputElement
+			{showSearchModal}
+			{showDailySalesModal}
+		/>
 	</div>
 
 	<!-- Ticket Detail -->
@@ -137,3 +164,5 @@
 <CustomerSearchModal {setCustomerTicket} />
 
 <CheckoutModal Form={form} />
+
+<DailySalesModal {focusInputElement} dailySales={$dailySalesStore} />

@@ -11,9 +11,9 @@
 	export let focusInputElement;
 	export let bindInputElement;
 	export let showSearchModal;
+	export let showDailySalesModal;
 
 	const addProduct = (dataProduct) => {
-		console.log(dataProduct);
 		if (dataProduct.requiredStock) {
 			if (dataProduct.stock.stock === 0)
 				return Swal.fire({
@@ -100,9 +100,9 @@
 		>
 
 		<button
-			type="submit"
+			type="button"
 			class="w-full rounded bg-indigo-500 py-2 text-white shadow shadow-indigo-500 hover:bg-indigo-600"
-			>...</button
+			on:click={showDailySalesModal}>Ventas del día</button
 		>
 
 		<button
