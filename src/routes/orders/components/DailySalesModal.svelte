@@ -1,10 +1,14 @@
 <script>
 	import { onMount } from 'svelte';
 	import { Input } from '$lib/components';
-	import { selectedTicket } from './../stores/dailySalesStore';
+	import { dailySalesStore, selectedTicket } from '../stores/dailySalesStore';
+	import { decimalsFixed } from '$utils/numberUtils';
 
 	export let focusInputElement;
 	export let dailySales;
+
+	$: selectedProducts = $selectedTicket.products || [];
+	$: total = $selectedTicket.customerPayment;
 
 	const getHourTime = (timeStamp) => {
 		return new Date(timeStamp).toLocaleTimeString('en-US');
@@ -27,7 +31,8 @@
 	};
 
 	const handleSelectTicket = (index) => {
-		console.log(index);
+		dailySalesStore.selectTicket(index);
+		console.log(dailySales);
 	};
 
 	onMount(() => {
@@ -53,8 +58,8 @@
 				<div class="col-span-1 row-span-4 border-2 border-gray-200 p-3">
 					<div class="flex h-full flex-col justify-between">
 						<div class="overflow-x-auto">
-							<table class="w-full text-left text-sm text-gray-500">
-								<thead class="bg-gray-50 text-center text-xs uppercase text-gray-800">
+							<table class="w-full table-auto text-left text-sm text-gray-500">
+								<thead class="bg-gray-100 text-center text-xs uppercase text-gray-800">
 									<tr class="text-center">
 										<th class="p-2">Cantidad</th>
 										<th class="p-2">Producto</th>
@@ -62,27 +67,74 @@
 									</tr>
 								</thead>
 								<tbody class="text-xs text-gray-700">
-									<tr class="cursor-default select-none border-b bg-white py-1 text-center text-xs">
-										<td class="px-3 py-1.5">''</td>
-										<td class="px-3 py-1.5">''</td>
-										<td class="px-3 py-1.5">''</td>
-									</tr>
+									{#each selectedProducts as product}
+										<tr
+											class="cursor-default select-none border-b bg-white py-1 text-center text-xs"
+										>
+											<td class="px-3 py-1.5">{product.quantity}</td>
+											<td class="px-3 py-1.5">{product.product.product}</td>
+											<td class="px-3 py-1.5">${decimalsFixed(product.product.price, 2)}</td>
+										</tr>
+									{:else}
+										<tr
+											class="cursor-default select-none border-b bg-white py-1 text-center text-xs text-gray-400 italic"
+										>
+											<td class="px-3 py-1.5">657df25d0e51ec9e16e35236</td>
+											<td class="px-3 py-1.5">IMPRESION/COPIA CARTA B/N</td>
+											<td class="px-3 py-1.5">$1.25</td>
+										</tr>
+									{/each}
 								</tbody>
 							</table>
 						</div>
 						<div class="text-gray-700">
-							<div>total</div>
-							<div>pago con</div>
+							<div class="flex justify-between">
+								<div class="flex flex-col justify-end text-3xl">
+									<div class="flex justify-between">
+										<p>Total:</p>
+										<p>$</p>
+									</div>
+									<div class="flex justify-between">
+										<p>Pagó con:</p>
+										<p>${total}</p>
+									</div>
+								</div>
+								<div>
+									<div class="text-end">
+										<p>
+											<b>Cliente:</b>
+											{$selectedTicket.customer === 'walk-in'
+												? 'Sin registro'
+												: $selectedTicket.customer?.name + ' ' + $selectedTicket.customer?.lastName}
+										</p>
+										<p>
+											<b>Numero:</b>
+											{$selectedTicket.customer?.phone
+												? $selectedTicket.customer.phone
+												: 'Sin numero'}
+										</p>
+										<p>
+											<b>Dirección:</b>
+											{$selectedTicket.customer?.address
+												? $selectedTicket.customer?.address?.street +
+												  ' ' +
+												  $selectedTicket.customer?.address?.number
+												: 'Sin direcciónn'}
+										</p>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
 
 				<div class="col-span-1 row-span-3 border-2 border-gray-200 p-3">
 					<div class="overflow-x-auto">
-						<table class="w-full text-left text-sm text-gray-500">
-							<thead class="bg-gray-50 text-center text-xs uppercase text-gray-800">
+						<table class="w-full table-auto text-left text-sm text-gray-500">
+							<thead class="bg-gray-100 text-center text-xs uppercase text-gray-800">
 								<tr class="text-center">
 									<th class="p-2 text-left">ID</th>
+									<th class="p-2">Teléfono</th>
 									<th class="p-2">Articulos</th>
 									<th class="p-2">Hora</th>
 									<th class="p-2">Total</th>
@@ -91,12 +143,17 @@
 							<tbody class="text-xs text-gray-700">
 								{#each dailySales as sale, index}
 									<tr
-										class="cursor-default select-none border-b bg-white py-1 text-center text-xs"
+										class="cursor-default select-none border-b py-1 text-center text-xs {$dailySalesStore[
+											index
+										].selectedTicket
+											? 'bg-blue-500 text-white'
+											: 'bg-white'}"
 										on:click={() => {
 											handleSelectTicket(index);
 										}}
 									>
 										<td class="px-3 py-1.5 text-left">{sale._id}</td>
+										<td class="px-3 py-1.5">{sale.customer.phone ?? 'Walk in'}</td>
 										<td class="px-3 py-1.5">{getProductsLength(sale.products)}</td>
 										<td class="px-3 py-1.5">{getHourTime(sale.createdAt)}</td>
 										<td class="px-3 py-1.5">${getTotal(sale.products)}</td>

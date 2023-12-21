@@ -69,29 +69,6 @@ export const actions = {
 			await dbDisconnect();
 		}
 	},
-	getSalesByDate: async ({ request }) => {
-		try {
-			const form = await request.formData();
-
-			var start = new Date();
-			start.setUTCHours(0, 0, 0, 0);
-
-			var end = new Date();
-			end.setUTCHours(23, 59, 59, 999);
-
-			const dailyOrders = await Order.find({
-				createdAt: { $gte: start, $lte: end }
-			});
-			console.log(dailyOrders);
-
-			return { dailySales: JSON.parse(JSON.stringify(dailyOrders)) };
-			//return { success: true };
-		} catch (err) {
-			throw error(500, err);
-		} finally {
-			await dbDisconnect();
-		}
-	},
 	submitOrder: async ({ request }) => {
 		const phoneRegex = new RegExp(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/);
 
