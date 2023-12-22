@@ -5,7 +5,7 @@
 
 	const tickets = getContext('tickets');
 
-	export let customerSearchModal;
+	export let showCustomerSearchModal;
 	export let focusInputElement;
 
 	function selectTicket(index) {
@@ -48,7 +48,7 @@
 			{ticket}
 			{index}
 			onClick={() => selectTicket(index)}
-			onDblClick={() => customerSearchModal(index)}
+			onDblClick={() => showCustomerSearchModal()}
 			{removeTicket}
 		/>
 	{/each}

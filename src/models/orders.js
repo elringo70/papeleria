@@ -1,6 +1,4 @@
 import { Schema, model, models } from 'mongoose';
-import { productSchema } from '$models/products';
-import { userSchema } from '$models/users';
 
 const orderSchema = new Schema(
 	{
@@ -11,7 +9,14 @@ const orderSchema = new Schema(
 		change: { type: Number, required: true },
 		customerPayment: { type: Number, required: true },
 		paymentCreditDebit: { type: Number, required: true },
-		paymentETransfer: { type: Number, required: true }
+		paymentETransfer: { type: Number, required: true },
+		total: { type: Number, required: true },
+		orderStatus: {
+			type: String,
+			enum: ['completed', 'cancelled'],
+			required: true,
+			default: 'completed'
+		}
 	},
 	{
 		timestamps: true

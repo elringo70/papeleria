@@ -13,7 +13,9 @@ export async function GET({ url }) {
 
 		const dailyOrders = await Order.find({
 			createdAt: { $gte: start, $lte: end }
-		});
+		})
+			.sort({ date: -1 })
+			.exec();
 
 		return json(dailyOrders);
 	} catch (err) {

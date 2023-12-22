@@ -69,6 +69,22 @@ export const actions = {
 			await dbDisconnect();
 		}
 	},
+	cancelOrder: async ({ request }) => {
+		try {
+			await dbConnect();
+
+			const { id } = Object.fromEntries(await request.formData());
+
+			await Order.findByIdAndUpdate(id, { orderStatus: 'cancelled' });
+
+			return { success: true };
+		} catch (err) {
+			console.log('Error: ', err);
+			throw error(500, err);
+		} finally {
+			await dbDisconnect();
+		}
+	},
 	submitOrder: async ({ request }) => {
 		const phoneRegex = new RegExp(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/);
 

@@ -2,6 +2,7 @@
 	import Icon from '@iconify/svelte';
 
 	export let name;
+	export let value = '';
 	export let unCheckedText = '';
 	export let checkedText = '';
 	export let checked = false;
@@ -11,7 +12,7 @@
 </script>
 
 <div class="h-full w-full">
-	<input class="hidden" type="checkbox" id={name} {name} {checked} on:change={onChange} />
+	<input class="hidden" type="checkbox" id={name} {name} {checked} {value} on:change={onChange} />
 	<label for={name} class="flex cursor-pointer flex-col border-2 border-gray-400 p-2">
 		<div class="flex flex-col items-center justify-center">
 			<span class="text-2xl text-gray-500">

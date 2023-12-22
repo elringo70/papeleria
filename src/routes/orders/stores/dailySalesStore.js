@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
 
-export const selectedTicket = writable([]);
+export const selectedTicket = writable({});
 
 function createDailySalesStore() {
 	const { subscribe, update, set } = writable([]);
@@ -11,10 +11,19 @@ function createDailySalesStore() {
 
 	const setData = (data) => {
 		update(() => {
-			const tickets = data.map((ticket) => ({ ...ticket, selectedTicket: false }));
-			tickets[0].selectedTicket = true;
-			selectedTicket.set(tickets[0]);
-			return [...tickets];
+			if (data.length > 0) {
+				const tickets = data.map((ticket) => ({ ...ticket, selectedTicket: false }));
+
+				const notCancelledTicket = tickets.findIndex(
+					(ticket) => ticket.orderStatus === 'completed'
+				);
+
+				tickets[notCancelledTicket].selectedTicket = true;
+				selectedTicket.set(tickets[0]);
+				return [...tickets];
+			} else {
+				return [];
+			}
 		});
 	};
 

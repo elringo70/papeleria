@@ -1,14 +1,23 @@
 <script>
-	import { onMount } from 'svelte';
-	import { Input } from '$lib/components';
+	import { onMount, createEventDispatcher } from 'svelte';
+	import { invalidateAll } from '$app/navigation';
+	import { applyAction, deserialize } from '$app/forms';
+
+	import Swal from 'sweetalert2';
+
 	import { dailySalesStore, selectedTicket } from '../stores/dailySalesStore';
+	import { Input } from '$lib/components';
 	import { decimalsFixed } from '$utils/numberUtils';
 
 	export let focusInputElement;
 	export let dailySales;
+	let dailySalesModal;
 
 	$: selectedProducts = $selectedTicket.products || [];
-	$: total = $selectedTicket.customerPayment;
+	$: customerPayment = $selectedTicket.customerPayment || 0;
+	$: total = $selectedTicket.total || 0;
+
+	const dispatch = createEventDispatcher();
 
 	const getHourTime = (timeStamp) => {
 		return new Date(timeStamp).toLocaleTimeString('en-US');
@@ -32,13 +41,63 @@
 
 	const handleSelectTicket = (index) => {
 		dailySalesStore.selectTicket(index);
-		console.log(dailySales);
 	};
 
+	const closeDailySalesModal = () => {
+		reset();
+		dailySalesModal.close();
+	};
+
+	const reset = () => {
+		dailySalesStore.reset();
+	};
+
+	/** @param {{ currentTarget: EventTarget & HTMLFormElement}} event */
+	async function handleSubmit(event) {
+		dailySalesModal.close();
+
+		const currentTarget = event.currentTarget;
+		const action = event.currentTarget.action;
+
+		const confirmationModal = await Swal.fire({
+			icon: 'warning',
+			title: '¿Desea cancelar la orden?',
+			showCancelButton: true,
+			cancelButtonText: 'Omitir',
+			confirmButtonText: 'Cancelar'
+		});
+
+		if (confirmationModal.isConfirmed) {
+			const data = new FormData(currentTarget);
+			const response = await fetch(action, {
+				method: 'POST',
+				body: data
+			});
+
+			/** @type {import('@sveltejs/kit').ActionResult} */
+			const result = deserialize(await response.text());
+
+			switch (result.type) {
+				case 'success':
+					dispatch('dailySalesReset');
+					await invalidateAll();
+					dailySalesModal.showModal();
+					break;
+			}
+
+			applyAction(result);
+		} else {
+			dailySalesModal.showModal();
+		}
+	}
+
 	onMount(() => {
+		dailySalesModal = document.getElementById('dailySalesModal');
+
 		addEventListener('keydown', function (event) {
 			switch (event.key) {
 				case 'Escape':
+					reset();
 					focusInputElement();
 					break;
 			}
@@ -52,7 +111,7 @@
 			<h1 class="pb-2 text-center align-middle text-3xl text-gray-700">Ventas del día</h1>
 			<div class="grid grid-cols-2 grid-rows-5 gap-5">
 				<div class="col-span-1 row-span-1 border-2 border-gray-200 p-3">
-					<Input placeholder="Buscar venta" />
+					<Input placeholder="Buscar venta" name="search" />
 				</div>
 
 				<div class="col-span-1 row-span-4 border-2 border-gray-200 p-3">
@@ -90,38 +149,56 @@
 						<div class="text-gray-700">
 							<div class="flex justify-between">
 								<div class="flex flex-col justify-end text-3xl">
-									<div class="flex justify-between">
+									<div class="flex justify-between gap-5">
 										<p>Total:</p>
-										<p>$</p>
-									</div>
-									<div class="flex justify-between">
-										<p>Pagó con:</p>
 										<p>${total}</p>
 									</div>
-								</div>
-								<div>
-									<div class="text-end">
-										<p>
-											<b>Cliente:</b>
-											{$selectedTicket.customer === 'walk-in'
-												? 'Sin registro'
-												: $selectedTicket.customer?.name + ' ' + $selectedTicket.customer?.lastName}
-										</p>
-										<p>
-											<b>Numero:</b>
-											{$selectedTicket.customer?.phone
-												? $selectedTicket.customer.phone
-												: 'Sin numero'}
-										</p>
-										<p>
-											<b>Dirección:</b>
-											{$selectedTicket.customer?.address
-												? $selectedTicket.customer?.address?.street +
-												  ' ' +
-												  $selectedTicket.customer?.address?.number
-												: 'Sin direcciónn'}
-										</p>
+									<div class="flex justify-between gap-5">
+										<p>Pagó con:</p>
+										<p>${customerPayment ?? '0'}</p>
 									</div>
+								</div>
+
+								<div>
+									{#if $selectedTicket.length > 0}
+										<div class="text-end">
+											<p>
+												<b>Cliente:</b>
+												{$selectedTicket.customer === 'walk-in'
+													? 'Sin registro'
+													: $selectedTicket.customer?.name +
+													  ' ' +
+													  $selectedTicket.customer?.lastName}
+											</p>
+											<p>
+												<b>Numero:</b>
+												{$selectedTicket.customer?.phone
+													? $selectedTicket.customer.phone
+													: 'Sin numero'}
+											</p>
+											<p>
+												<b>Dirección:</b>
+												{$selectedTicket.customer?.address
+													? $selectedTicket.customer?.address?.street +
+													  ' ' +
+													  $selectedTicket.customer?.address?.number
+													: 'Sin direcciónn'}
+											</p>
+										</div>
+									{:else}
+										<div class="text-end">
+											<p>
+												<b>Cliente:</b> <span class="italic text-gray-400">Cliente</span>
+											</p>
+											<p>
+												<b>Numero:</b> <span class="italic text-gray-400">811-000-1234</span>
+											</p>
+											<p>
+												<b>Dirección:</b>
+												<span class="italic text-gray-400"> Calle 1, Colonia</span>
+											</p>
+										</div>
+									{/if}
 								</div>
 							</div>
 						</div>
@@ -142,22 +219,34 @@
 							</thead>
 							<tbody class="text-xs text-gray-700">
 								{#each dailySales as sale, index}
-									<tr
-										class="cursor-default select-none border-b py-1 text-center text-xs {$dailySalesStore[
-											index
-										].selectedTicket
-											? 'bg-blue-500 text-white'
-											: 'bg-white'}"
-										on:click={() => {
-											handleSelectTicket(index);
-										}}
-									>
-										<td class="px-3 py-1.5 text-left">{sale._id}</td>
-										<td class="px-3 py-1.5">{sale.customer.phone ?? 'Walk in'}</td>
-										<td class="px-3 py-1.5">{getProductsLength(sale.products)}</td>
-										<td class="px-3 py-1.5">{getHourTime(sale.createdAt)}</td>
-										<td class="px-3 py-1.5">${getTotal(sale.products)}</td>
-									</tr>
+									{#if sale.orderStatus === 'cancelled'}
+										<tr
+											class="cursor-default select-none border-b py-1 text-center text-xs italic text-gray-400"
+										>
+											<td class="px-3 py-1.5 text-left">{sale._id}</td>
+											<td class="px-3 py-1.5">{sale.customer.phone ?? 'Walk in'}</td>
+											<td class="px-3 py-1.5">{getProductsLength(sale.products)}</td>
+											<td class="px-3 py-1.5">{getHourTime(sale.createdAt)}</td>
+											<td class="px-3 py-1.5">${getTotal(sale.products)}</td>
+										</tr>
+									{:else}
+										<tr
+											class="cursor-default select-none border-b py-1 text-center text-xs {$dailySalesStore[
+												index
+											].selectedTicket
+												? 'bg-blue-500 text-white'
+												: 'bg-white'}"
+											on:click={() => {
+												handleSelectTicket(index);
+											}}
+										>
+											<td class="px-3 py-1.5 text-left">{sale._id}</td>
+											<td class="px-3 py-1.5">{sale.customer.phone ?? 'Walk in'}</td>
+											<td class="px-3 py-1.5">{getProductsLength(sale.products)}</td>
+											<td class="px-3 py-1.5">{getHourTime(sale.createdAt)}</td>
+											<td class="px-3 py-1.5">${getTotal(sale.products)}</td>
+										</tr>
+									{/if}
 								{:else}
 									<tr
 										class="cursor-default select-none border-b bg-white py-1 text-center text-xs text-gray-400 italic"
@@ -184,23 +273,26 @@
 				</div>
 
 				<div class="col-span-1 row-span-1 border-2 border-gray-200 p-3">
-					<div class="flex h-full gap-5">
-						<button
-							type="button"
-							class="w-full rounded bg-red-500 py-2 text-white shadow shadow-red-500 hover:bg-red-600"
-							>Cancelar Venta</button
-						>
-						<button
-							type="button"
-							class="w-full rounded bg-indigo-500 py-2 text-white shadow shadow-indigo-500 hover:bg-indigo-600"
-							>...</button
-						>
-						<button
-							type="button"
-							class="w-full rounded bg-gray-500 py-2 text-white shadow shadow-gray-500 hover:bg-gray-600"
-							>Imprimir Copia</button
-						>
-					</div>
+					<form class="h-full w-full" method="post" on:submit|preventDefault={handleSubmit}>
+						<div class="flex h-full w-full gap-5">
+							<input type="hidden" name="id" value={$selectedTicket._id} />
+							<button
+								type="submit"
+								class="w-full rounded bg-red-500 py-2 text-white shadow shadow-red-500 hover:bg-red-600"
+								formaction="?/cancelOrder">Cancelar Venta</button
+							>
+							<button
+								type="button"
+								class="w-full rounded bg-gray-500 py-2 text-white shadow shadow-gray-500 hover:bg-gray-600"
+								>Imprimir Copia</button
+							>
+							<button
+								type="button"
+								class="w-full rounded bg-indigo-500 py-2 text-white shadow shadow-indigo-500 hover:bg-indigo-600"
+								on:click={closeDailySalesModal}>Cerrar</button
+							>
+						</div>
+					</form>
 				</div>
 			</div>
 		</div>

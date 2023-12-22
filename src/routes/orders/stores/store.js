@@ -190,8 +190,10 @@ function ticketStore() {
 		});
 	};
 
-	const setCustomerTicket = (ticket, customerInfo) => {
+	const setCustomerTicket = (customerInfo) => {
 		update((tickets) => {
+			const ticketPosition = tickets.findIndex((ticket) => ticket.selectedTicket === true);
+
 			if (customerInfo && customerInfo._id) {
 				const existingTicket = tickets.findIndex(
 					(customer) => customer.customer._id === customerInfo._id
@@ -209,11 +211,12 @@ function ticketStore() {
 					return [...tickets];
 				}
 
-				tickets[ticket].customer = customerInfo;
+				tickets[ticketPosition].customer = customerInfo;
 			} else {
-				tickets[ticket].customer = {};
-				tickets[ticket].customer.phone = customerInfo;
+				tickets[ticketPosition].customer = {};
+				tickets[ticketPosition].customer.phone = customerInfo;
 			}
+			selectedTicket.set(tickets[ticketPosition]);
 			ticketStorage.set(tickets);
 
 			return [...tickets];

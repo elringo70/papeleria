@@ -1,11 +1,39 @@
 <script>
-	import { afterUpdate, onMount } from 'svelte';
+	import { afterUpdate, onMount, getContext } from 'svelte';
 	import { enhance } from '$app/forms';
 
 	import { NumberField } from '$lib/components';
 
-	export let setCustomerTicket;
+	export let elementCustomerSearchModal;
+	const tickets = getContext('tickets');
 	let inputElement;
+
+	const setCustomerTicket = () => {
+		return async ({ result, update }) => {
+			const { type, data } = result;
+
+			switch (type) {
+				case 'success':
+					if (data.customer) {
+						tickets.setCustomerTicket(data.customer);
+					} else {
+						tickets.setCustomerTicket(data.phone);
+					}
+
+					elementCustomerSearchModal.close();
+					break;
+				case 'failure':
+					Swal.fire({
+						icon: 'error',
+						title: data.message,
+						timer: 1250,
+						timerProgressBar: true
+					});
+					break;
+			}
+			await update();
+		};
+	};
 
 	afterUpdate(async () => {
 		if (inputElement) {
