@@ -35,7 +35,7 @@ export const handle = async ({ event, resolve }) => {
 
       locals.user = user;
     } catch (error) {
-      cookies.delete('session');
+      cookies.delete('session', { path: '/' });
       locals.user = null;
       if (privateRoutes.includes(currentLocation)) throw redirect(303, '/signin');
     }
