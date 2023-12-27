@@ -4,8 +4,8 @@
 	export let placeholder = '';
 	export let disabled = false;
 	export let required = false;
-	export let self = undefined;
 	export let accept = '*';
+	export let bindElement = null;
 
 	export let onChange = () => {};
 
@@ -25,7 +25,7 @@
 		id={name}
 		type="file"
 		{placeholder}
-		class={`w-full rounded-md bg-gray-200 text-gray-900 file:cursor-pointer file:border-none file:bg-gray-700 file:py-2 file:px-3 file:text-white
+		class={`w-full rounded-md bg-gray-200 text-gray-900 file:cursor-pointer file:border-none file:bg-gray-700 file:px-3 file:py-2 file:text-white
 			${
 				disabled
 					? 'file:cursor-default file:bg-gray-500 disabled:cursor-default disabled:bg-gray-100 disabled:text-gray-500 file:disabled:text-gray-200'
@@ -36,7 +36,7 @@
 		{disabled}
 		{required}
 		{accept}
-		bind:this={self}
+		bind:this={bindElement}
 		on:change={onChange}
 	/>
 	{#if errors}

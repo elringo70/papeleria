@@ -11,7 +11,11 @@
 
 	let searchProductModal;
 	let inputProduct;
+	let form;
+	let timer;
+
 	const tickets = getContext('tickets');
+	const focusInputElement = getContext('focusInputElement');
 
 	const handleSubmit = ({ formData, cancel }) => {
 		const { product } = Object.fromEntries(formData);
@@ -27,6 +31,16 @@
 		};
 	};
 
+	const holdOnInput = (event) => {
+		clearTimeout(timer);
+
+		timer = setTimeout(async () => {
+			if (event.target.value !== '') return form.requestSubmit();
+
+			resetTable();
+		}, 500);
+	};
+
 	const handleOnClickProduct = (index) => {
 		searchProductStore.selectProduct(index);
 	};
@@ -38,7 +52,6 @@
 	const resetTable = () => {
 		inputProduct.value = '';
 		searchProductStore.reset();
-		inputProduct.focus();
 	};
 
 	const selectProduct = (product) => {
@@ -89,9 +102,20 @@
 <dialog id="searchProductModal" class="modal">
 	<div class="modal-box w-5/6 max-w-none rounded-none bg-white">
 		<h1 class="text-center text-3xl text-gray-700">Buscar producto</h1>
-		<form action="?/searchProduct" method="post" use:enhance={handleSubmit} autocomplete="off">
+		<form
+			bind:this={form}
+			action="?/searchProduct"
+			method="post"
+			use:enhance={handleSubmit}
+			autocomplete="off"
+		>
 			<div class="flex items-start gap-5">
-				<Input name="product" placeholder="Producto" bind:bindElement={inputProduct} />
+				<Input
+					name="product"
+					placeholder="Producto"
+					bind:bindElement={inputProduct}
+					onKeyup={holdOnInput}
+				/>
 				<button
 					type="submit"
 					class=" rounded bg-indigo-500 px-3 py-2 text-white shadow shadow-indigo-500 hover:bg-indigo-600"
@@ -125,7 +149,7 @@
 					</thead>
 					<tbody class="text-xs text-gray-700">
 						{#each $searchProductStore as product, index}
-							{#if product.stock.stock > 0}
+							{#if product?.stock?.stock > 0}
 								<tr
 									class={$selectedProduct === index
 										? 'cursor-default select-none border-b bg-blue-500 text-white hover:bg-blue-600'
@@ -136,7 +160,7 @@
 									<td class="px-3 py-2">{product.product}</td>
 									<td class="px-3 py-2">{product.category}</td>
 									<td class="px-3 py-2">$ {product.price}</td>
-									<td class="px-3 py-2">{product.stock.stock}</td>
+									<td class="px-3 py-2">{product?.stock?.stock}</td>
 									<td class="px-3 py-2">$ {product.wholesale}</td>
 									<td class="flex h-full w-full items-center justify-center px-3 py-2"
 										><a href="/products/{product._id}"><Icon icon="tabler:edit" /></a></td
@@ -147,7 +171,7 @@
 									<td class="px-3 py-2">{product.product}</td>
 									<td class="px-3 py-2">{product.category}</td>
 									<td class="px-3 py-2">$ {product.price}</td>
-									<td class="px-3 py-2">{product.stock.stock}</td>
+									<td class="px-3 py-2">{product?.stock?.stock}</td>
 									<td class="px-3 py-2">$ {product.wholesale}</td>
 									<td class="flex h-full w-full justify-center px-3 py-2 align-middle"
 										><a href="/products/{product._id}"><Icon icon="tabler:edit" /></a></td

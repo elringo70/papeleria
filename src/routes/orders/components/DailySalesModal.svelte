@@ -1,5 +1,5 @@
 <script>
-	import { onMount, createEventDispatcher } from 'svelte';
+	import { onMount, createEventDispatcher, getContext } from 'svelte';
 	import { invalidateAll } from '$app/navigation';
 	import { applyAction, deserialize } from '$app/forms';
 
@@ -9,7 +9,8 @@
 	import { Input } from '$lib/components';
 	import { decimalsFixed } from '$utils/numberUtils';
 
-	export let focusInputElement;
+	const focusInputElement = getContext('focusInputElement');
+
 	export let dailySales;
 	let dailySalesModal;
 

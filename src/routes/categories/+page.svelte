@@ -120,7 +120,7 @@
 	<title>Categorias</title>
 </svelte:head>
 
-<section class="flex h-[calc(100vh-66px)] justify-center bg-gray-100">
+<section class="flex h-[calc(100vh-56px)] justify-center bg-gray-100">
 	<div class="flex h-full w-full basis-10/12 flex-row items-center space-x-10">
 		<div class="basis-1/2 rounded bg-white p-5 shadow-lg">
 			<form action="?/post" method="POST" autocomplete="off" use:enhance={submitCategory}>
@@ -155,7 +155,7 @@
 				<ul class="divide-y divide-gray-300 rounded border border-gray-300 text-gray-900">
 					{#each data.categories as category}
 						<li
-							class="flex w-full flex-row items-center justify-between py-2 px-4 hover:bg-gray-200"
+							class="flex w-full flex-row items-center justify-between px-4 py-2 hover:bg-gray-200"
 						>
 							<div>
 								{firstUppercase(category.name)}

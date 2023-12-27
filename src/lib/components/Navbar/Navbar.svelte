@@ -28,7 +28,8 @@
 			}
 		},
 		{ name: 'Categorías', href: '/categories', active: false },
-		{ name: 'Estadísticas', href: '/stadistics', active: false}
+		{ name: 'Estadísticas', href: '/stadistics', active: false },
+		{ name: 'Test', href: '/test', active: false }
 	];
 
 	const clickOnNavbarLink = () => {};
@@ -167,3 +168,4 @@
 </nav>
 
 <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
+

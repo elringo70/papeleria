@@ -85,6 +85,20 @@
 
 <svelte:head>
 	<title>Nuevo producto</title>
+
+	<link
+		rel="stylesheet"
+		href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"
+		integrity="sha512-hvNR0F/e2J7zPPfLC9auFe3/SE0yG4aJCOd/qxew74NN7eyiSKjr7xJJMu1Jy2wf7FXITpWS1E/RY8yzuXN7VA=="
+		crossorigin="anonymous"
+		referrerpolicy="no-referrer"
+	/>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"
+		integrity="sha512-9KkIqdfN7ipEW6B6k+Aq20PV31bjODg4AA52W+tYtAE0jE0kMx49bjJ3FgvS56wzmyfMUHbQ4Km2b7l9+Y/+Eg=="
+		crossorigin="anonymous"
+		referrerpolicy="no-referrer"
+	></script>
 </svelte:head>
 
 <section class="flex h-[calc(100vh-66px)] items-center justify-center bg-gray-100">
@@ -215,7 +229,11 @@
 
 			<div class="flex flex-row items-end justify-between space-x-4">
 				<div class="basis-2/3">
-					<InputFile label="Imagen" name="image" accept="image/jpeg, image/png, image/webp" />
+					<InputFile
+						label="Imagen"
+						name="image"
+						accept="image/jpg, image/jpeg, image/png, image/webp"
+					/>
 				</div>
 
 				<div class="flex basis-1/3">

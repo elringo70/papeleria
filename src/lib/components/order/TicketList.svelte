@@ -4,9 +4,9 @@
 	import Ticket from '$lib/components/order/Ticket.svelte';
 
 	const tickets = getContext('tickets');
+	const focusInputElement = getContext('focusInputElement');
 
 	export let showCustomerSearchModal;
-	export let focusInputElement;
 
 	function selectTicket(index) {
 		tickets.selectTicket(index);

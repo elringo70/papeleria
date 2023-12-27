@@ -2,8 +2,7 @@
 	import { getContext } from 'svelte';
 	import Icon from '@iconify/svelte';
 
-	export let focusInputElement;
-
+	const focusInputElement = getContext('focusInputElement');
 	const selectedTicket = getContext('selectedTicket');
 	const tickets = getContext('tickets');
 

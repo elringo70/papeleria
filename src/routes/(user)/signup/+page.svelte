@@ -107,7 +107,7 @@
 	}
 </script>
 
-<section class="flex h-[calc(100vh-66px)] items-center justify-center bg-gray-100">
+<section class="flex h-[calc(100vh-56px)] items-center justify-center bg-gray-100">
 	<div class="container mx-auto flex max-w-sm flex-1 flex-col items-center justify-center px-2">
 		<div class="w-full rounded bg-white px-6 py-8 text-black shadow-md">
 			<h1 class="mb-8 text-center text-3xl">Registrarse</h1>
@@ -146,7 +146,7 @@
 
 				<button
 					type="submit"
-					class="w-full rounded bg-indigo-600 py-2 px-3 text-white hover:bg-indigo-500"
+					class="w-full rounded bg-indigo-600 px-3 py-2 text-white hover:bg-indigo-500"
 					{disabled}>Crear cuenta</button
 				>
 			</form>

@@ -89,8 +89,8 @@ function ticketStore() {
 					products: [],
 					total: 0,
 					selectedTicket: true,
-					status: 'open',
-					delivered: 'pending'
+					status: false,
+					delivered: false
 				};
 			}
 			selectedTicket.set(tickets[0]);

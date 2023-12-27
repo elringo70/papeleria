@@ -1,13 +1,18 @@
 <script>
-	import { setContext, onMount, onDestroy } from 'svelte';
+	import { setContext, onMount } from 'svelte';
+
+	/* STORES */
 	import { tickets, selectedTicket } from './stores/store';
 	import { dailySalesStore } from './stores/dailySalesStore';
 	import { modalsStore } from './stores/modalsStore';
 
+	/* COMPONENTS */
 	import PurchaseSummary from '$lib/components/order/PurchaseSummary.svelte';
 	import TicketDetail from '$lib/components/order/TicketDetail.svelte';
 	import TicketList from '$lib/components/order/TicketList.svelte';
 	import ProductInput from '$lib/components/order/ProductInput.svelte';
+
+	/* MODALS */
 	import CheckoutModal from './components/CheckoutModal.svelte';
 	import CustomerSearchModal from './components/CustomerSearchModal.svelte';
 	import SearchProductModal from './components/SearchProductModal.svelte';
@@ -20,6 +25,7 @@
 	let searchProductModal;
 	let elementCustomerSearchModal;
 	let dailySalesModal;
+	let bindInputElement;
 
 	const onKeyDown = (event) => {
 		switch (event.key) {
@@ -37,13 +43,12 @@
 		}
 	};
 
-	const showCustomerSearchModal = () => {
-		elementCustomerSearchModal.showModal();
-	};
+	const focusInputElement = () => {
+		if (!bindInputElement) return;
 
-	const showDailySalesModal = async () => {
-		await getDailySales();
-		await dailySalesModal.showModal();
+		setTimeout(() => {
+			bindInputElement.focus();
+		}, 100);
 	};
 
 	const getDailySales = async () => {
@@ -59,22 +64,22 @@
 		}
 	};
 
-	const showSearchModal = () => {
-		searchProductModal.showModal();
-	};
-
-	let bindInputElement;
-	const focusInputElement = () => {
-		if (!bindInputElement) return;
-
-		setTimeout(() => {
-			bindInputElement.focus();
-		}, 100);
-	};
-
 	const showPurchaseModal = () => {
 		if ($selectedTicket.products.length === 0) return;
 		checkoutModal.showModal();
+	};
+
+	const showCustomerSearchModal = () => {
+		elementCustomerSearchModal.showModal();
+	};
+
+	const showDailySalesModal = async () => {
+		await getDailySales();
+		await dailySalesModal.showModal();
+	};
+
+	const showSearchModal = () => {
+		searchProductModal.showModal();
 	};
 
 	const setModals = () => {
@@ -82,29 +87,18 @@
 		modalsStore.setModals(modals);
 	};
 
-	const observer = new MutationObserver((mutations) => {
-		for (const mutation of mutations) {
-			console.log(mutation);
-		}
-	});
-
 	onMount(() => {
 		checkoutModal = document.getElementById('checkoutModal');
 		searchProductModal = document.getElementById('searchProductModal');
 		elementCustomerSearchModal = document.getElementById('customerSearchModal');
 		dailySalesModal = document.getElementById('dailySalesModal');
 
-		observer.observe(checkoutModal, { attributes: true });
-
 		setModals();
 	});
 
 	setContext('selectedTicket', selectedTicket);
 	setContext('tickets', tickets);
-
-	onDestroy(() => {
-		observer.disconnect();
-	});
+	setContext('focusInputElement', focusInputElement);
 </script>
 
 <svelte:window on:keydown={onKeyDown} />
@@ -113,27 +107,22 @@
 	<title>Caja</title>
 </svelte:head>
 
-<section class="grid h-[calc(100vh-60px)] grid-cols-12 grid-rows-6 gap-4 bg-gray-100 p-7">
+<section class="grid h-[calc(100vh-56px)] grid-cols-12 grid-rows-6 gap-4 bg-gray-100 p-7">
 	<!-- Ticket List -->
 	<div
 		class="col-span-2 row-span-6 row-start-1 flex h-full flex-col overflow-auto rounded bg-white shadow-md"
 	>
-		<TicketList {showCustomerSearchModal} {focusInputElement} />
+		<TicketList {showCustomerSearchModal} />
 	</div>
 
 	<!-- Add Product Input Component -->
 	<div class="col-span-7 row-span-2 row-start-1 rounded bg-white shadow-md">
-		<ProductInput
-			{focusInputElement}
-			bind:bindInputElement
-			{showSearchModal}
-			{showDailySalesModal}
-		/>
+		<ProductInput {showSearchModal} {showDailySalesModal} {bindInputElement} />
 	</div>
 
 	<!-- Ticket Detail -->
 	<div class="col-span-7 row-span-4 row-start-3 rounded bg-white shadow-md">
-		<TicketDetail {focusInputElement} />
+		<TicketDetail />
 	</div>
 
 	<!-- Purchase summary -->
@@ -148,8 +137,4 @@
 
 <CheckoutModal Form={form} />
 
-<DailySalesModal
-	{focusInputElement}
-	dailySales={$dailySalesStore}
-	on:dailySalesReset={getDailySales}
-/>
+<DailySalesModal dailySales={$dailySalesStore} on:dailySalesReset={getDailySales} />

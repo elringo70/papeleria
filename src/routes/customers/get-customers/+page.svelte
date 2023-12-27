@@ -72,11 +72,11 @@
 	<title>Clientes</title>
 </svelte:head>
 
-<div class="overflow-x-auto">
-	<div class="min-w-screen flex min-h-screen justify-center overflow-hidden bg-gray-100 font-sans">
-		<div class="w-full lg:w-5/6">
+<section class="flex h-[calc(100vh-56px)] justify-center bg-gray-100">
+	<div class="w-full lg:w-5/6">
+		<div class="flex h-full flex-col">
 			<div class="mt-5 border shadow-lg">
-				<div class="bg-gray-200 py-3 px-6 text-sm font-bold uppercase leading-normal text-gray-600">
+				<div class="bg-gray-200 px-6 py-3 text-sm font-bold uppercase leading-normal text-gray-600">
 					Nombre del cliente
 				</div>
 				<div class="mt-2 p-5">
@@ -89,26 +89,26 @@
 				</div>
 			</div>
 
-			<div class="my-6 rounded bg-white shadow-lg">
+			<div class="mt-7 rounded bg-white shadow-lg">
 				<table class="w-full min-w-max table-auto">
 					<thead>
 						<tr class="bg-gray-200 text-sm uppercase leading-normal text-gray-600">
-							<th class="py-3 px-6 text-left">Número</th>
-							<th class="py-3 px-6 text-left">Cliente</th>
-							<th class="py-3 px-6 text-center">Dirección</th>
-							<th class="py-3 px-6 text-center">Status</th>
-							<th class="py-3 px-6 text-center">Acciones</th>
+							<th class="px-6 py-3 text-left">Número</th>
+							<th class="px-6 py-3 text-left">Cliente</th>
+							<th class="px-6 py-3 text-center">Dirección</th>
+							<th class="px-6 py-3 text-center">Status</th>
+							<th class="px-6 py-3 text-center">Acciones</th>
 						</tr>
 					</thead>
 					<tbody class="text-sm font-light text-gray-600">
 						{#each customers as customer}
 							<tr class="border-b border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100">
-								<td class="py-3 px-6 text-left font-mono text-xs">
+								<td class="px-6 py-3 text-left font-mono text-xs">
 									<div class="flex items-center">
 										<span class="font-medium">{phoneNumberFormat(customer.phone)}</span>
 									</div>
 								</td>
-								<td class="py-3 px-6 text-left">
+								<td class="px-6 py-3 text-left">
 									<div class="flex items-center">
 										<span
 											>{firstUppercase(customer.name)}
@@ -116,7 +116,7 @@
 										>
 									</div>
 								</td>
-								<td class="py-3 px-6 text-center">
+								<td class="px-6 py-3 text-center">
 									<div class="flex items-center justify-center">
 										{#if customer.address}
 											{customer.address?.street} {customer.address?.number}
@@ -125,10 +125,10 @@
 										{/if}
 									</div>
 								</td>
-								<td class="py-3 px-6 text-center">
+								<td class="px-6 py-3 text-center">
 									<Pill pill="success" text="Corriente" />
 								</td>
-								<td class="flex justify-center gap-x-2 py-3 px-6">
+								<td class="flex justify-center gap-x-2 px-6 py-3">
 									<a href="/customers/{customer._id}">
 										<div class="hover:text-purple-500">
 											<Icon icon="ic:outline-remove-red-eye" />
@@ -157,4 +157,4 @@
 			</div>
 		</div>
 	</div>
-</div>
+</section>

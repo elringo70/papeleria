@@ -11,6 +11,7 @@
 	export let pattern = null;
 	export let bindElement = null;
 	export let width = 'w-full';
+	export let tabindex = '';
 
 	export let onChange = () => {};
 	export let onKeyup = () => {};
@@ -47,6 +48,7 @@
 		{maxlength}
 		{minlength}
 		{pattern}
+		{tabindex}
 		bind:this={bindElement}
 		on:change={onChange}
 		on:keyup={onKeyup}

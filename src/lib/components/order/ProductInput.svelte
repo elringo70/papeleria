@@ -1,17 +1,17 @@
 <script>
 	import { enhance } from '$app/forms';
-	import { getContext } from 'svelte';
+	import { getContext, setContext } from 'svelte';
 	import { selectedTicket } from '../../../routes/orders/stores/store';
 	import Swal from 'sweetalert2';
 
 	import { Input } from '$lib/components';
 
 	const tickets = getContext('tickets');
+	const focusInputElement = getContext('focusInputElement');
 
-	export let focusInputElement;
-	export let bindInputElement;
 	export let showSearchModal;
 	export let showDailySalesModal;
+	export let bindInputElement;
 
 	const addProduct = (dataProduct) => {
 		if (dataProduct.requiredStock) {
@@ -74,7 +74,13 @@
 	<form action="?/findProduct" method="post" use:enhance={addProductToTicket} autocomplete="off">
 		<div class="flex flex-row items-end justify-between align-bottom">
 			<div class="basis-4/6">
-				<Input label="Código" name="product" value={''} bind:bindElement={bindInputElement} />
+				<Input
+					label="Código"
+					name="product"
+					value={''}
+					bind:bindElement={bindInputElement}
+					tabindex="0"
+				/>
 			</div>
 			<div class="mb-3 basis-1/6">
 				<button

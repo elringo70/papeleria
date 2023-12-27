@@ -116,97 +116,99 @@
 
 <svelte:window on:keydown|preventDefault={handleKeydown} />
 
-<div class="flex justify-center bg-gray-100 py-5 font-sans">
-	<div class="basis-5/6">
-		<div class="flex-col justify-center">
-			<div class="rounded bg-white shadow-lg">
-				<table class="w-full min-w-max table-auto">
-					<thead>
-						<tr class="bg-gray-200 text-sm uppercase leading-normal text-gray-600">
-							<th class="py-3 px-6 text-left">Producto</th>
-							<th class="py-3 px-6 text-left">Marca</th>
-							<th class="py-3 px-6 text-left">Categoría</th>
-							<th class="py-3 px-6 text-center">Costo</th>
-							<th class="py-3 px-6 text-center">Precio</th>
-							<th class="py-3 px-6 text-center">Precio de mayoreo</th>
-							<th class="py-3 px-6 text-center">Inventario</th>
-							<th class="py-3 px-6 text-center">Acciones</th>
-						</tr>
-					</thead>
-					<tbody class="text-sm font-light text-gray-600">
-						{#each data.products as product}
-							<tr class="border-b border-gray-200 bg-gray-50 hover:bg-gray-100">
-								<td class="py-2 px-5 text-left">
-									<div class="flex items-center">
-										<span class="font-medium">{product.product}</span>
-									</div>
-								</td>
-								<td class="py-2 px-5 text-left">
-									<div class="flex items-center">
-										<span>{product.brand}</span>
-									</div>
-								</td>
-								<td class="py-2 px-5 text-center">
-									<div class="flex items-center justify-center">
-										{product.category}
-									</div>
-								</td>
-								<td class="py-2 px-5 text-center">$ {Number(product.cost).toFixed(2)}</td>
-								<td class="py-2 px-5 text-center">$ {Number(product.price).toFixed(2)}</td>
-								<td class="py-2 px-5 text-center"
-									>{product.wholesale ? '$' + ' ' + Number(product.wholesale).toFixed(2) : ''}</td
-								>
-								<td class="py-2 px-5 text-center">{product.stock?.stock ?? 'Sin inventario'}</td>
-								<td class="py-2 px-5 text-center">
-									<div class="flex items-center justify-around">
-										<form
-											action="?/getProductById"
-											method="post"
-											on:submit|preventDefault={getProductDetail}
-										>
-											<input type="hidden" name="id" value={product._id} />
-											<button type="submit">
-												<div class="cursor-pointer text-base hover:text-indigo-700">
-													<Icon icon="ic:outline-remove-red-eye" />
-												</div>
-											</button>
-										</form>
+<svelte:head>
+	<title>Ver productos</title>
+</svelte:head>
 
-										<a href="/products/{product._id}">
-											<input type="hidden" name="id" value={product._id} />
+<section class="flex h-[calc(100vh-56px)] justify-center bg-gray-100">
+	<div class="m-5 flex flex-col gap-5">
+		<div class="overflow-y-auto shadow-lg">
+			<table class="w-full table-auto">
+				<thead>
+					<tr class="bg-gray-200 text-sm uppercase leading-normal text-gray-600">
+						<th class="px-6 py-3 text-left">Producto</th>
+						<th class="px-6 py-3 text-left">Marca</th>
+						<th class="px-6 py-3 text-left">Categoría</th>
+						<th class="px-6 py-3 text-center">Costo</th>
+						<th class="px-6 py-3 text-center">Precio</th>
+						<th class="px-6 py-3 text-center">Precio de mayoreo</th>
+						<th class="px-6 py-3 text-center">Inventario</th>
+						<th class="px-6 py-3 text-center">Acciones</th>
+					</tr>
+				</thead>
+				<tbody class="overflow-y-auto text-sm font-light text-gray-600">
+					{#each data.products as product}
+						<tr class="border-b border-gray-200 bg-gray-50 hover:bg-gray-100">
+							<td class="px-5 py-2 text-left">
+								<div class="flex items-center">
+									<span class="font-medium">{product.product}</span>
+								</div>
+							</td>
+							<td class="px-5 py-2 text-left">
+								<div class="flex items-center">
+									<span>{product.brand}</span>
+								</div>
+							</td>
+							<td class="px-5 py-2 text-center">
+								<div class="flex items-center justify-center">
+									{product.category}
+								</div>
+							</td>
+							<td class="px-5 py-2 text-center">$ {Number(product.cost).toFixed(2)}</td>
+							<td class="px-5 py-2 text-center">$ {Number(product.price).toFixed(2)}</td>
+							<td class="px-5 py-2 text-center"
+								>{product.wholesale ? '$' + ' ' + Number(product.wholesale).toFixed(2) : ''}</td
+							>
+							<td class="px-5 py-2 text-center">{product.stock?.stock ?? 'Sin inventario'}</td>
+							<td class="px-5 py-2 text-center">
+								<div class="flex items-center justify-around">
+									<form
+										action="?/getProductById"
+										method="post"
+										on:submit|preventDefault={getProductDetail}
+									>
+										<input type="hidden" name="id" value={product._id} />
+										<button type="submit">
 											<div class="cursor-pointer text-base hover:text-indigo-700">
-												<Icon icon="mdi:pencil" />
+												<Icon icon="ic:outline-remove-red-eye" />
 											</div>
-										</a>
+										</button>
+									</form>
 
-										<form
-											action="?/delete"
-											method="post"
-											class="m-0 inline p-0"
-											on:submit|preventDefault={deleteProduct}
-										>
-											<input type="hidden" name="id" value={product._id} />
-											<button type="submit">
-												<div class="cursor-pointer text-base hover:text-red-700">
-													<Icon icon="uil:trash-alt" />
-												</div>
-											</button>
-										</form>
-									</div>
-								</td>
-							</tr>
-						{:else}
-							<td class="py-3 text-center" colspan="8"> ...Sin productos </td>
-						{/each}
-					</tbody>
-				</table>
-			</div>
-			<div class="pt-5">
-				<Pagination {currentPage} {totalPages} />
-			</div>
+									<a href="/products/{product._id}">
+										<input type="hidden" name="id" value={product._id} />
+										<div class="cursor-pointer text-base hover:text-indigo-700">
+											<Icon icon="mdi:pencil" />
+										</div>
+									</a>
+
+									<form
+										action="?/delete"
+										method="post"
+										class="m-0 inline p-0"
+										on:submit|preventDefault={deleteProduct}
+									>
+										<input type="hidden" name="id" value={product._id} />
+										<button type="submit">
+											<div class="cursor-pointer text-base hover:text-red-700">
+												<Icon icon="uil:trash-alt" />
+											</div>
+										</button>
+									</form>
+								</div>
+							</td>
+						</tr>
+					{:else}
+						<td class="py-3 text-center" colspan="8"> ...Sin productos </td>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+		<div>
+			<Pagination {currentPage} {totalPages} />
 		</div>
 	</div>
-</div>
+</section>
 
 <div class="modal {modalOpen ? 'modal-open' : ''}" id="my-modal-2">
 	<!-- component -->
@@ -245,6 +247,11 @@
 								</span>
 							{/if}
 						</div>
+						<h2 class="title-font text-sm tracking-widest text-gray-500">ID</h2>
+						<span class="title-font text-xl font-medium text-gray-900">
+							{productModalObject.id}
+						</span>
+						<div />
 					</div>
 
 					<div class="flex h-1/2 items-end border-t-2 border-gray-200 pb-5">
@@ -275,7 +282,7 @@
 							<div>
 								<a
 									href="http://127.0.0.1:5173/products/{productModalObject.id}"
-									class="ml-auto flex rounded border-0 bg-indigo-500 py-2 px-6 text-white shadow shadow-indigo-500 hover:bg-indigo-600 focus:outline-none"
+									class="ml-auto flex rounded border-0 bg-indigo-500 px-6 py-2 text-white shadow shadow-indigo-500 hover:bg-indigo-600 focus:outline-none"
 									>Editar</a
 								>
 							</div>
