@@ -69,15 +69,17 @@
 		stock: ''
 	};
 
-	async function getProductDetail() {
-		const form = new FormData(this);
+	/** @param {{ currentTarget: EventTarget & HTMLFormElement}} event */
+	async function getProductDetail(event) {
+		const form = new FormData(event.currentTarget);
 
 		try {
-			const response = await fetch(this.action, {
+			const response = await fetch(event.currentTarget.action, {
 				method: 'POST',
 				body: form
 			});
 
+			/** @type {import('@sveltejs/kit').ActionResult} */
 			const result = deserialize(await response.text());
 
 			switch (result.type) {
@@ -92,9 +94,14 @@
 						cost: Number(result.data.cost).toFixed(2),
 						price: Number(result.data.price).toFixed(2),
 						wholesale: Number(result.data.wholesale).toFixed(2),
-						stock: result.data.stock.stock
+						stock: result.data.stock.stock,
+						productImageName: result.data.productImageName
 					};
 					openCloseModal();
+					break;
+				case 'failure':
+					console.log(result);
+					break;
 			}
 		} catch (error) {
 			console.log(error);
