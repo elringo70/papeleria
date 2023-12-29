@@ -35,10 +35,10 @@
 {#if purchaseModal}
 	<div
 		class="modal-bg flex flex-col rounded-md bg-white px-7 pb-7 pt-3 shadow-lg"
-		transition:fade|global
+		transition:fade
 		aria-hidden="true"
 	>
-		<div class="modal rounded" transition:fade|global>
+		<div class="modal rounded" transition:fade>
 			<div class="mb-3">
 				<span class="text-2xl font-bold text-gray-600"> Método de pago </span>
 			</div>

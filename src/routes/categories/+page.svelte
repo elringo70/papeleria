@@ -142,7 +142,7 @@
 				</div>
 			</form>
 			{#if confirm}
-				<div out:fade|global={{ duration: 1000 }} class="mt-2">
+				<div out:fade={{ duration: 1000 }} class="mt-2">
 					<Alert {alertObject} />
 				</div>
 			{/if}
