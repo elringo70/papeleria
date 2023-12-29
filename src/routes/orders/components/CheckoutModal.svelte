@@ -7,8 +7,6 @@
 	import { selectedTicket } from '../stores/store';
 	import { CheckboxPressed, NumberField } from '$lib/components';
 
-	export let Form;
-
 	let checkoutModal;
 	let missingTotal = false;
 	const tickets = getContext('tickets');

@@ -37,14 +37,17 @@ export const getImageLinkFromFirestorage = (imageName) => {
 			if (error) reject(error);
 		});
 
-		let url = '';
-		files.forEach(async (file) => {
+		const urlIndex = files.find((file) => {
 			const fileName = file.name.split('/');
-			if (fileName[1] === imageName) {
-				url = await signedURL(file.name);
-			}
+			return fileName[1] === imageName;
 		});
-		resolve(url);
+
+		if (urlIndex) {
+			const fileURL = await signedURL(urlIndex.name);
+			resolve(fileURL);
+		} else {
+			resolve(null);
+		}
 	});
 };
 

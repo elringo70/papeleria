@@ -14,7 +14,7 @@
 	};
 </script>
 
-<section class="flex h-[calc(100vh-56px)] items-center justify-center bg-gray-200">
+<section class="flex h-screen items-center justify-center bg-gray-200">
 	<div
 		class="mx-auto flex flex-col items-center justify-center rounded-lg bg-gray-800 px-6 py-8 shadow-lg shadow-gray-700 lg:py-0"
 	>

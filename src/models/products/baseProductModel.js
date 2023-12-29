@@ -14,16 +14,6 @@ export const baseProductSchema = new Schema(
 			trim: true,
 			uppercase: true
 		},
-		model: {
-			type: String,
-			trim: true,
-			uppercase: true
-		},
-		brand: {
-			type: String,
-			trim: true,
-			uppercase: true
-		},
 		category: {
 			type: String,
 			required: true
@@ -43,24 +33,9 @@ export const baseProductSchema = new Schema(
 		requiredStock: {
 			type: Boolean,
 			required: true,
-			default: true
+			default: false
 		},
-		stock: {
-			type: new Schema({
-				stock: {
-					type: Number,
-					required: true
-				},
-				stockMinimum: {
-					type: Number,
-					required: true,
-					default: 1
-				},
-				_id: { id: false }
-			}),
-			required: false
-		},
-		productImageName: { type: String }
+		productImageName: String
 	},
 	{ _id: false, timestamps: true }
 );
