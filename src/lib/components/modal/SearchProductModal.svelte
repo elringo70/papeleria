@@ -29,11 +29,11 @@
 {#if showSearchModal}
 	<div
 		class="modal-bg flex flex-col rounded-md bg-white px-7 pb-7 pt-3 shadow-lg"
-		transition:fade
+		transition:fade|global
 		aria-hidden="true"
 		tabindex="-1"
 	>
-		<div class="modal rounded" transition:fade tabindex="-1">
+		<div class="modal rounded" transition:fade|global tabindex="-1">
 			<div class="mb-2 flex justify-end">
 				<div class="text-2xl text-gray-600">
 					<button type="button" on:click={closeSearchModal}

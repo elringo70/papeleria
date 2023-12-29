@@ -13,13 +13,13 @@ export const load = async () => {
 		categories = await Category.find().sort({ name: 'asc' });
 	} catch (err) {
 		console.log('Error: ', err);
-		throw error(500, err);
+		error(500, err);
 	} finally {
 		await dbDisconnect();
 	}
 
 	if (categories.length === 0) {
-		throw redirect(303, '/categories');
+		redirect(303, '/categories');
 	}
 
 	return { categories: JSON.parse(JSON.stringify(categories)) };
@@ -82,7 +82,7 @@ export const actions = {
 			return { success: true };
 		} catch (err) {
 			console.log(err);
-			throw error(500, { message: 'Error en el servidor' });
+			error(500, { message: 'Error en el servidor' });
 		} finally {
 			await dbDisconnect();
 		}
