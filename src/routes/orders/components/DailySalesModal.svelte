@@ -67,7 +67,6 @@
 			cancelButtonText: 'Omitir',
 			confirmButtonText: 'Cancelar'
 		});
-		console.log(currentTarget, action);
 
 		if (confirmationModal.isConfirmed) {
 			const data = new FormData(currentTarget);

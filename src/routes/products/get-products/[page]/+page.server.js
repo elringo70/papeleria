@@ -1,7 +1,6 @@
-import { error, fail } from '@sveltejs/kit';
+import { error, fail, json } from '@sveltejs/kit';
 import { Product } from '$models/products';
 import { dbConnect, dbDisconnect } from '$utils/db';
-import { getImageLinkFromFirestorage } from '../../../../services/firebase.js';
 
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ params, url }) => {
@@ -43,7 +42,7 @@ export const load = async ({ params, url }) => {
 		};
 	} catch (err) {
 		console.log('Error: ', err);
-		error(500, err);
+		throw error(500, err);
 	} finally {
 		await dbDisconnect();
 	}
@@ -64,7 +63,7 @@ export const actions = {
 			}
 		} catch (err) {
 			console.log('Error: ', err);
-			error(500, err);
+			throw error(500, err);
 		} finally {
 			await dbDisconnect();
 		}
@@ -75,23 +74,16 @@ export const actions = {
 
 			const { id } = Object.fromEntries(await request.formData());
 
-			const product = await Product.findById(id).lean().exec();
-
-			let url = undefined;
-			console.log(product.hasOwnProperty('productImageName'));
-			if (product.hasOwnProperty('productImageName')) {
-				url = await getImageLinkFromFirestorage(product.productImageName);
-			}
+			const product = await Product.findById(id).exec();
 
 			if (product) {
-				if (url) product.productImageName = url;
 				return JSON.parse(JSON.stringify(product));
 			} else {
 				return fail(400, { message: 'Producto no encontrado' });
 			}
 		} catch (err) {
 			console.log('Error: ', err);
-			error(500, err);
+			throw error(500, err);
 		} finally {
 			await dbDisconnect();
 		}
