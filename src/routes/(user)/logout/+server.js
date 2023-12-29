@@ -6,5 +6,5 @@ export async function GET({ cookies }) {
 	cookies.delete('session', { path: '/' });
 	cookies.delete('refreshToken', { path: '/' });
 	await signOut(auth);
-	throw redirect(303, '/');
+	redirect(303, '/');
 }

@@ -23,7 +23,7 @@ export const handle = async ({ event, resolve }) => {
 
 	if (!token) {
 		locals.user = null;
-		if (!publicRoutes.includes(currentLocation)) throw redirect(303, '/signin');
+		if (!publicRoutes.includes(currentLocation)) redirect(303, '/signin');
 	} else {
 		try {
 			const decodedToken = await admin.auth().verifyIdToken(token);
@@ -62,7 +62,7 @@ export const handle = async ({ event, resolve }) => {
 			cookies.delete('session', { path: '/' });
 			cookies.delete('refreshToken', { path: '/' });
 			locals.user = null;
-			if (privateRoutes.includes(currentLocation)) throw redirect(303, '/signin');
+			if (privateRoutes.includes(currentLocation)) redirect(303, '/signin');
 		}
 
 		if (publicRoutes.includes(currentLocation))
